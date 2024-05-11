@@ -595,7 +595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RunnerPrefab: {fileID: 1820221199}
-  StartMode: 1
+  StartMode: 0
   AutoStartAs: 2
   AutoHideGUI: 1
   AutoClients: 1
@@ -908,11 +908,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 1681902851173489380, guid: 4b8f591866c9a06479d1d05e11ee2242, type: 3}
-  GameDuration: 180
   PlayerRespawnTime: 5
-  DoubleDamageDuration: 30
-  _PlayerData:
-    _items: []
   _State: 0
 --- !u!1 &1316266332
 GameObject:
