@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: 3060955275796183298}
   - component: {fileID: -2770037556264405286}
   - component: {fileID: -3477609281899883333}
+  - component: {fileID: 7234913536037078778}
   m_Layer: 0
   m_Name: SpeedPowerUp
   m_TagString: Untagged
@@ -293,7 +294,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e169d936f95f2384cb7f096dd5c4da53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  powerUp: {fileID: 8735918918353775910, guid: d8fa65edd1ab8544897b03e17cf70128, type: 3}
-  pickUpType: 
   Modifier: 1.8
   pickUpName: Speed
+--- !u!65 &7234913536037078778
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8735918918353775910}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.75, y: 0.75, z: 0.75}
+  m_Center: {x: 0, y: 0, z: 0}

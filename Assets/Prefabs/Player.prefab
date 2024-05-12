@@ -98,6 +98,8 @@ MonoBehaviour:
   _jumpPressed: 0
   _defaultSpeed: 0
   _defaultJump: 0
+  JumppowerUp: {fileID: 8735918918353775910, guid: d8fa65edd1ab8544897b03e17cf70128, type: 3}
+  SpeedpowerUp: {fileID: 8735918918353775910, guid: 828fb8a5a9009d24fb10c21c1fb7a1d1, type: 3}
 --- !u!54 &-2766067828274559225
 Rigidbody:
   m_ObjectHideFlags: 0

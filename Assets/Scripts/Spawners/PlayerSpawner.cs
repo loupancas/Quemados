@@ -28,12 +28,26 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
             Runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity);
 
-            // Spawn power-ups for the new player
-            foreach (Vector3 powerUpSpawnPosition in _powerUpSpawnPositions)
+            //// Spawn power-ups for the new player
+            //foreach (Vector3 powerUpSpawnPosition in _powerUpSpawnPositions)
+            //{
+            //    foreach (GameObject powerUpPrefab in _powerUpsPrefabs)
+            //    {
+            //        Runner.Spawn(powerUpPrefab, powerUpSpawnPosition, Quaternion.identity);
+            //    }
+            //}
+
+            for (int i = 0; i < _powerUpSpawnPositions.Count; i++)
             {
-                foreach (GameObject powerUpPrefab in _powerUpsPrefabs)
+                // Ensure that there are enough spawn positions for both types of power-ups
+                if (i < _powerUpsPrefabs.Length)
                 {
-                    Runner.Spawn(powerUpPrefab, powerUpSpawnPosition, Quaternion.identity);
+                    Runner.Spawn(_powerUpsPrefabs[i], _powerUpSpawnPositions[i], Quaternion.identity);
+                }
+                else
+                {
+                    Debug.LogError("Not enough power-up prefabs to match spawn positions.");
+                    break;
                 }
             }
         }

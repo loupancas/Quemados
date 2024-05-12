@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using Unity.VisualScripting;
+//using ParrelSync.NonCore;
 
 public class Player : NetworkBehaviour
 {
@@ -11,18 +12,23 @@ public class Player : NetworkBehaviour
 
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
-    [SerializeField] private float _jumpForce = 5;
+    [SerializeField] public float _jumpForce = 5;
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
     //PlayerView playerView;
     public Rigidbody _rgbd;
-    
+    private int fadeTime = 5;
     public float _xAxi;
     public float _yAxi;
     public bool _jumpPressed;
     private bool _shootPressed;
     public float _defaultSpeed;
     public float _defaultJump;
+    //public Color Color;
+    JumpPower jumpPower; 
+    SpeedPower speedPower;
+    public GameObject JumppowerUp;
+    public GameObject SpeedpowerUp;
 
     #region Networked Color Change
 
@@ -54,12 +60,9 @@ public class Player : NetworkBehaviour
     //public event Action<float> OnMovement = delegate {  };
     //public event Action OnShooting = delegate {  };
 
-    private void Start()
-    {
-        _defaultJump = _jumpForce;
-        _defaultSpeed = _speed;
-    }
+    
 
+    
     public override void Spawned()
     {
         if (HasStateAuthority)
@@ -68,6 +71,8 @@ public class Player : NetworkBehaviour
             
             Camera.main.GetComponent<CameraFollow>()?.SetTarget(transform);
             _rgbd = GetComponent<Rigidbody>();
+            _defaultJump = _jumpForce;
+            _defaultSpeed = _speed;
         }
         else
         {
@@ -118,8 +123,13 @@ public class Player : NetworkBehaviour
               
 
         Movement();
+
         
-        
+      
+       //OnPowerUpAbilities();
+
+       
+
     }
 
     public void Movement()
@@ -203,7 +213,82 @@ public class Player : NetworkBehaviour
 
         //OnShooting();
     }
-    
+
+    //public void OnPowerUpAbilities()
+    //{
+
+
+    //    if (jumpPower.pickUpName == "Jump" )
+    //    {
+    //        jumpPower.powerUp.SetActive(false);
+    //        Debug.Log("Powered up Jump");
+    //        _jumpForce *= jumpPower.Modifier;
+    //        ChangeColor(Color.blue);
+    //        StartCoroutine(PowerFade());
+    //        NormalizeStats();
+
+    //    }
+    //    if (speedPower.pickUpName == "Speed")
+    //    {
+    //        speedPower.powerUp.SetActive(false);
+    //        Debug.Log("Powered up Speed");
+    //        _speed *= speedPower.Modifier;
+    //        ChangeColor(Color.green);
+    //        StartCoroutine(PowerFade());
+    //        NormalizeStats();
+    //    }
+
+
+    //}
+
+    private void OnTriggerEnter(Collider other)
+    {
+       
+        if (other.gameObject.GetComponent<JumpPower>())
+        {
+            
+            //JumppowerUp = other.gameObject;
+            JumppowerUp.SetActive(true);
+
+            Debug.Log("Powered up Jump");
+            //_jumpForce *= jumpPower.Modifier;
+            //ChangeColor(Color.blue);
+            StartCoroutine(PowerFade());
+            
+        }
+        if (other.gameObject.GetComponent<SpeedPower>())
+        {
+            SpeedpowerUp.SetActive(true);
+            Debug.Log("Powered up Speed");
+            //_speed *= speedPower.Modifier;
+            //ChangeColor(Color.green);
+            StartCoroutine(PowerFade());
+            
+        }
+    }   
+
+
+    public IEnumerator PowerFade()
+    {
+        yield return new WaitForSeconds(fadeTime);
+
+        //NormalizeStats();
+        //ChangeColor(Color.white);
+    }
+    public void NormalizeStats()
+    {
+
+        _speed = _defaultSpeed;
+        _jumpForce = _defaultJump;
+
+    }
+
+    public void ChangeColor(Color color)
+    {
+        LocalPlayer.GetComponent<Renderer>().material.color = color;
+    }
+
+
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_TakeDamage(float dmg)
     {
@@ -229,5 +314,4 @@ public class Player : NetworkBehaviour
     {
         UIManager.instance.SetVictoryScreen(player);
     }
-
 }
