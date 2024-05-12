@@ -1,71 +1,54 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using Fusion;
 
 public class ObjectsSpawner : NetworkBehaviour
 {
-    [SerializeField] public GameObject powerUpPrefab;
-    [SerializeField] public GameObject ballPrefab;
-    [SerializeField] public int numberOfPowerUps;
 
-    private Vector3 spawnAreaCenter;
-    private Vector3 spawnAreaSize;
+    
     public GameObject terrain;
+    List<Vector3> existingspawnPoints = new List<Vector3>();
+    public Transform spawnerParent;
+    public Transform spawnerContainer;
+    public static ObjectsSpawner instance;
+    
 
-    public override void Spawned()
+    private void Awake()
     {
-        if (HasStateAuthority)
+        if (instance == null)
         {
-            spawnBall();
-            SpawnPowerUps();
+            instance = this;
         }
-    }
-
-    void Start()
-    {
-        //Instantiate(ballPrefab, Vector3.up, Quaternion.identity);
-        //SpawnPowerUps();
-    }
-
-    void SpawnPowerUps()
-    {
-        List<Vector3> spawnPoints = Enumerable.Range(0, numberOfPowerUps)
-            .Select(num => GetRandomSpawnPoint())
-            .ToList();
-
-        spawnPoints.ForEach(spawnPoint =>
+        else if (instance != this)
         {
-            Instantiate(powerUpPrefab, spawnPoint, Quaternion.identity);
-        });
+            Destroy(gameObject);
+        }
+
     }
 
-    void spawnBall()
-    {
-        Instantiate(ballPrefab, Vector3.up, Quaternion.identity);
-    }
-
-    Vector3 GetRandomSpawnPoint()
+    public Vector3 GetRandomSpawnPoint(float minDistance, Vector3 playerPosition)
     {
        
-        spawnAreaCenter = new Vector3(terrain.transform.position.x, terrain.transform.position.y+1, terrain.transform.position.z);
-        spawnAreaSize = new Vector3(terrain.transform.localScale.x, 1, terrain.transform.localScale.z);
+        Vector3 randomSpawnPoint;
+        List<Vector3> existingSpawnPoints = existingspawnPoints;
+        do
+        {
+            float randomX = Random.Range(-spawnerContainer.localScale.x / 2, spawnerContainer.localScale.x / 2);
+            float randomY = 1f;
+            float randomZ = Random.Range(-spawnerContainer.localScale.z / 2, spawnerContainer.localScale.z / 2);
 
-        float randomX = Random.Range(spawnAreaCenter.x - spawnAreaSize.x / 2, spawnAreaCenter.x + spawnAreaSize.x / 2);
-        float randomY = Random.Range(spawnAreaCenter.y - spawnAreaSize.y / 2, spawnAreaCenter.y + spawnAreaSize.y / 2);
-        float randomZ = Random.Range(spawnAreaCenter.z - spawnAreaSize.z / 2, spawnAreaCenter.z + spawnAreaSize.z / 2);
+            randomSpawnPoint = new Vector3(randomX, randomY, randomZ);
 
-        return new Vector3(randomX, randomY, randomZ);
+
+        } while (existingSpawnPoints.Any(spawnPoint => Vector3.Distance(spawnPoint, randomSpawnPoint) < minDistance) || Vector3.Distance(randomSpawnPoint, playerPosition) < minDistance); ;
+
+        existingSpawnPoints.Add(randomSpawnPoint);
+        return randomSpawnPoint;
     }
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(spawnAreaCenter, spawnAreaSize);
-    }
 
-    public void PlayerJoined(PlayerRef player)
-    {
-        throw new System.NotImplementedException();
-    }
+    
+
 }
