@@ -3,26 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Unity.VisualScripting;
 
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; private set; }
 
     [Header("Stats")]
-    [SerializeField] private float _speed = 3;
+    [SerializeField] public float _speed = 3;
     [SerializeField] private float _jumpForce = 5;
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
-
+    //PlayerView playerView;
     public Rigidbody _rgbd;
     
-    private float _xAxi;
-    private float _yAxi;
-    private bool _jumpPressed;
+    public float _xAxi;
+    public float _yAxi;
+    public bool _jumpPressed;
     private bool _shootPressed;
+    public float _defaultSpeed;
+    public float _defaultJump;
 
     #region Networked Color Change
-    
+
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
     Color NetworkedColor { get; set; }
 
@@ -40,16 +43,22 @@ public class Player : NetworkBehaviour
     [Networked, OnChangedRender(nameof(OnNetHealthChanged))]
     private float NetworkedHealth { get; set; } = 100;
     void OnNetHealthChanged() => Debug.Log($"Life = {NetworkedHealth}");
-    
+
     // void OnNetHealthChanged()
     // {
     //     Debug.Log($"Life = {NetworkedHealth}");
     // }
 
     #endregion
-    
+
     //public event Action<float> OnMovement = delegate {  };
     //public event Action OnShooting = delegate {  };
+
+    private void Start()
+    {
+        _defaultJump = _jumpForce;
+        _defaultSpeed = _speed;
+    }
 
     public override void Spawned()
     {
@@ -76,9 +85,10 @@ public class Player : NetworkBehaviour
         if (!HasStateAuthority) return;
         
         _xAxi = Input.GetAxis("Horizontal");
+
         _yAxi = Input.GetAxis("Vertical");
 
-        
+
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -112,9 +122,9 @@ public class Player : NetworkBehaviour
         
     }
 
-    void Movement()
+    public void Movement()
     {
-        //SALTO
+        // SALTO
         if (_jumpPressed)
         {
             Jump();
@@ -128,7 +138,7 @@ public class Player : NetworkBehaviour
             _shootPressed = false;
         }
 
-        //MOVIMIENTO
+        // MOVIMIENTO
         if (_xAxi != 0)
         {
             transform.forward = Vector3.right * Mathf.Sign((_xAxi));
@@ -142,6 +152,9 @@ public class Player : NetworkBehaviour
 
                 _rgbd.velocity = velocity;
             }
+
+           
+
         }
         else if (_yAxi != 0)
         {
@@ -156,20 +169,23 @@ public class Player : NetworkBehaviour
 
                 _rgbd.velocity = velocity;
             }
+
+           
+
         }
         else
         {
             var velocity = _rgbd.velocity;
             velocity.x = 0;
             _rgbd.velocity = velocity;
+          
         }
-
-       
     }
 
     void Jump()
     {
         _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.VelocityChange);
+        //playerView.isRunning(true);
     }
 
     void RaycastShoot()

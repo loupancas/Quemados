@@ -7,29 +7,65 @@ public class PlayerView : NetworkBehaviour
 {
     //[SerializeField] private ParticleSystem _shootingParticles;
 
-    //private NetworkMecanimAnimator _mecanim;
-    Animator _animator;
+    private NetworkMecanimAnimator _mecanim;
+    Player player;
+   
+
+
+
 
     public override void Spawned()
     {
         if (!HasStateAuthority) return;
 
-        //_mecanim = GetComponentInChildren<NetworkMecanimAnimator>();
-        _animator = GetComponent<Animator>();
-        //var m = GetComponentInParent<PlayerMovement>();
+        _mecanim = GetComponentInChildren<NetworkMecanimAnimator>();   
 
-        //if (!m || !_mecanim) return;
 
-        //m.OnMovement += MoveAnimation;
-        //m.OnShooting += RPC_TriggerShootingParticles;
+
+        if (_mecanim == null) return;
+     
+
 
     }
 
     public override void FixedUpdateNetwork()
     {
-        //_animator.SetBool("isWalking", Player.LocalPlayer._rgbd.velocity.SetYZero().sqrMagnitude >0);
-        //IsRunning = Player.LocalPlayer.RB.velocity.SetYZero().sqrMagnitude > 0;
+      
+        if (IsProxy == true)
+            return;
+
+        if (Runner.IsForward == false)
+            return;
+
+        if (player._jumpPressed == true)
+        {
+            _mecanim.Animator.SetBool("Jumping", true);
+        }
+
+
+        if (player._rgbd.velocity.sqrMagnitude < 0.01f)
+        {
+            _mecanim.Animator.SetFloat("Speed",0f);
+        }
+        else
+        {
+            _mecanim.Animator.SetFloat("Speed", 1f);
+
+        }
+
+       
+
+
+
+
     }
+
+    private void Awake()
+    {
+        player = GetComponentInChildren<Player>();
+        _mecanim = GetComponentInChildren<NetworkMecanimAnimator>();
+    }
+
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     void RPC_TriggerShootingParticles()
