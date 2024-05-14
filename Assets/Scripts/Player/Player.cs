@@ -20,7 +20,7 @@ public class Player : NetworkBehaviour
     public Rigidbody _rgbd;
     public Animator _animator;
     private bool _isGrounded = true;
-    private int fadeTime = 5;
+    //private int fadeTime = 5;
     public float _xAxi;
     public float _yAxi;
     public bool _jumpPressed;
@@ -316,7 +316,8 @@ public class Player : NetworkBehaviour
         if (NetworkedHealth <= 0)
         {
             Dead();
-            SetLoseScreenRPC();
+            //SetLoseScreenRPC();
+            UIManager.instance.SetLoseScreen();
         }
     }
 
@@ -325,8 +326,8 @@ public class Player : NetworkBehaviour
         Runner.Despawn(Object);
     }
 
-    private void SetLoseScreenRPC()
-    {
-        UIManager.instance.SetLoseScreen();
-    }
+    //private void SetLoseScreenRPC()
+    //{
+    //    UIManager.instance.SetLoseScreen();
+    //}
 }
