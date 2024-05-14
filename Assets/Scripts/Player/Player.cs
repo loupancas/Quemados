@@ -4,44 +4,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using Unity.VisualScripting;
-//using ParrelSync.NonCore;
 
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; private set; }
-
+    public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
     [SerializeField] public float _jumpForce = 5;
+    [SerializeField] private float _groundCheckDistance = 1.1f;
+    [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
     //PlayerView playerView;
     public Rigidbody _rgbd;
+    public Animator _animator;
+    private bool _isGrounded = true;
     private int fadeTime = 5;
     public float _xAxi;
     public float _yAxi;
     public bool _jumpPressed;
     private bool _shootPressed;
     public float _defaultSpeed;
-    public float _defaultJump;
-    //public Color Color;
-    JumpPower jumpPower; 
-    SpeedPower speedPower;
-    public GameObject JumppowerUp;
-    public GameObject SpeedpowerUp;
-
+    public float _defaultJump; 
+    public Camera Camera;
+ 
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
     Color NetworkedColor { get; set; }
+    // [Networked] public NetworkObjectRef HeldBall { get; set; }
+
 
     void OnNetColorChanged() => GetComponentInChildren<Renderer>().material.color = NetworkedColor;
-    
-    // void OnNetColorChanged()
-    // {
-    //     GetComponentInChildren<Renderer>().material.color = NetworkedColor;
-    // }
-    
+   
     #endregion
 
     #region Networked Health Change
@@ -50,26 +46,24 @@ public class Player : NetworkBehaviour
     private float NetworkedHealth { get; set; } = 100;
     void OnNetHealthChanged() => Debug.Log($"Life = {NetworkedHealth}");
 
-    // void OnNetHealthChanged()
-    // {
-    //     Debug.Log($"Life = {NetworkedHealth}");
-    // }
-
     #endregion
 
-    //public event Action<float> OnMovement = delegate {  };
-    //public event Action OnShooting = delegate {  };
+    public event Action<float> OnMovement = delegate {  };
+    public event Action OnShooting = delegate {  };
 
-    
+    [SerializeField] private Transform _ballSpawnTransform;
+    [SerializeField] private Ball2 _ballPrefab;
 
-    
+
     public override void Spawned()
     {
         if (HasStateAuthority)
         {
+            LocalPlayer = this;
             NetworkedColor = GetComponentInChildren<Renderer>().material.color;
-            
-            Camera.main.GetComponent<CameraFollow>()?.SetTarget(transform);
+
+            Camera = Camera.main;
+            Camera.GetComponent<ThirdPersonCamera>().Target = transform;
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
@@ -84,56 +78,122 @@ public class Player : NetworkBehaviour
     {
         OnNetColorChanged();
     }
+
+    public static void EnablePlayerControls()
+    {
+        ControlsEnabled = true;
+    }
     
     void Update()
     {
-        if (!HasStateAuthority) return;
-        
-        _xAxi = Input.GetAxis("Horizontal");
+        if (!HasStateAuthority || !ControlsEnabled) return;
 
+        CheckGrounded();
+
+        _xAxi = Input.GetAxis("Horizontal");
         _yAxi = Input.GetAxis("Vertical");
 
-
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && _isGrounded)
         {
-            //_shootPressed = true;
             _jumpPressed = true;
         }
-        if (Input.GetMouseButtonDown(1))
+
+        if (Input.GetMouseButtonDown(0))
         {
-            _shootPressed = true;
-            
+            _shootPressed = true;  
         }
 
         if (Input.GetKeyDown(KeyCode.R))
         {
             NetworkedColor = Color.red;
         }
+
+        // if (Input.GetKeyDown(KeyCode.E))
+        // {
+        //     TryPickupBall();
+        // }
+
+        // if (Input.GetMouseButtonDown(0) && HeldBall)
+        // {
+        //     ThrowBall();
+        // }
     }
 
-    
+   
+   
+    // private void TryPickupBall()
+    // {
+    //     Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
+    //     foreach (var hitCollider in hitColliders)
+    //     {
+    //         if (hitCollider.CompareTag("Ball"))
+    //         {
+    //             NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
+    //             if (ballNetworkObject && !ballNetworkObject.HasInputAuthority)
+    //             {
+    //                 Runner.AssignInputAuthority(ballNetworkObject, Runner.LocalPlayer);
+    //                 HeldBall = ballNetworkObject;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+
+    // private void ThrowBall()
+    // {
+    //     if (HeldBall.IsValid)
+    //     {
+    //         Vector3 throwDirection = transform.forward;
+    //         Ball ball = Runner.GetNetworkedBehaviour<Ball>(HeldBall);
+    //         if (ball != null)
+    //         {
+    //             ball.RpcThrow(throwDirection);
+    //             Runner.AssignInputAuthority(HeldBall, default);
+    //             HeldBall = default;
+    //         }
+    //     }
+    // }
+
+    // static void OnHeldBallChanged(Changed<Player> changed)
+    // {
+    //     // Puedes agregar lógica adicional aquí si necesitas manejar cambios cuando se actualiza HeldBall.
+    // }
+
+
+
+
+
     public override void FixedUpdateNetwork()
     {
         if (!HasStateAuthority) return;
-        
-        //transform.position += Vector3.right * (_xAxi * _speed * Runner.DeltaTime);
-        
-        //_rgbd.MovePosition(_rgbd.position + Vector3.right * (_xAxi * _speed * Runner.DeltaTime));
-              
-
         Movement();
+    }
 
-        
-      
-       //OnPowerUpAbilities();
+    private void CheckGrounded()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.1f;
+        bool wasGrounded = _isGrounded;
+        _isGrounded = Physics.Raycast(origin, Vector3.down, _groundCheckDistance, _groundLayer);
 
-       
+        Debug.DrawRay(origin, Vector3.down * _groundCheckDistance, _isGrounded ? Color.green : Color.red);
 
+        if (!_isGrounded && wasGrounded)
+        {
+            _animator.SetBool("Jumping", false);
+        }
     }
 
     public void Movement()
     {
+        Vector3 camForward = Camera.transform.forward;
+        Vector3 camRight = Camera.transform.right;
+        camForward.y = 0;
+        camRight.y = 0;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 direction = (camForward * _yAxi + camRight * _xAxi).normalized;
+
         // SALTO
         if (_jumpPressed)
         {
@@ -141,153 +201,107 @@ public class Player : NetworkBehaviour
             _jumpPressed = false;
         }
 
+        // DISPARO
         if (_shootPressed)
         {
             RaycastShoot();
-
             _shootPressed = false;
         }
 
         // MOVIMIENTO
-        if (_xAxi != 0)
+        if (direction != Vector3.zero)
         {
-            transform.forward = Vector3.right * Mathf.Sign((_xAxi));
+            transform.forward = direction;
+            _rgbd.velocity += direction * (_speed * 10 * Runner.DeltaTime);
 
-            _rgbd.velocity += Vector3.right * (_xAxi * _speed * 10 * Runner.DeltaTime);
-
-            if (Mathf.Abs(_rgbd.velocity.x) > _speed)
-            {
-                var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
-                velocity.y = _rgbd.velocity.y;
-
-                _rgbd.velocity = velocity;
-            }
-
-           
-
-        }
-        else if (_yAxi != 0)
-        {
-            transform.forward = Vector3.forward * Mathf.Sign((_yAxi));
-
-            _rgbd.velocity += Vector3.forward * (_yAxi * _speed * 10 * Runner.DeltaTime);
-
-            if (Mathf.Abs(_rgbd.velocity.z) > _speed)
-            {
-                var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
-                velocity.y = _rgbd.velocity.y;
-
-                _rgbd.velocity = velocity;
-            }
-
-           
-
+            var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
+            velocity.y = _rgbd.velocity.y;
+            _rgbd.velocity = velocity;
         }
         else
         {
             var velocity = _rgbd.velocity;
             velocity.x = 0;
+            velocity.z = 0;
             _rgbd.velocity = velocity;
-          
         }
     }
 
     void Jump()
     {
-        _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.VelocityChange);
-        //playerView.isRunning(true);
+        _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        _animator.SetBool("Jumping", true);
+        // playerView.isRunning(true);
     }
 
     void RaycastShoot()
     {
-        Debug.DrawRay(transform.position, transform.forward, Color.red, 1f);
-        
-        if (Runner.GetPhysicsScene().Raycast(transform.position, transform.forward, out var raycastHit,100, _shootLayer ))
+        Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
+        ray.origin += Camera.transform.forward;
+
+        Debug.DrawRay(ray.origin, ray.direction, Color.red, 1f);
+        // Runner.Spawn(_ballPrefab, _ballSpawnTransform.position, _ballSpawnTransform.rotation);
+
+
+        if (Runner.GetPhysicsScene().Raycast(ray.origin,ray.direction, out var hit, 100, _shootLayer ))
         {
-            Debug.Log(raycastHit.transform.name);
-            
-            var enemy = raycastHit.transform.GetComponent<Player>();
-            
+            if (hit.transform.GetComponent<Player>().Camera != null)
+                return;
+
+            Debug.Log(hit.transform.name);
+            var enemy = hit.transform.GetComponent<Player>();
             enemy.RPC_TakeDamage(_shootDamage);
         }
 
-        //OnShooting();
+        OnShooting();
     }
-
-    //public void OnPowerUpAbilities()
-    //{
-
-
-    //    if (jumpPower.pickUpName == "Jump" )
-    //    {
-    //        jumpPower.powerUp.SetActive(false);
-    //        Debug.Log("Powered up Jump");
-    //        _jumpForce *= jumpPower.Modifier;
-    //        ChangeColor(Color.blue);
-    //        StartCoroutine(PowerFade());
-    //        NormalizeStats();
-
-    //    }
-    //    if (speedPower.pickUpName == "Speed")
-    //    {
-    //        speedPower.powerUp.SetActive(false);
-    //        Debug.Log("Powered up Speed");
-    //        _speed *= speedPower.Modifier;
-    //        ChangeColor(Color.green);
-    //        StartCoroutine(PowerFade());
-    //        NormalizeStats();
-    //    }
-
-
-    //}
 
     private void OnTriggerEnter(Collider other)
     {
-       
         if (other.gameObject.GetComponent<JumpPower>())
         {
-            
-            //JumppowerUp = other.gameObject;
-            JumppowerUp.SetActive(true);
-
-            Debug.Log("Powered up Jump");
-            //_jumpForce *= jumpPower.Modifier;
-            //ChangeColor(Color.blue);
-            StartCoroutine(PowerFade());
-            
+            Debug.Log("PowerUp Jump");
+            JumpPower jumpPower = other.gameObject.GetComponent<JumpPower>();
+            jumpPower.GetPower();
+            _jumpForce = jumpPower.modifier;
+            ChangeColorRecursively(transform, Color.red);
+            StartCoroutine(NormalizeStats(jumpPower.fadeTime));
         }
         if (other.gameObject.GetComponent<SpeedPower>())
         {
-            SpeedpowerUp.SetActive(true);
-            Debug.Log("Powered up Speed");
-            //_speed *= speedPower.Modifier;
-            //ChangeColor(Color.green);
-            StartCoroutine(PowerFade());
-            
+            Debug.Log("PowerUp Speed");
+            SpeedPower speedPower = other.gameObject.GetComponent<SpeedPower>();
+            speedPower.GetPower();
+            _speed = speedPower.modifier;
+            ChangeColorRecursively(transform, Color.blue);
+            StartCoroutine(NormalizeStats(speedPower.fadeTime));
         }
     }   
 
-
-    public IEnumerator PowerFade()
+    IEnumerator NormalizeStats(float fadeTime)
     {
         yield return new WaitForSeconds(fadeTime);
-
-        //NormalizeStats();
-        //ChangeColor(Color.white);
-    }
-    public void NormalizeStats()
-    {
-
         _speed = _defaultSpeed;
         _jumpForce = _defaultJump;
-
+        ChangeColorRecursively(transform, Color.white);
     }
 
-    public void ChangeColor(Color color)
+      void ChangeColorRecursively(Transform parent, Color color)
     {
-        LocalPlayer.GetComponent<Renderer>().material.color = color;
+        foreach (Transform child in parent)
+        {
+            SkinnedMeshRenderer renderer = child.GetComponent<SkinnedMeshRenderer>();
+            if (renderer != null)
+            {
+                foreach (var material in renderer.materials)
+                {
+                    material.color = color;
+                }
+            }
+            
+            ChangeColorRecursively(child, color);
+        }
     }
-
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_TakeDamage(float dmg)
@@ -302,6 +316,7 @@ public class Player : NetworkBehaviour
         if (NetworkedHealth <= 0)
         {
             Dead();
+            SetLoseScreenRPC();
         }
     }
 
@@ -310,8 +325,8 @@ public class Player : NetworkBehaviour
         Runner.Despawn(Object);
     }
 
-    private void SetVictoryScreenRPC(Player player)
+    private void SetLoseScreenRPC()
     {
-        UIManager.instance.SetVictoryScreen(player);
+        UIManager.instance.SetLoseScreen();
     }
 }

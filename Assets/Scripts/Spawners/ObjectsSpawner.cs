@@ -1,54 +1,64 @@
-using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using Fusion;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class ObjectsSpawner : NetworkBehaviour
 {
+    public List<GameObject> objectsPrefabs;
+    public float spawnInterval = 5f;
+    public float terrainWidth = 50f;
+    public float terrainDepth = 50f;
+    public float minimumSeparation = 2f;
+    public int maxBallsToSpawn = 10; // Máximo número de bolas a instanciar
 
-    
-    public GameObject terrain;
-    List<Vector3> existingspawnPoints = new List<Vector3>();
-    public Transform spawnerParent;
-    public Transform spawnerContainer;
-    public static ObjectsSpawner instance;
-    
+    private float timer;
+    private List<Vector3> spawnPositions = new List<Vector3>();
+    private int ballsSpawned = 0; // Contador de bolas actualmente instanciadas
 
-    private void Awake()
+    public override void FixedUpdateNetwork()
     {
-        if (instance == null)
+        if (Object.HasStateAuthority && ballsSpawned < maxBallsToSpawn)
         {
-            instance = this;
+            timer += Runner.DeltaTime;
+            if (timer >= spawnInterval)
+            {
+                timer = 0f;
+                TrySpawnBall();
+            }
         }
-        else if (instance != this)
-        {
-            Destroy(gameObject);
-        }
-
     }
 
-    public Vector3 GetRandomSpawnPoint(float minDistance, Vector3 playerPosition)
+    private void TrySpawnBall()
     {
-       
-        Vector3 randomSpawnPoint;
-        List<Vector3> existingSpawnPoints = existingspawnPoints;
-        do
+        int attempts = 10;
+        while (attempts > 0)
         {
-            float randomX = Random.Range(-spawnerContainer.localScale.x / 2, spawnerContainer.localScale.x / 2);
-            float randomY = 1f;
-            float randomZ = Random.Range(-spawnerContainer.localScale.z / 2, spawnerContainer.localScale.z / 2);
+            Vector3 spawnPosition = new Vector3(
+                Random.Range(-terrainWidth / 2, terrainWidth / 2),
+                1f,
+                Random.Range(-terrainDepth / 2, terrainDepth / 2));
 
-            randomSpawnPoint = new Vector3(randomX, randomY, randomZ);
-
-
-        } while (existingSpawnPoints.Any(spawnPoint => Vector3.Distance(spawnPoint, randomSpawnPoint) < minDistance) || Vector3.Distance(randomSpawnPoint, playerPosition) < minDistance); ;
-
-        existingSpawnPoints.Add(randomSpawnPoint);
-        return randomSpawnPoint;
+            if (IsValidSpawnPosition(spawnPosition))
+            {
+                spawnPositions.Add(spawnPosition);
+                int prefabIndex = Random.Range(0, objectsPrefabs.Count);
+                Runner.Spawn(objectsPrefabs[prefabIndex], spawnPosition, Quaternion.identity);
+                ballsSpawned++;
+                break;
+            }
+            attempts--;
+        }
     }
 
-
-    
-
+    private bool IsValidSpawnPosition(Vector3 position)
+    {
+        foreach (Vector3 otherPosition in spawnPositions)
+        {
+            if (Vector3.Distance(position, otherPosition) < minimumSeparation)
+            {
+                return false; // Posición no válida si está demasiado cerca de otra bola
+            }
+        }
+        return true; // Posición válida si no está cerca de otras bolas
+    }
 }

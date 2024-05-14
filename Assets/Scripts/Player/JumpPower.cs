@@ -6,24 +6,36 @@ using UnityEngine;
 
 public class JumpPower : NetworkBehaviour
 {
-    public float Modifier=1.8f;
+    public float modifier = 9f;
     public string pickUpName = "Jump";
-    //public GameObject jumpP;
-    //public override void Activate()
-    //{
-    //    Debug.Log("jump");
-    //    Modifier = jumpModifier;
-    //    //Player.LocalPlayer._jumpForce *= Modifier;
-    //    //Player.LocalPlayer.ChangeColor(Color.red);
-    //    StartCoroutine(PowerFade());
-    //    //NormalizeStats();
+    public float fadeTime = 5;
 
-    //    //PowerUpAbilities.Get().jumpPowerUp(Modifier);
+    public bool isEnablePower = true;
 
+    public void GetPower()
+    {
+        if(isEnablePower)
+        {
+            StartCoroutine(EnablePower());
+            
+            foreach(Transform child in transform)
+            {
+                child.gameObject.SetActive(false);
+            }
 
-    //}
+            isEnablePower = false;
+        }
+    }
 
+    public IEnumerator EnablePower()
+    {
+        yield return new WaitForSeconds(fadeTime);
 
+        foreach(Transform child in transform)
+        {
+            child.gameObject.SetActive(true);
+        }
 
-
+        isEnablePower = true;
+    }
 }

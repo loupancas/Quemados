@@ -294,8 +294,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e169d936f95f2384cb7f096dd5c4da53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Modifier: 1.8
+  modifier: 6
   pickUpName: Speed
+  fadeTime: 5
+  isEnablePower: 1
 --- !u!65 &7234913536037078778
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -3,9 +3,6 @@ using System.Collections;
 using UnityEngine;
 using Fusion;
 
-
-
-
 	public struct PlayerData : INetworkStruct
 	{
 		//[Networked, Capacity(24)]
@@ -41,7 +38,7 @@ using Fusion;
 		public TickTimer RemainingTime { get; set; }
 		[Networked][HideInInspector]
 		public EGameplayState State { get; set; }
-	    //daño critic
+	    //daï¿½o critic
 		//public bool DoubleDamageActive => State == EGameplayState.Running && RemainingTime.RemainingTime(Runner).GetValueOrDefault() < DoubleDamageDuration;
 
 		private bool _isNicknameSent;
