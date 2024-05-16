@@ -331,6 +331,7 @@ public class Player : NetworkBehaviour
             //SetLoseScreenRPC();
             UIManager.instance.SetLoseScreen();
         }
+       
     }
 
     void Dead()
