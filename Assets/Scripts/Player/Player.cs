@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class Player : NetworkBehaviour
 {
@@ -67,10 +68,20 @@ public class Player : NetworkBehaviour
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
+
+           
         }
         else
         {
             SynchronizeProperties();
+            GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
+            Debug.Log("index" + Runner.ActivePlayers.Count());
+            if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
+            {
+                Debug.Log("Start Countdown");
+                StartCoroutine(UIManager.instance.StartCountdown(3));
+
+            }
         }
     }
 
@@ -165,6 +176,7 @@ public class Player : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+       
         if (!HasStateAuthority) return;
         Movement();
     }

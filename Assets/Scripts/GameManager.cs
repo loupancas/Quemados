@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using System.Linq;
 
 public class GameManager : NetworkBehaviour
 {
@@ -21,6 +22,8 @@ public class GameManager : NetworkBehaviour
 
         _activePlayers = new Dictionary<int, Player>();
     }
+
+  
 
     public void AddNewPlayer(int i, Player p)
     {

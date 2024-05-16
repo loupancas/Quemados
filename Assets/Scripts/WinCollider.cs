@@ -12,5 +12,7 @@ public class WinCollider : MonoBehaviour
         if (!p.HasStateAuthority) return;
 
         GameManager.Instance.RPC_PlayerWin(p.Runner.LocalPlayer);
+
+        this.gameObject.SetActive(false);
     }
 }

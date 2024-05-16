@@ -27,11 +27,7 @@ public class UIManager : MonoBehaviour
         infoText.gameObject.SetActive(true);
     }
 
-    // public void SetVictoryScreen(Player winPlayer)
-    // {
-    //     _victoryTextObject.SetActive(true);
-    //     _victoryMesh.text = winPlayer == Player.LocalPlayer ? "You Lose!" : "You Win!";
-    // }
+   
 
     public void SetLoseScreen()
     {
