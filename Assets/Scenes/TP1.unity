@@ -1653,7 +1653,7 @@ MonoBehaviour:
   terrainWidth: 10
   terrainDepth: 10
   minimumSeparation: 2
-  maxBallsToSpawn: 0
+  maxPOsToSpawn: 10
 --- !u!114 &2546565039354462824
 MonoBehaviour:
   m_ObjectHideFlags: 0

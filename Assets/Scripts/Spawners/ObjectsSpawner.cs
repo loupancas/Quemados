@@ -9,26 +9,26 @@ public class ObjectsSpawner : NetworkBehaviour
     public float terrainWidth = 50f;
     public float terrainDepth = 50f;
     public float minimumSeparation = 2f;
-    public int maxBallsToSpawn = 10; // Máximo número de bolas a instanciar
+    public int maxPOsToSpawn = 10; // Máximo número de bolas a instanciar
 
     private float timer;
     private List<Vector3> spawnPositions = new List<Vector3>();
-    private int ballsSpawned = 0; // Contador de bolas actualmente instanciadas
+    private int POsSpawned = 0; // Contador de bolas actualmente instanciadas
 
     public override void FixedUpdateNetwork()
     {
-        if (Object.HasStateAuthority && ballsSpawned < maxBallsToSpawn)
+        if (Object.HasStateAuthority && POsSpawned < maxPOsToSpawn)
         {
             timer += Runner.DeltaTime;
             if (timer >= spawnInterval)
             {
                 timer = 0f;
-                TrySpawnBall();
+                TrySpawnPOs();
             }
         }
     }
 
-    private void TrySpawnBall()
+    private void TrySpawnPOs()
     {
         int attempts = 10;
         while (attempts > 0)
@@ -43,7 +43,7 @@ public class ObjectsSpawner : NetworkBehaviour
                 spawnPositions.Add(spawnPosition);
                 int prefabIndex = Random.Range(0, objectsPrefabs.Count);
                 Runner.Spawn(objectsPrefabs[prefabIndex], spawnPosition, Quaternion.identity);
-                ballsSpawned++;
+                POsSpawned++;
                 break;
             }
             attempts--;
