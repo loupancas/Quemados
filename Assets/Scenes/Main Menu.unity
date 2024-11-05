@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b0f5d9c01c2cbd45ac2c1cd79a5f4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sessionItemPrefab: {fileID: 5198149696926444573, guid: 77528717901a7ad49a8c3b66b5bc1717, type: 3}
+  _sessionItemPrefab: {fileID: 8403326314767612287, guid: 95bc2bf626954e44ab32aa9b038c6f36, type: 3}
   _runnerHandler: {fileID: 874200073}
   _statusText: {fileID: 525029469}
   _verticalLayoutGroup: {fileID: 1419257130}
@@ -862,8 +862,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 2
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1493,7 +1493,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 874200072}
-  - component: {fileID: 874200071}
   - component: {fileID: 874200073}
   m_Layer: 0
   m_Name: Runner Handler
@@ -1502,19 +1501,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &874200071
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 874200070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d513fe45bfa656408666a3f561e6e22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _runnerPrefab: {fileID: 7706853347739389677, guid: 950ea6cfb08e395428148c03e571ed71, type: 3}
 --- !u!4 &874200072
 Transform:
   m_ObjectHideFlags: 0
