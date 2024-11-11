@@ -29,7 +29,8 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
- 
+    public bool _hasBall;
+
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
