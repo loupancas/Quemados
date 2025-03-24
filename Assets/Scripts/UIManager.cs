@@ -12,6 +12,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI countdownText; 
     [SerializeField] private TextMeshProUGUI infoText; 
     private GameObject _victoryTextObject;
+    [SerializeField] NetworkRunner runner;
+    private PlayerRef player;
 
     private void Awake()
     {
@@ -27,7 +29,10 @@ public class UIManager : MonoBehaviour
         infoText.gameObject.SetActive(true);
     }
 
-   
+    public void SetPlayerRef(PlayerRef newPlayer)
+    {
+        player = newPlayer;
+    }
 
     public void SetLoseScreen()
     {
@@ -53,6 +58,22 @@ public class UIManager : MonoBehaviour
         }
         countdownText.gameObject.SetActive(false);
         Player.EnablePlayerControls();
+    }
+
+    public void SetReady()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RpcOnPlayerConfirm(player);
+            //readyButton.SetActive(false);
+            //readyText.SetActive(true);
+            
+        }
+    }
+
+    public void StartGame()
+    {
+        //readyText.SetActive(false);
     }
 
 }

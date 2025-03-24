@@ -673,7 +673,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Host
+  m_text: Create Session
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 347283a7253a9e3429b05e9d17432cd3, type: 2}
   m_sharedMaterial: {fileID: 788916037086889440, guid: 347283a7253a9e3429b05e9d17432cd3, type: 2}
@@ -918,7 +918,7 @@ GameObject:
   - component: {fileID: 674813024}
   - component: {fileID: 674813023}
   m_Layer: 5
-  m_Name: Button - Host Game
+  m_Name: Button - Shared Game
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1761,7 +1761,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Host
+  m_text: Shared
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 347283a7253a9e3429b05e9d17432cd3, type: 2}
   m_sharedMaterial: {fileID: 788916037086889440, guid: 347283a7253a9e3429b05e9d17432cd3, type: 2}
@@ -2680,7 +2680,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1535693401}
   m_Layer: 5
-  m_Name: Host Game Panel
+  m_Name: Share Game Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2721,7 +2721,7 @@ GameObject:
   - component: {fileID: 1548713662}
   - component: {fileID: 1548713661}
   m_Layer: 5
-  m_Name: Button - Go To Host Panel
+  m_Name: Button - Go To Shared Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3399,12 +3399,12 @@ MonoBehaviour:
   _networkHandler: {fileID: 874200073}
   _initialPanel: {fileID: 243559781}
   _sessionBrowserPanel: {fileID: 423830753}
-  _hostGamePanel: {fileID: 1535693400}
+  _shareGamePanel: {fileID: 1535693400}
   _statusPanel: {fileID: 1792045900}
   _joinLobbyBTN: {fileID: 697922637}
-  _goToHostPanelBTN: {fileID: 1548713661}
-  _hostBTN: {fileID: 674813023}
-  _hostSessionName: {fileID: 1130316725}
+  _goToSharedPanelBTN: {fileID: 1548713661}
+  _sharedBTN: {fileID: 674813023}
+  _sharedSessionName: {fileID: 1130316725}
   _playerNickName: {fileID: 954660485}
   _statusText: {fileID: 485398232}
 --- !u!1 &1943313417

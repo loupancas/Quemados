@@ -9,16 +9,16 @@ public class MainMenuHandler : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject _initialPanel;
     [SerializeField] private GameObject _sessionBrowserPanel;
-    [SerializeField] private GameObject _hostGamePanel;
+    [SerializeField] private GameObject _shareGamePanel;
     [SerializeField] private GameObject _statusPanel;
 
     [Header("Buttons")]
     [SerializeField] private Button _joinLobbyBTN;
-    [SerializeField] private Button _goToHostPanelBTN;
-    [SerializeField] private Button _hostBTN;
+    [SerializeField] private Button _goToSharedPanelBTN;
+    [SerializeField] private Button _sharedBTN;
     
     [Header("InputFields")]
-    [SerializeField] private TMP_InputField _hostSessionName;
+    [SerializeField] private TMP_InputField _sharedSessionName;
     [SerializeField] private TMP_InputField _playerNickName;
 
     [Header("Texts")]
@@ -27,8 +27,8 @@ public class MainMenuHandler : MonoBehaviour
     void Start()
     {
         _joinLobbyBTN.onClick.AddListener(Btn_JoinLobby);
-        _goToHostPanelBTN.onClick.AddListener(Btn_ShowHostPanel);
-        _hostBTN.onClick.AddListener(Btn_CreateGameSession);
+        _goToSharedPanelBTN.onClick.AddListener(Btn_ShowHostPanel);
+        _sharedBTN.onClick.AddListener(Btn_CreateGameSession);
 
         _networkHandler.OnJoinedLobby += () =>
         {
@@ -53,13 +53,13 @@ public class MainMenuHandler : MonoBehaviour
     {
         _sessionBrowserPanel.SetActive(false);
         
-        _hostGamePanel.SetActive(true);
+        _shareGamePanel.SetActive(true);
     }
     
     void Btn_CreateGameSession()
     {
-        _hostBTN.interactable = false;
-        _networkHandler.CreateGame(_hostSessionName.text, "Game");
+        _sharedBTN.interactable = false;
+        _networkHandler.CreateGame(_sharedSessionName.text, "Game");
     }
     
 }

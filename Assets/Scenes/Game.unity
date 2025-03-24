@@ -1232,6 +1232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a71c54cca5c79c74891319579b9a5af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isGameStart: 0
 --- !u!4 &852256158
 Transform:
   m_ObjectHideFlags: 0
@@ -1298,6 +1299,7 @@ MonoBehaviour:
   _victoryMesh: {fileID: 408838142}
   countdownText: {fileID: 1377012308}
   infoText: {fileID: 1118519968}
+  runner: {fileID: 0}
 --- !u!1 &930351239
 GameObject:
   m_ObjectHideFlags: 0
@@ -2304,6 +2306,7 @@ MonoBehaviour:
   - {fileID: 1358297485}
   - {fileID: 930351240}
   - {fileID: 54697965}
+  _gameManager: {fileID: 852256157}
 --- !u!114 &1820221202
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8,6 +8,8 @@ using System.Linq;
 public class NetworkManager : MonoBehaviour
 {
     public NetworkRunner runner;
+    [SerializeField] GameObject readyButton;
+    [SerializeField] GameObject readyText;
 
     public void StartGame()
     {

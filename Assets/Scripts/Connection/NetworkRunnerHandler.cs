@@ -52,12 +52,12 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
 
     public async void CreateGame(string sessionName, string sceneName)
     {
-        await InitializeGame(GameMode.Host, sessionName, SceneUtility.GetBuildIndexByScenePath($"Scenes/{sceneName}"));
+        await InitializeGame(GameMode.Shared, sessionName, SceneUtility.GetBuildIndexByScenePath($"Scenes/{sceneName}"));
     }
     
     public async void JoinGame(SessionInfo sessionInfo)
     {
-        await InitializeGame(GameMode.Client, sessionInfo.Name, SceneManager.GetActiveScene().buildIndex);
+        await InitializeGame(GameMode.Shared, sessionInfo.Name, SceneManager.GetActiveScene().buildIndex);
     }
     
     async Task InitializeGame(GameMode gameMode, string sessionName, int sceneIndex)

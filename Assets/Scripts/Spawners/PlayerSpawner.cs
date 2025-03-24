@@ -8,9 +8,14 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] public List<Transform> spawnPoints;
-   
-    
+    [SerializeField] private GameManager _gameManager;
 
+    public static PlayerSpawner Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         // GeneratePowerUpPositions();
@@ -34,6 +39,10 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         }
     }
 
-    
+    public void SpawnPlayer()
+    {
+        Runner.Spawn(_playerPrefab, spawnPoints[0].position, spawnPoints[0].rotation);
+    }
+
 
 }

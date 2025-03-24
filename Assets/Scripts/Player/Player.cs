@@ -75,7 +75,7 @@ public class Player : NetworkBehaviour
         else
         {
             SynchronizeProperties();
-            GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
+            //GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
             Debug.Log("index" + Runner.ActivePlayers.Count());
             if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
             {
