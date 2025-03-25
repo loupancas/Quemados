@@ -4,24 +4,20 @@ using UnityEngine;
 using Fusion;
 using System.Linq;
 
-public class GameManager : NetworkBehaviour
+public class Room : NetworkBehaviour
 {
-    public static GameManager Instance { get; private set; }
+    public static Room Instance;
 
-    Dictionary<int, Player> _activePlayers;
+    //Dictionary<int, Player> _activePlayers;
     private Dictionary<PlayerRef, bool> _playerStates = new Dictionary<PlayerRef, bool>();
     [Networked] public bool isGameStart { get; set; } = false;
     private void Awake()
     {
-        if (Instance)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        
 
         Instance = this;
 
-        _activePlayers = new Dictionary<int, Player>();
+        //_activePlayers = new Dictionary<int, Player>();
     }
 
 

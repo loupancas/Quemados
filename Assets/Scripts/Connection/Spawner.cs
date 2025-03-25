@@ -13,7 +13,7 @@ public class Spawner : MonoBehaviour
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         var spawnPoint = PlayerSpawnPoint();
-        if (runner.IsServer)
+        if (player == runner.LocalPlayer)
         {
             runner.Spawn(_playerPrefab, spawnPoint.position, null, player);
         }

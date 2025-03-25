@@ -7,9 +7,9 @@ using System.Linq;
 public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] private GameObject _playerPrefab;
-    [SerializeField] public List<Transform> spawnPoints;
-    [SerializeField] private GameManager _gameManager;
-
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private Room _RoomManager;
+    [SerializeField] private GameObject _readyButton;
     public static PlayerSpawner Instance;
 
     private void Awake()
@@ -25,17 +25,22 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     {
         if (player == Runner.LocalPlayer)
         {
-            int currentPlayer = -1;
+            _readyButton.SetActive(true);
+            if (Runner.ActivePlayers.Count() == 1)
+            {
+                Runner.Spawn(_RoomManager);
+            }
+            int currentPlayer = 0;
             foreach (var item in Runner.ActivePlayers)
             {
-                //if (item == player) break; //No funciona
+                if (item == player) break; //No funciona
                 currentPlayer++;
             }
 
-            Vector3 spawnPosition = spawnPoints.Count - 1 <= currentPlayer ? Vector3.zero : spawnPoints[currentPlayer].position;
+            Vector3 spawnPosition = currentPlayer < spawnPoints.Length ? spawnPoints[currentPlayer].position : Vector3.zero;
             Debug.Log($"Player {player} joined, spawning at {spawnPosition}");
             Runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity);
-         
+
         }
     }
 

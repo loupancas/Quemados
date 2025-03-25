@@ -30,7 +30,9 @@ public class Player : NetworkBehaviour
     public float _defaultJump; 
     public Camera Camera;
     public bool _hasBall;
-
+    [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
+    [SerializeField] private SkinnedMeshRenderer _meshRenderer;
+    private bool hasTeam = false;
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -69,20 +71,20 @@ public class Player : NetworkBehaviour
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
+            StartCoroutine(WaitInit());
 
-           
         }
         else
         {
-            SynchronizeProperties();
-            //GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
-            Debug.Log("index" + Runner.ActivePlayers.Count());
-            if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
-            {
-                Debug.Log("Start Countdown");
-                StartCoroutine(UIManager.instance.StartCountdown(3));
+            //SynchronizeProperties();
+            //Room.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
+            //Debug.Log("index" + Runner.ActivePlayers.Count());
+            //if (Room.Instance.Runner.ActivePlayers.Count() == 2)
+            //{
+            //    Debug.Log("Start Countdown");
+            //    StartCoroutine(UIManager.instance.StartCountdown(3));
 
-            }
+            //}
         }
     }
 
@@ -131,8 +133,11 @@ public class Player : NetworkBehaviour
         // }
     }
 
-   
-   
+    private void ChangeColor()
+    {
+        _meshRenderer.material.color = _teamColor;
+    }
+
     // private void TryPickupBall()
     // {
     //     Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
@@ -344,4 +349,22 @@ public class Player : NetworkBehaviour
     //{
     //    UIManager.instance.SetLoseScreen();
     //}
+
+    private IEnumerator WaitInit()
+    {
+        yield return new WaitForSeconds(1);
+
+        switch (Runner.LocalPlayer.PlayerId)
+        {
+            case 1:
+                _teamColor = Color.red;
+                break;
+            case 2:
+                _teamColor = Color.blue;
+                break;
+            default:
+                _teamColor = Color.yellow;
+                break;
+        }
+    }
 }

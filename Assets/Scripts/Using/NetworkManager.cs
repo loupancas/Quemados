@@ -15,19 +15,19 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log("Start Countdown");
 
-        if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
-        {
-            UIManager.instance.StartCountdown(3);
-        }
+        //if (Room.Instance.Runner.ActivePlayers.Count() == 2)
+        //{
+        //    UIManager.instance.StartCountdown(3);
+        //}
 
-        if (runner.SessionInfo.PlayerCount == 2)
-        {
-            StartCoroutine(UIManager.instance.StartCountdown(3));
-        }
-        else
-        {
-            Debug.Log("waiting for another player");
-        }
+        //if (runner.SessionInfo.PlayerCount == 2)
+        //{
+        //    StartCoroutine(UIManager.instance.StartCountdown(3));
+        //}
+        //else
+        //{
+        //    Debug.Log("waiting for another player");
+        //}
     }
 
 
