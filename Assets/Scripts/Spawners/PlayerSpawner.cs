@@ -11,10 +11,18 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private Room _RoomManager;
     [SerializeField] private GameObject _readyButton;
     public static PlayerSpawner Instance;
-
+    private int playerCount = 0;
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
     }
     private void Start()
     {
@@ -30,23 +38,25 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             {
                 Runner.Spawn(_RoomManager);
             }
-            int currentPlayer = 0;
-            foreach (var item in Runner.ActivePlayers)
-            {
-                if (item == player) break; //No funciona
-                currentPlayer++;
-            }
+            //int currentPlayer = 0;
+            //foreach (var item in Runner.ActivePlayers)
+            //{
+            //    if (item == player) break; //No funciona
+            //    currentPlayer++;
+            //}
 
-            Vector3 spawnPosition = currentPlayer < spawnPoints.Length ? spawnPoints[currentPlayer].position : Vector3.zero;
-            Debug.Log($"Player {player} joined, spawning at {spawnPosition}");
-            Runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity);
+            //Vector3 spawnPosition = currentPlayer < spawnPoints.Length ? spawnPoints[currentPlayer].position : Vector3.zero;
+            //Debug.Log($"Player {player} joined, spawning at {spawnPosition}");
+            //Runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity);
 
         }
     }
 
     public void SpawnPlayer()
     {
-        Runner.Spawn(_playerPrefab, spawnPoints[0].position, spawnPoints[0].rotation);
+        int spawnIndex = playerCount % spawnPoints.Length;
+        Runner.Spawn(_playerPrefab, spawnPoints[spawnIndex].position, null);
+        playerCount++;
     }
 
 

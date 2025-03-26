@@ -13,12 +13,14 @@ public class Player : NetworkBehaviour
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
     [SerializeField] public float _jumpForce = 5;
+    private float _verticalVelocity = 0f;
+    private float _gravity = -9.81f;
     [SerializeField] private float _groundCheckDistance = 1.1f;
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
     //PlayerView playerView;
-    public Rigidbody _rgbd;
+    //public Rigidbody _rgbd;
     public Animator _animator;
     private bool _isGrounded = true;
     //private int fadeTime = 5;
@@ -68,7 +70,7 @@ public class Player : NetworkBehaviour
 
             Camera = Camera.main;
             Camera.GetComponent<ThirdPersonCamera>().Target = transform;
-            _rgbd = GetComponent<Rigidbody>();
+            //_rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
             StartCoroutine(WaitInit());
@@ -100,7 +102,7 @@ public class Player : NetworkBehaviour
     
     void Update()
     {
-        if (!HasStateAuthority || !ControlsEnabled) return;
+        if (!HasStateAuthority) return;
 
         CheckGrounded();
 
@@ -230,24 +232,37 @@ public class Player : NetworkBehaviour
         if (direction != Vector3.zero)
         {
             transform.forward = direction;
-            _rgbd.velocity += direction * (_speed * 10 * Runner.DeltaTime);
+            transform.Translate(direction * _speed * Time.deltaTime, Space.World);
+            //_rgbd.velocity += direction * (_speed * 10 * Runner.DeltaTime);
 
-            var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
-            velocity.y = _rgbd.velocity.y;
-            _rgbd.velocity = velocity;
+            //var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
+            //velocity.y = _rgbd.velocity.y;
+            //_rgbd.velocity = velocity;
+        }
+        // APLICAR GRAVEDAD
+        if (!_isGrounded)
+        {
+            _verticalVelocity += _gravity * Time.deltaTime;
         }
         else
         {
-            var velocity = _rgbd.velocity;
-            velocity.x = 0;
-            velocity.z = 0;
-            _rgbd.velocity = velocity;
+            _verticalVelocity = 0;
         }
+
+        transform.Translate(Vector3.up * _verticalVelocity * Time.deltaTime, Space.World);
+        //else
+        //{
+        //    //var velocity = _rgbd.velocity;
+        //    //velocity.x = 0;
+        //    //velocity.z = 0;
+        //    //_rgbd.velocity = velocity;
+        //}
     }
 
     void Jump()
     {
-        _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        //_rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        _verticalVelocity = _jumpForce;
         _animator.SetBool("Jumping", true);
         // playerView.isRunning(true);
     }

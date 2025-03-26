@@ -9,7 +9,7 @@ public class PlayerView : NetworkBehaviour
 
     private NetworkMecanimAnimator _mecanim;
     Player player;
-   
+    private Vector3 _previousPosition;
 
 
 
@@ -42,10 +42,12 @@ public class PlayerView : NetworkBehaviour
             _mecanim.Animator.SetBool("Jumping", true);
         }
 
+        Vector3 velocity = (player.transform.position - _previousPosition) / Time.fixedDeltaTime;
+        _previousPosition = player.transform.position;
 
-        if (player._rgbd.velocity.sqrMagnitude < 0.01f)
+        if (velocity.sqrMagnitude < 0.01f)
         {
-            _mecanim.Animator.SetFloat("Speed",0f);
+            _mecanim.Animator.SetFloat("Speed", 0f);
         }
         else
         {
@@ -53,7 +55,7 @@ public class PlayerView : NetworkBehaviour
 
         }
 
-       
+
 
 
 
@@ -64,6 +66,7 @@ public class PlayerView : NetworkBehaviour
     {
         player = GetComponentInChildren<Player>();
         _mecanim = GetComponentInChildren<NetworkMecanimAnimator>();
+        _previousPosition = player.transform.position;
     }
 
 

@@ -13,9 +13,16 @@ public class Room : NetworkBehaviour
     [Networked] public bool isGameStart { get; set; } = false;
     private void Awake()
     {
-        
 
-        Instance = this;
+
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
 
         //_activePlayers = new Dictionary<int, Player>();
     }

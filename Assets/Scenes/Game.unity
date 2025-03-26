@@ -1562,12 +1562,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb36a7e09e991a04591c4021792d8306, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerPrefab: {fileID: 8879251801991786928, guid: 4b8f591866c9a06479d1d05e11ee2242, type: 3}
+  _playerPrefab: {fileID: 1234142128487497687, guid: 6a76669c95079c34e8a5aee37824fd45, type: 3}
   spawnPoints:
-  - {fileID: 1358297485}
-  - {fileID: 930351240}
+  - {fileID: 7765292527743258137, guid: 419aa856b438e884a8a423170ffa0baf, type: 3}
+  - {fileID: 154501036478336636, guid: 7404a46b5142a7144b371d6be2cb65e5, type: 3}
   _RoomManager: {fileID: 5533482720356188773, guid: 6ef9a5a645197424985eac0b0073c7e5, type: 3}
-  _readyButton: {fileID: 3673775433440935312}
+  _readyButton: {fileID: 5778227762308630564, guid: 7e23a36480244184dba6b527e55d04aa, type: 3}
 --- !u!114 &1820221202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1809,11 +1809,6 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2323870462089272658}
---- !u!1 &3673775433440935312 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3781314366852021913, guid: 3caf1f28329f5b541b94a87eac943acd, type: 3}
-  m_PrefabInstance: {fileID: 1201352426977057017}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4805089271745314908
 PrefabInstance:
   m_ObjectHideFlags: 0
