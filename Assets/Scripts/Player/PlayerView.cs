@@ -41,6 +41,15 @@ public class PlayerView : NetworkBehaviour
         {
             _mecanim.Animator.SetBool("Jumping", true);
         }
+        else
+        {
+            // Verifica si la animación de salto ha terminado
+            if (_mecanim.Animator.GetCurrentAnimatorStateInfo(0).IsName("Jumping") &&
+                _mecanim.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
+            {
+                _mecanim.Animator.SetBool("Jumping", false);
+            }
+        }
 
         Vector3 velocity = (player.transform.position - _previousPosition) / Time.fixedDeltaTime;
         _previousPosition = player.transform.position;

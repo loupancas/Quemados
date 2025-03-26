@@ -11,6 +11,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private Room _RoomManager;
     [SerializeField] private GameObject _readyButton;
     public static PlayerSpawner Instance;
+    private List<Transform> availableSpawnPoints;
     private int playerCount = 0;
     private void Awake()
     {
@@ -22,7 +23,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         {
             Destroy(gameObject);
         }
-
+        availableSpawnPoints = new List<Transform>(spawnPoints);
     }
     private void Start()
     {
@@ -54,9 +55,21 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
     public void SpawnPlayer()
     {
-        int spawnIndex = playerCount % spawnPoints.Length;
-        Runner.Spawn(_playerPrefab, spawnPoints[spawnIndex].position, null);
-        playerCount++;
+        if (availableSpawnPoints.Count == 0)
+        {
+            Debug.LogError("No available spawn points!");
+            return;
+        }
+
+        // Selecciona un punto de aparición aleatorio de los disponibles
+        int spawnIndex = Random.Range(0, availableSpawnPoints.Count);
+        Transform spawnPoint = availableSpawnPoints[spawnIndex];
+
+        // Spawnea el jugador en el punto seleccionado
+        Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation);
+
+        // Elimina el punto de aparición de la lista de disponibles
+        availableSpawnPoints.RemoveAt(spawnIndex);
     }
 
 
