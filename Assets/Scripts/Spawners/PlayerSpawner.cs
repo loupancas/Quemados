@@ -35,20 +35,12 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         if (player == Runner.LocalPlayer)
         {
             _readyButton.SetActive(true);
+           
             if (Runner.ActivePlayers.Count() == 1)
             {
                 Runner.Spawn(_RoomManager);
             }
-            //int currentPlayer = 0;
-            //foreach (var item in Runner.ActivePlayers)
-            //{
-            //    if (item == player) break; //No funciona
-            //    currentPlayer++;
-            //}
-
-            //Vector3 spawnPosition = currentPlayer < spawnPoints.Length ? spawnPoints[currentPlayer].position : Vector3.zero;
-            //Debug.Log($"Player {player} joined, spawning at {spawnPosition}");
-            //Runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity);
+           
 
         }
     }

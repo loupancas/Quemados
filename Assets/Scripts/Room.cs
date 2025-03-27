@@ -85,6 +85,12 @@ public class Room : NetworkBehaviour
         }
     }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RpcStartGame()
+    {
+        UIManager.instance.StartGame();
+    }
+
     [Rpc]
     public void RPC_PlayerWin(PlayerRef player)
     {

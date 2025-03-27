@@ -11,8 +11,8 @@ public class Player : NetworkBehaviour
     public static Player LocalPlayer { get; private set; }
     public static bool ControlsEnabled = false;
     [Header("Stats")]
-    [SerializeField] public float _speed = 3;
-    [SerializeField] public float _jumpForce = 5;
+    [SerializeField] public float _speed = 10f;
+    [SerializeField] public float _jumpForce = 20f;
     private float _verticalVelocity = 0f;
     private float _gravity = -9.81f;
     [SerializeField] private float _groundCheckDistance = 1.1f;
@@ -20,12 +20,13 @@ public class Player : NetworkBehaviour
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
     //PlayerView playerView;
-    //public Rigidbody _rgbd;
+    public Rigidbody _rgbd;
     public Animator _animator;
-    private bool _isGrounded = true;
+    [SerializeField]private bool _isGrounded = true;
     //private int fadeTime = 5;
     public float _xAxi;
     public float _yAxi;
+    public float _zAxi;
     public bool _jumpPressed;
     private bool _shootPressed;
     public float _defaultSpeed;
@@ -70,7 +71,7 @@ public class Player : NetworkBehaviour
 
             Camera = Camera.main;
             Camera.GetComponent<ThirdPersonCamera>().Target = transform;
-            //_rgbd = GetComponent<Rigidbody>();
+            _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
             StartCoroutine(WaitInit());
@@ -124,15 +125,15 @@ public class Player : NetworkBehaviour
             NetworkedColor = Color.red;
         }
 
-        // if (Input.GetKeyDown(KeyCode.E))
-        // {
-        //     TryPickupBall();
-        // }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{
+        //    TryPickupBall();
+        //}
 
-        // if (Input.GetMouseButtonDown(0) && HeldBall)
-        // {
-        //     ThrowBall();
-        // }
+        //if (Input.GetMouseButtonDown(0) && HeldBall)
+        //{
+        //    ThrowBall();
+        //}
     }
 
     private void ChangeColor()
@@ -233,36 +234,26 @@ public class Player : NetworkBehaviour
         {
             transform.forward = direction;
             transform.Translate(direction * _speed * Time.deltaTime, Space.World);
-            //_rgbd.velocity += direction * (_speed * 10 * Runner.DeltaTime);
-
-            //var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
-            //velocity.y = _rgbd.velocity.y;
-            //_rgbd.velocity = velocity;
+           
         }
-        // APLICAR GRAVEDAD
-        if (!_isGrounded)
-        {
-            _verticalVelocity += _gravity * Time.deltaTime;
-        }
-        else
-        {
-            _verticalVelocity = 0;
-        }
-
-        transform.Translate(Vector3.up * _verticalVelocity * Time.deltaTime, Space.World);
+        //APLICAR GRAVEDAD
+        //if (!_isGrounded)
+        //{
+        //    _verticalVelocity += _gravity * Time.deltaTime;
+        //}
         //else
         //{
-        //    //var velocity = _rgbd.velocity;
-        //    //velocity.x = 0;
-        //    //velocity.z = 0;
-        //    //_rgbd.velocity = velocity;
+        //    _verticalVelocity = 0;
         //}
+
+        transform.Translate(Vector3.up* _verticalVelocity * Time.deltaTime, Space.World);
+      
     }
 
     void Jump()
     {
-        //_rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
-        _verticalVelocity = _jumpForce;
+        _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        //_verticalVelocity = _jumpForce;
         _animator.SetBool("Jumping", true);
         // playerView.isRunning(true);
     }
@@ -349,7 +340,7 @@ public class Player : NetworkBehaviour
         if (NetworkedHealth <= 0)
         {
             Dead();
-            //SetLoseScreenRPC();
+            SetLoseScreenRPC();
             UIManager.instance.SetLoseScreen();
         }
        
@@ -360,10 +351,10 @@ public class Player : NetworkBehaviour
         Runner.Despawn(Object);
     }
 
-    //private void SetLoseScreenRPC()
-    //{
-    //    UIManager.instance.SetLoseScreen();
-    //}
+    private void SetLoseScreenRPC()
+    {
+        UIManager.instance.SetLoseScreen();
+    }
 
     private IEnumerator WaitInit()
     {
