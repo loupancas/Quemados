@@ -28,7 +28,6 @@ using Fusion;
 	{
 		//public GameUI GameUI;
 		public Player PlayerPrefab;
-		//public float  GameDuration = 180f;
 		public float  PlayerRespawnTime = 5f;
 		
 
@@ -39,7 +38,7 @@ using Fusion;
 		[Networked][HideInInspector]
 		public EGameplayState State { get; set; }
 	    //da�o critic
-		//public bool DoubleDamageActive => State == EGameplayState.Running && RemainingTime.RemainingTime(Runner).GetValueOrDefault() < DoubleDamageDuration;
+		
 
 		private bool _isNicknameSent;
 		private float _runningStateTime;

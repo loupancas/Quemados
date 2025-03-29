@@ -7,10 +7,24 @@ using System.Linq;
 public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] private GameObject _playerPrefab;
-    [SerializeField] public List<Transform> spawnPoints;
-   
-    
-
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private Room _RoomManager;
+    [SerializeField] private GameObject _readyButton;
+    public static PlayerSpawner Instance;
+    private List<Transform> availableSpawnPoints;
+    private int playerCount = 0;
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        availableSpawnPoints = new List<Transform>(spawnPoints);
+    }
     private void Start()
     {
         // GeneratePowerUpPositions();
@@ -20,20 +34,35 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     {
         if (player == Runner.LocalPlayer)
         {
-            int currentPlayer = -1;
-            foreach (var item in Runner.ActivePlayers)
+            _readyButton.SetActive(true);
+           
+            if (Runner.ActivePlayers.Count() == 1)
             {
-                //if (item == player) break; //No funciona
-                currentPlayer++;
+                Runner.Spawn(_RoomManager);
             }
+           
 
-            Vector3 spawnPosition = spawnPoints.Count - 1 <= currentPlayer ? Vector3.zero : spawnPoints[currentPlayer].position;
-            Debug.Log($"Player {player} joined, spawning at {spawnPosition}");
-            Runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity);
-         
         }
     }
 
-    
+    public void SpawnPlayer()
+    {
+        if (availableSpawnPoints.Count == 0)
+        {
+            Debug.LogError("No available spawn points!");
+            return;
+        }
+
+        // Selecciona un punto de aparición aleatorio de los disponibles
+        int spawnIndex = Random.Range(0, availableSpawnPoints.Count);
+        Transform spawnPoint = availableSpawnPoints[spawnIndex];
+
+        // Spawnea el jugador en el punto seleccionado
+        Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation);
+
+        // Elimina el punto de aparición de la lista de disponibles
+        availableSpawnPoints.RemoveAt(spawnIndex);
+    }
+
 
 }

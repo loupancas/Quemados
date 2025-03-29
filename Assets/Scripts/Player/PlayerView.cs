@@ -9,7 +9,7 @@ public class PlayerView : NetworkBehaviour
 
     private NetworkMecanimAnimator _mecanim;
     Player player;
-   
+    private Vector3 _previousPosition;
 
 
 
@@ -41,11 +41,22 @@ public class PlayerView : NetworkBehaviour
         {
             _mecanim.Animator.SetBool("Jumping", true);
         }
-
-
-        if (player._rgbd.velocity.sqrMagnitude < 0.01f)
+        else
         {
-            _mecanim.Animator.SetFloat("Speed",0f);
+            // Verifica si la animación de salto ha terminado
+            if (_mecanim.Animator.GetCurrentAnimatorStateInfo(0).IsName("Jumping") &&
+                _mecanim.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
+            {
+                _mecanim.Animator.SetBool("Jumping", false);
+            }
+        }
+
+        Vector3 velocity = (player.transform.position - _previousPosition) / Time.fixedDeltaTime;
+        _previousPosition = player.transform.position;
+
+        if (velocity.sqrMagnitude < 0.01f)
+        {
+            _mecanim.Animator.SetFloat("Speed", 0f);
         }
         else
         {
@@ -53,7 +64,7 @@ public class PlayerView : NetworkBehaviour
 
         }
 
-       
+
 
 
 
@@ -64,6 +75,7 @@ public class PlayerView : NetworkBehaviour
     {
         player = GetComponentInChildren<Player>();
         _mecanim = GetComponentInChildren<NetworkMecanimAnimator>();
+        _previousPosition = player.transform.position;
     }
 
 

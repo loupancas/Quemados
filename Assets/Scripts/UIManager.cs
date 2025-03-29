@@ -8,51 +8,69 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
-    [SerializeField] TextMeshProUGUI _victoryMesh;
-    [SerializeField] private TextMeshProUGUI countdownText; 
-    [SerializeField] private TextMeshProUGUI infoText; 
-    private GameObject _victoryTextObject;
-
+    [SerializeField] private GameObject _victoryScreen;
+    [SerializeField] private GameObject _loseScreen;
+    [SerializeField] private GameObject _startGameScreen;
+    [SerializeField] NetworkRunner runner;
+    private PlayerRef player;
+    [SerializeField] GameObject readyButton;
     private void Awake()
     {
-        if (instance == null) instance = this;
-        else Destroy(gameObject);
+      instance = this;
+     
     }
 
     void Start()
     {
-        _victoryTextObject = _victoryMesh.gameObject;
-        _victoryTextObject.SetActive(false);
-        countdownText.gameObject.SetActive(false);
-        infoText.gameObject.SetActive(true);
+        
     }
 
-   
+    public void SetPlayerRef(PlayerRef newPlayer)
+    {
+        player = newPlayer;
+    }
 
     public void SetLoseScreen()
     {
-        _victoryTextObject.SetActive(true);
-        _victoryMesh.text = "You Lose!";
+      _loseScreen.SetActive(true);
+        _victoryScreen.SetActive(false);
     }
 
     public void SetVictoryScreen()
     {
-        _victoryTextObject.SetActive(true);
-        _victoryMesh.text = "You Win!";
+       _victoryScreen.SetActive(true);
+        _loseScreen.SetActive(false);
     }
 
-    public IEnumerator StartCountdown(int duration)
+    //public IEnumerator StartCountdown(int duration)
+    //{
+    //    infoText.gameObject.SetActive(false);
+    //    countdownText.gameObject.SetActive(true);
+    //    while (duration > 0)
+    //    {
+    //        countdownText.text = duration.ToString();
+    //        yield return new WaitForSeconds(1);
+    //        duration--;
+    //    }
+    //    countdownText.gameObject.SetActive(false);
+    //    Player.EnablePlayerControls();
+    //}
+
+    public void SetReady()
     {
-        infoText.gameObject.SetActive(false);
-        countdownText.gameObject.SetActive(true);
-        while (duration > 0)
+        if (Room.Instance != null)
         {
-            countdownText.text = duration.ToString();
-            yield return new WaitForSeconds(1);
-            duration--;
+            Room.Instance.RpcOnPlayerConfirm(player);
+            readyButton.SetActive(false);
+            _startGameScreen.SetActive(true);
+            Room.Instance.RpcStartGame();
         }
-        countdownText.gameObject.SetActive(false);
-        Player.EnablePlayerControls();
+    }
+
+    public void StartGame()
+    {
+        //readyText.SetActive(false);
+        _startGameScreen.SetActive(false);
     }
 
 }
