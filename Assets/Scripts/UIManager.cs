@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _startGameScreen;
     [SerializeField] NetworkRunner runner;
     private PlayerRef player;
-    [SerializeField] GameObject readyButton;
+    [SerializeField] public GameObject readyButton;
     private void Awake()
     {
       instance = this;

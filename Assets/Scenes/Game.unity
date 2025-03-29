@@ -1773,6 +1773,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1299337207529949086, guid: a5888d0f1ce1fec45af9fc20073d27d2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetReady
+      objectReference: {fileID: 0}
     - target: {fileID: 3157080197900881801, guid: a5888d0f1ce1fec45af9fc20073d27d2, type: 3}
       propertyPath: runner
       value: 
