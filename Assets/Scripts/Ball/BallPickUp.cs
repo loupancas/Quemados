@@ -50,7 +50,7 @@ public class BallPickup : NetworkBehaviour
     private void PickUp(Player player)
     {
         IsPickedUp = true;
-        player._hasBall = true;
+        //player._hasBall = true;
     }
 
     public void Drop()

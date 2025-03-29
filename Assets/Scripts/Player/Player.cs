@@ -73,15 +73,15 @@ public class Player : NetworkBehaviour
         }
         else
         {
-            SynchronizeProperties();
-            GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
-            Debug.Log("index" + Runner.ActivePlayers.Count());
-            if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
-            {
-                Debug.Log("Start Countdown");
-                StartCoroutine(UIManager.instance.StartCountdown(3));
+            //SynchronizeProperties();
+            //GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
+            //Debug.Log("index" + Runner.ActivePlayers.Count());
+            //if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
+            //{
+            //    Debug.Log("Start Countdown");
+            //    //StartCoroutine(UIManager.instance.StartCountdown(3));
 
-            }
+            //}
         }
     }
 
