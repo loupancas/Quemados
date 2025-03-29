@@ -93,11 +93,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 5676140270376297627, guid: f12cf3661567c0a42ad2a3c5c74c1849, type: 3}
   spawnPoints:
-  - {fileID: 7765292527743258137, guid: 419aa856b438e884a8a423170ffa0baf, type: 3}
-  - {fileID: 154501036478336636, guid: 7404a46b5142a7144b371d6be2cb65e5, type: 3}
-  - {fileID: 7149426289914057427, guid: 1f4ff538bb461e8499b0cf9aa9b1b884, type: 3}
+  - {fileID: 6200543689202152179, guid: e94f9f26b0da33947a9269d4fe736b89, type: 3}
+  - {fileID: 3955355429662853133, guid: 95c3306d9189a6d418a6d9a9a910681b, type: 3}
+  - {fileID: 4873440023200129103, guid: 322c8609eb482b14b84c82685b4cb37d, type: 3}
   _RoomManager: {fileID: 3677265040693238202, guid: 6ef9a5a645197424985eac0b0073c7e5, type: 3}
-  _readyButton: {fileID: 5778227762308630564, guid: 7e23a36480244184dba6b527e55d04aa, type: 3}
+  _readyButton: {fileID: 7153709316755114132, guid: 1e64f4ff5f48ada449b23c026b20b425, type: 3}
 --- !u!114 &-8785035105522748499
 MonoBehaviour:
   m_ObjectHideFlags: 0
