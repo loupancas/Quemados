@@ -81,7 +81,7 @@ public class RoomM : NetworkBehaviour
         if (player == Runner.LocalPlayer)
         {
             PlayerSpawner.Instance.SpawnPlayer();
-            UIManager.instance.readyButton.SetActive(false);
+           // UIManager.instance.readyButton.SetActive(false);
             UIManager.instance.StartGame();
         }
     }
