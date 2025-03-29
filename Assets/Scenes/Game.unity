@@ -604,7 +604,7 @@ MonoBehaviour:
   _victoryScreen: {fileID: 408838140}
   _loseScreen: {fileID: 1920600461}
   _startGameScreen: {fileID: 1118519966}
-  runner: {fileID: 2969039247513847594, guid: 68113ad87c087b448aba03c72ad0c770, type: 3}
+  runner: {fileID: 1820221199}
   readyButton: {fileID: 7153709316755114132, guid: 1e64f4ff5f48ada449b23c026b20b425, type: 3}
 --- !u!1 &571371521
 GameObject:
