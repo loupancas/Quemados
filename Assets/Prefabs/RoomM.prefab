@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1613271303113569706}
   - component: {fileID: 6456805245606891372}
-  - component: {fileID: -5192519305447555360}
+  - component: {fileID: 3677265040693238202}
   m_Layer: 0
-  m_Name: Room
+  m_Name: RoomM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50,8 +50,8 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: -5192519305447555360}
---- !u!114 &-5192519305447555360
+  - {fileID: 3677265040693238202}
+--- !u!114 &3677265040693238202
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

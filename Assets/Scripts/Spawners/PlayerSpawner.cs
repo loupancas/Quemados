@@ -8,7 +8,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private Room _RoomManager;
+    [SerializeField] private RoomM _RoomManager;
     [SerializeField] private GameObject _readyButton;
     public static PlayerSpawner Instance;
     private List<Transform> availableSpawnPoints;

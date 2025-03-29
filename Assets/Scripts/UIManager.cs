@@ -58,12 +58,12 @@ public class UIManager : MonoBehaviour
 
     public void SetReady()
     {
-        if (Room.Instance != null)
+        if (RoomM.Instance != null)
         {
-            Room.Instance.RpcOnPlayerConfirm(player);
+            RoomM.Instance.RpcOnPlayerConfirm(player);
             readyButton.SetActive(false);
             _startGameScreen.SetActive(true);
-            Room.Instance.RpcStartGame();
+            RoomM.Instance.RpcStartGame();
         }
     }
 

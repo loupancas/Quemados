@@ -4,9 +4,9 @@ using UnityEngine;
 using Fusion;
 using System.Linq;
 
-public class Room : NetworkBehaviour
+public class RoomM : NetworkBehaviour
 {
-    public static Room Instance;
+    public static RoomM Instance;
 
     //Dictionary<int, Player> _activePlayers;
     private Dictionary<PlayerRef, bool> _playerStates = new Dictionary<PlayerRef, bool>();
