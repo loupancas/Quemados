@@ -9,7 +9,7 @@ using System.Linq;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; private set; }
-    public static bool ControlsEnabled = false;
+    //public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
     [SerializeField] public float _jumpForce = 5;
@@ -96,7 +96,7 @@ public class Player : NetworkBehaviour
 
     public static void EnablePlayerControls()
     {
-        ControlsEnabled = true;
+        //ControlsEnabled = true;
     }
     
     void Update()
@@ -237,6 +237,7 @@ public class Player : NetworkBehaviour
             var velocity = Vector3.ClampMagnitude(_rgbd.velocity, _speed);
             velocity.y = _rgbd.velocity.y;
             _rgbd.velocity = velocity;
+            OnMovement(_rgbd.velocity.magnitude);
         }
         else
         {
