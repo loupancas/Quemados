@@ -38,13 +38,20 @@ public class BallPickUp : NetworkBehaviour
 
     private void PickUp(Player player)
     {
-        IsPickedUp = true;
-        //player._hasBall = true;
+        if (Object.HasStateAuthority)
+        {
+            IsPickedUp = true;
+            player.HasBall = true; // Actualiza el estado del jugador
+        }
     }
 
-    public void Drop()
+    public void Drop(Player player)
     {
-        IsPickedUp = false;
+        if (Object.HasStateAuthority)
+        {
+            IsPickedUp = false;
+            player.HasBall = false; // Actualiza el estado del jugador
+        }
     }
 
     private void UpdateBallState()

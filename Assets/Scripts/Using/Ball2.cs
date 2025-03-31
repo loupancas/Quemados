@@ -6,11 +6,22 @@ public class Ball2 : NetworkBehaviour
     [SerializeField] private float _moveForce = 7f;
     [SerializeField] private float _damage = 1f;
     [SerializeField] private float _lifeTime = 3f;
-
+    MeshRenderer _meshRenderer;
     private TickTimer _lifeTimer;
-    
+
+    private void Awake()
+    {
+    }
+
+    private void Start()
+    {
+       
+    }
     public override void Spawned()
     {
+        _meshRenderer = GetComponent<MeshRenderer>();
+
+        _meshRenderer.enabled = false;
         _lifeTimer = TickTimer.CreateFromSeconds(Runner, _lifeTime);
     }
 

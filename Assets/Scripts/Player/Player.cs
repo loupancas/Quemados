@@ -28,7 +28,8 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
-
+    [Networked]
+    public bool HasBall { get; set; }
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     private bool hasTeam = false;
@@ -59,7 +60,10 @@ public class Player : NetworkBehaviour
 
     private void Awake()
     {
-        _ballPrefab.GetComponentInChildren<Renderer>().enabled = false;
+        if (_ballPrefab != null)
+        {
+            _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
+        }
     }
 
     public override void Spawned()
@@ -155,7 +159,10 @@ public class Player : NetworkBehaviour
                     ballPickUp.RPC_PickUp(this);
                     ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
                     HeldBall = ballNetworkObject;
-                    _ballPrefab.GetComponentInChildren<Renderer>().enabled = true;
+                    if (_ballPrefab != null)
+                    {
+                        _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = true;
+                    }
                     break;
                 }
             }
@@ -173,6 +180,7 @@ public class Player : NetworkBehaviour
                 ball.RpcThrow(throwDirection);
                 HeldBall.GetComponent<NetworkObject>().RemoveInputAuthority();
                 HeldBall = default;
+                _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
             }
         }
     }

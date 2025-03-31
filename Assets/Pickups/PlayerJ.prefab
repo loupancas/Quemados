@@ -2500,7 +2500,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveForce: 7
-  _damage: 25
+  _damage: 1
   _lifeTime: 3
 --- !u!114 &3601751547686477864
 MonoBehaviour:
@@ -2829,6 +2829,7 @@ MonoBehaviour:
   _defaultSpeed: 0
   _defaultJump: 0
   Camera: {fileID: 0}
+  _HasBall: 0
   __teamColor: {r: 0, g: 0, b: 0, a: 0}
   _meshRenderer: {fileID: 3500929485112267311}
   _HeldBall: {fileID: 3601751547686477864}

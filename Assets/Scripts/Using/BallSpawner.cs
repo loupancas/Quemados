@@ -17,7 +17,7 @@ public class BallSpawner : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (ballPickUp != null && ballPickUp.IsPickedUp)
+        if (ballPickUp.IsPickedUp)
         {
             timer += Runner.DeltaTime;
             if (timer >= spawnInterval)
