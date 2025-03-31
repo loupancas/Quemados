@@ -404,7 +404,9 @@ GameObject:
   - component: {fileID: 595474755}
   - component: {fileID: 595474754}
   - component: {fileID: 595474753}
-  - component: {fileID: 595474752}
+  - component: {fileID: 595474758}
+  - component: {fileID: 595474757}
+  - component: {fileID: 595474759}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -412,18 +414,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &595474752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 595474751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec3cf27c37188824ca75e6b941bc24d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &595474753
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -510,6 +500,69 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &595474757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595474751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 618269971
+  ObjectInterest: 1
+  Flags: 786433
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 595474758}
+  - {fileID: 595474759}
+--- !u!114 &595474758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595474751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e937ef5e5083184eac15384903d6a2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _IsPickedUp: 0
+--- !u!114 &595474759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595474751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395b74102eb307e4e846ecdaca227d33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 1
+  Damage: 10
+  FireRate: 100
+  BallsPerShot: 1
+  Dispersion: 0
+  HitMask:
+    serializedVersion: 2
+    m_Bits: 0
+  MaxHitDistance: 100
+  Icon: {fileID: 0}
+  Name: 
+  Animator: {fileID: 0}
+  ThirdPersonVisual: {fileID: 0}
+  ThirdPersonMuzzleTransform: {fileID: 0}
+  MuzzleEffectPrefab: {fileID: 0}
+  BallVisualPrefab: {fileID: 0}
+  _IsCollected:
+    _value: 0
+  _RemainingShoot: 0
 --- !u!4 &599361383 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2500214841912793815, guid: 0893b4bdb350dc1458b78bc9e59b0aa3, type: 3}
@@ -960,6 +1013,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 469323982945159728, guid: 68113ad87c087b448aba03c72ad0c770, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1393157618021599451, guid: 68113ad87c087b448aba03c72ad0c770, type: 3}
+      propertyPath: _physicsAuthority
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1479170868390325918, guid: 68113ad87c087b448aba03c72ad0c770, type: 3}

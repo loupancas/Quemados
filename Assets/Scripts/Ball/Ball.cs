@@ -91,9 +91,18 @@ using UnityEngine.Serialization;
 			
 		}
 
-	
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    public void RpcThrow(Vector3 direction)
+    {
+        // Implement the logic for throwing the ball
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.AddForce(direction * 10, ForceMode.VelocityChange);
+        }
+    }
 
-		public void AddShoot(int amount)
+    public void AddShoot(int amount)
 		{
 			RemainingShoot += amount;
 		}

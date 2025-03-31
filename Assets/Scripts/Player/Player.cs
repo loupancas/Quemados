@@ -8,7 +8,7 @@ using System.Linq;
 
 public class Player : NetworkBehaviour
 {
-    public static Player LocalPlayer { get; private set; }
+    public static Player LocalPlayer { get; set; }
     //public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
@@ -18,7 +18,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
     //PlayerView playerView;
-    public Rigidbody _rgbd;
+    private Rigidbody _rgbd;
     public Animator _animator;
     private bool _isGrounded = true;
     //private int fadeTime = 5;
@@ -29,11 +29,12 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
-
+    //Vector2 moveInputVector = Vector2.zero;
+    //RaycastHit[] raycastHits = new RaycastHit[10];
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     private bool hasTeam = false;
-
+    [Networked] public NetworkObject HeldBall { get; set; }
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -66,7 +67,7 @@ public class Player : NetworkBehaviour
         {
             LocalPlayer = this;
             NetworkedColor = GetComponentInChildren<Renderer>().material.color;
-
+            Debug.Log("Local Player");
             Camera = Camera.main;
             Camera.GetComponent<ThirdPersonCamera>().Target = transform;
             _rgbd = GetComponent<Rigidbody>();
@@ -77,6 +78,7 @@ public class Player : NetworkBehaviour
         }
         else
         {
+            Debug.Log("No State Authority");
             //SynchronizeProperties();
             //GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
             //Debug.Log("index" + Runner.ActivePlayers.Count());
@@ -103,12 +105,14 @@ public class Player : NetworkBehaviour
     {
         if (!HasStateAuthority ) return;
 
-        CheckGrounded();
-
-        _xAxi = Input.GetAxis("Horizontal");
+       //heckGrounded();
+   
+       _xAxi = Input.GetAxis("Horizontal");
         _yAxi = Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.Space) && _isGrounded)
+       //Debug.Log(moveInputVector);
+
+        if (Input.GetKeyDown(KeyCode.Space) )
         {
             _jumpPressed = true;
         }
@@ -123,57 +127,58 @@ public class Player : NetworkBehaviour
             NetworkedColor = Color.red;
         }
 
-        // if (Input.GetKeyDown(KeyCode.E))
-        // {
-        //     TryPickupBall();
-        // }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TryPickupBall();
+        }
 
-        // if (Input.GetMouseButtonDown(0) && HeldBall)
-        // {
-        //     ThrowBall();
-        // }
+        if (Input.GetMouseButtonDown(0) && HeldBall)
+        {
+            ThrowBall();
+        }
     }
 
 
+    #region
+    private void TryPickupBall()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.CompareTag("Ball"))
+            {
+                NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
+                if (ballNetworkObject && !ballNetworkObject.HasInputAuthority)
+                {
+                    ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
+                    HeldBall = ballNetworkObject;
+                    break;
+                }
+            }
+        }
+    }
 
-    // private void TryPickupBall()
-    // {
-    //     Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
-    //     foreach (var hitCollider in hitColliders)
-    //     {
-    //         if (hitCollider.CompareTag("Ball"))
-    //         {
-    //             NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
-    //             if (ballNetworkObject && !ballNetworkObject.HasInputAuthority)
-    //             {
-    //                 Runner.AssignInputAuthority(ballNetworkObject, Runner.LocalPlayer);
-    //                 HeldBall = ballNetworkObject;
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // private void ThrowBall()
-    // {
-    //     if (HeldBall.IsValid)
-    //     {
-    //         Vector3 throwDirection = transform.forward;
-    //         Ball ball = Runner.GetNetworkedBehaviour<Ball>(HeldBall);
-    //         if (ball != null)
-    //         {
-    //             ball.RpcThrow(throwDirection);
-    //             Runner.AssignInputAuthority(HeldBall, default);
-    //             HeldBall = default;
-    //         }
-    //     }
-    // }
+    private void ThrowBall()
+    {
+        if (HeldBall.IsValid)
+        {
+            Vector3 throwDirection = transform.forward;
+            Ball ball = HeldBall.GetComponent<Ball>();
+            if (ball != null)
+            {
+                ball.RpcThrow(throwDirection);
+                HeldBall.GetComponent<NetworkObject>().RemoveInputAuthority();
+                HeldBall = default;
+            }
+        }
+    }
 
     // static void OnHeldBallChanged(Changed<Player> changed)
     // {
     //     // Puedes agregar lógica adicional aquí si necesitas manejar cambios cuando se actualiza HeldBall.
     // }
 
+    #endregion
 
     private void ChangeColor()
     {
@@ -186,7 +191,13 @@ public class Player : NetworkBehaviour
     {
        
         if (!HasStateAuthority) return;
+
+        //MOVIMIENTO
         Movement();
+
+
+      
+
     }
 
     private void CheckGrounded()
@@ -250,7 +261,7 @@ public class Player : NetworkBehaviour
 
     void Jump()
     {
-        _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.VelocityChange);
         _animator.SetBool("Jumping", true);
         // playerView.isRunning(true);
     }
@@ -261,7 +272,7 @@ public class Player : NetworkBehaviour
         ray.origin += Camera.transform.forward;
 
         Debug.DrawRay(ray.origin, ray.direction, Color.red, 1f);
-        // Runner.Spawn(_ballPrefab, _ballSpawnTransform.position, _ballSpawnTransform.rotation);
+        Runner.Spawn(_ballPrefab, _ballSpawnTransform.position, _ballSpawnTransform.rotation);
 
 
         if (Runner.GetPhysicsScene().Raycast(ray.origin,ray.direction, out var hit, 100, _shootLayer ))
