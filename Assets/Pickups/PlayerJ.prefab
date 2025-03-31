@@ -2373,7 +2373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8940803820893408810
 Transform:
   m_ObjectHideFlags: 0
@@ -2743,7 +2743,7 @@ GameObject:
   - component: {fileID: 308506940785722130}
   m_Layer: 8
   m_Name: PlayerJ
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2831,6 +2831,7 @@ MonoBehaviour:
   Camera: {fileID: 0}
   __teamColor: {r: 0, g: 0, b: 0, a: 0}
   _meshRenderer: {fileID: 3500929485112267311}
+  _HeldBall: {fileID: 3601751547686477864}
   _ballSpawnTransform: {fileID: 1088013016198138683}
   _ballPrefab: {fileID: 2600019436737604359}
 --- !u!54 &575414237586548799

@@ -4,14 +4,14 @@ using UnityEngine;
 public class Ball2 : NetworkBehaviour
 {
     [SerializeField] private float _moveForce = 7f;
-    [SerializeField] private float _damage = 25f;
+    [SerializeField] private float _damage = 1f;
     [SerializeField] private float _lifeTime = 3f;
 
     private TickTimer _lifeTimer;
     
     public override void Spawned()
     {
-       
+        _lifeTimer = TickTimer.CreateFromSeconds(Runner, _lifeTime);
     }
 
     public void ShootBall()
@@ -24,9 +24,10 @@ public class Ball2 : NetworkBehaviour
     {
         if (!HasStateAuthority) return;
         
-        if (!_lifeTimer.Expired(Runner)) return;
-        
-        Runner.Despawn(Object);
+        if (!_lifeTimer.Expired(Runner))
+        {
+            Runner.Despawn(Object);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -39,5 +40,16 @@ public class Ball2 : NetworkBehaviour
         }
 
         Runner.Despawn(Object);
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    public void RpcThrow(Vector3 direction)
+    {
+        // Implement the logic for throwing the ball
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.AddForce(direction * 10, ForceMode.VelocityChange);
+        }
     }
 }

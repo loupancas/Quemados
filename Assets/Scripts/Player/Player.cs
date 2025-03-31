@@ -17,7 +17,6 @@ public class Player : NetworkBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
-    //PlayerView playerView;
     private Rigidbody _rgbd;
     public Animator _animator;
     private bool _isGrounded = true;
@@ -29,8 +28,7 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
-    //Vector2 moveInputVector = Vector2.zero;
-    //RaycastHit[] raycastHits = new RaycastHit[10];
+
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     private bool hasTeam = false;
@@ -39,7 +37,6 @@ public class Player : NetworkBehaviour
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
     Color NetworkedColor { get; set; }
-    // [Networked] public NetworkObjectRef HeldBall { get; set; }
 
 
     void OnNetColorChanged() => GetComponentInChildren<Renderer>().material.color = NetworkedColor;
@@ -49,7 +46,7 @@ public class Player : NetworkBehaviour
     #region Networked Health Change
 
     [Networked, OnChangedRender(nameof(OnNetHealthChanged))]
-    private float NetworkedHealth { get; set; } = 100;
+    private float NetworkedHealth { get; set; } = 3;
     void OnNetHealthChanged() => Debug.Log($"Life = {NetworkedHealth}");
 
     #endregion
@@ -60,6 +57,10 @@ public class Player : NetworkBehaviour
     [SerializeField] private Transform _ballSpawnTransform;
     [SerializeField] private Ball2 _ballPrefab;
 
+    private void Awake()
+    {
+        _ballPrefab.GetComponentInChildren<Renderer>().enabled = false;
+    }
 
     public override void Spawned()
     {
@@ -148,10 +149,13 @@ public class Player : NetworkBehaviour
             if (hitCollider.CompareTag("Ball"))
             {
                 NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
-                if (ballNetworkObject && !ballNetworkObject.HasInputAuthority)
+                BallPickUp ballPickUp = hitCollider.GetComponent<BallPickUp>();
+                if (ballNetworkObject && !ballNetworkObject.HasInputAuthority && ballPickUp)
                 {
+                    ballPickUp.RPC_PickUp(this);
                     ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
                     HeldBall = ballNetworkObject;
+                    _ballPrefab.GetComponentInChildren<Renderer>().enabled = true;
                     break;
                 }
             }
@@ -163,7 +167,7 @@ public class Player : NetworkBehaviour
         if (HeldBall.IsValid)
         {
             Vector3 throwDirection = transform.forward;
-            Ball ball = HeldBall.GetComponent<Ball>();
+            Ball2 ball = HeldBall.GetComponent<Ball2>();
             if (ball != null)
             {
                 ball.RpcThrow(throwDirection);
@@ -173,10 +177,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    // static void OnHeldBallChanged(Changed<Player> changed)
-    // {
-    //     // Puedes agregar lógica adicional aquí si necesitas manejar cambios cuando se actualiza HeldBall.
-    // }
+   
 
     #endregion
 
@@ -235,7 +236,7 @@ public class Player : NetworkBehaviour
         // DISPARO
         if (_shootPressed)
         {
-            RaycastShoot();
+            //RaycastShoot();
             _shootPressed = false;
         }
 
@@ -266,27 +267,27 @@ public class Player : NetworkBehaviour
         // playerView.isRunning(true);
     }
 
-    void RaycastShoot()
-    {
-        Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
-        ray.origin += Camera.transform.forward;
+    //void RaycastShoot()
+    //{
+    //    Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
+    //    ray.origin += Camera.transform.forward;
 
-        Debug.DrawRay(ray.origin, ray.direction, Color.red, 1f);
-        Runner.Spawn(_ballPrefab, _ballSpawnTransform.position, _ballSpawnTransform.rotation);
+    //    Debug.DrawRay(ray.origin, ray.direction, Color.red, 1f);
+    //    Runner.Spawn(_ballPrefab, _ballSpawnTransform.position, _ballSpawnTransform.rotation);
 
 
-        if (Runner.GetPhysicsScene().Raycast(ray.origin,ray.direction, out var hit, 100, _shootLayer ))
-        {
-            if (hit.transform.GetComponent<Player>().Camera != null)
-                return;
+    //    if (Runner.GetPhysicsScene().Raycast(ray.origin,ray.direction, out var hit, 100, _shootLayer ))
+    //    {
+    //        if (hit.transform.GetComponent<Player>().Camera != null)
+    //            return;
 
-            Debug.Log(hit.transform.name);
-            var enemy = hit.transform.GetComponent<Player>();
-            enemy.RPC_TakeDamage(_shootDamage);
-        }
+    //        Debug.Log(hit.transform.name);
+    //        var enemy = hit.transform.GetComponent<Player>();
+    //        enemy.RPC_TakeDamage(_shootDamage);
+    //    }
 
-        OnShooting();
-    }
+    //    OnShooting();
+    //}
 
     private void OnTriggerEnter(Collider other)
     {
@@ -347,11 +348,16 @@ public class Player : NetworkBehaviour
 
         if (NetworkedHealth <= 0)
         {
-            Dead();
+            //Dead();
             //SetLoseScreenRPC();
-            UIManager.instance.SetLoseScreen();
+            //UIManager.instance.SetLoseScreen();
+            RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
         }
-       
+        else
+        {
+            Debug.Log("Player Hit");
+        }
+
     }
 
     void Dead()

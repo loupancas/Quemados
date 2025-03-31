@@ -16,7 +16,6 @@ using UnityEngine.Serialization;
 
 		[Header("Shoot Setup")]
 		public float     Damage = 10f;
-		public int       FireRate = 100;
 		[Range(1, 20)]
 		public int       BallsPerShot = 1;
 		public float     Dispersion = 0f;
