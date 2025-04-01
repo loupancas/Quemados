@@ -12,12 +12,26 @@ public class BallSpawner : NetworkBehaviour
     public override void Spawned()
     {
         base.Spawned();
-        InitializeBallPickUp();
+        
+        //InitializeBallPickUp();
     }
 
     public override void FixedUpdateNetwork()
     {
-        if (ballPickUp.IsPickedUp)
+        //if (ballPickUp.IsPickedUp)
+        //{
+        //    timer += Runner.DeltaTime;
+        //    if (timer >= spawnInterval)
+        //    {
+        //        timer = 0f;
+        //        SpawnBall();
+        //    }
+        //}
+
+        if (ballPrefab == null) return;
+
+        BallPickUp ballPickUp = ballPrefab.GetComponentInChildren<BallPickUp>();
+        if (ballPickUp != null && ballPickUp.IsPickedUp)
         {
             timer += Runner.DeltaTime;
             if (timer >= spawnInterval)
@@ -42,8 +56,10 @@ public class BallSpawner : NetworkBehaviour
         spawnPosition = new Vector3(0, 1.28f, 0);
         if (ballPrefab != null)
         {
-            ballPrefab.GetComponentInChildren<BallPickUp>().ActiveObject.SetActive(true);
-            Runner.Spawn(ballPrefab, spawnPosition, Quaternion.identity);
+            //ballPrefab.GetComponentInChildren<BallPickUp>().ActiveObject.SetActive(true);
+            //Runner.Spawn(ballPrefab, spawnPosition, Quaternion.identity);
+            GameObject newBall = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
+            Runner.Spawn(newBall, spawnPosition, Quaternion.identity);
         }
     }
 }

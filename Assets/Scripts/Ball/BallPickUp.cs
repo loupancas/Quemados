@@ -9,7 +9,7 @@ public class BallPickUp : NetworkBehaviour
     public float Radius = 1f;
     public GameObject ActiveObject;
     public GameObject InactiveObject;
-
+    public static BallPickUp Instance;
 
     [Networked]
    
@@ -19,8 +19,10 @@ public class BallPickUp : NetworkBehaviour
 
     public override void Spawned()
     {
-        IsPickedUp = false;
-        UpdateBallState();
+        Instance = this;
+        //IsPickedUp = false;
+        ActiveObject.SetActive(true);
+        InactiveObject.SetActive(false);
     }
 
 
@@ -41,7 +43,7 @@ public class BallPickUp : NetworkBehaviour
         if (Object.HasStateAuthority)
         {
             IsPickedUp = true;
-            player.HasBall = true; // Actualiza el estado del jugador
+           player.HasBall = true; // Actualiza el estado del jugador
         }
     }
 
@@ -56,8 +58,11 @@ public class BallPickUp : NetworkBehaviour
 
     private void UpdateBallState()
     {
-        ActiveObject.SetActive(!IsPickedUp);
-        InactiveObject.SetActive(IsPickedUp);
+        if (ActiveObject != null && InactiveObject != null)
+        {
+            ActiveObject.SetActive(!IsPickedUp);
+            InactiveObject.SetActive(IsPickedUp);
+        }
     }
 
     public override void Render()

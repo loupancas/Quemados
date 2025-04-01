@@ -33,7 +33,7 @@ public class Player : NetworkBehaviour
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     private bool hasTeam = false;
-    [Networked] public NetworkObject HeldBall { get; set; }
+    //[Networked] public NetworkObject HeldBall { get; set; }
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -56,14 +56,20 @@ public class Player : NetworkBehaviour
     public event Action OnShooting = delegate {  };
 
     [SerializeField] private Transform _ballSpawnTransform;
-    [SerializeField] private Ball2 _ballPrefab;
-
+    [SerializeField] WeaponHandler _weaponHandler;
+   
+    [SerializeField] BallPickUp _ballpickup;
+    //[SerializeField] private Ball2 _ballPrefab;
+    public MeshRenderer ball;
     private void Awake()
     {
-        if (_ballPrefab != null)
-        {
-            _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
-        }
+        //if (_ballPrefab != null)
+        //{
+        //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
+        //}
+
+     
+
     }
 
     public override void Spawned()
@@ -78,6 +84,15 @@ public class Player : NetworkBehaviour
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
+            ball.GetComponent<MeshRenderer>().enabled = false;
+
+            HasBall = false;
+           
+
+            _weaponHandler = GetComponent<WeaponHandler>();
+          
+           
+
             StartCoroutine(WaitInit());
 
         }
@@ -122,72 +137,118 @@ public class Player : NetworkBehaviour
             _jumpPressed = true;
         }
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            _shootPressed = true;  
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            NetworkedColor = Color.red;
-        }
-
         if (Input.GetKeyDown(KeyCode.E))
         {
-            TryPickupBall();
+            //TryPickupBall();
+
+
+            _ballpickup.RPC_PickUp(this);
+            //ball.GetComponent<NetworkObject>().AssignInputAuthority(Runner.LocalPlayer);
+            ball.GetComponent<MeshRenderer>().enabled = true;
+
+            // HasBall = true;
+
         }
 
-        if (Input.GetMouseButtonDown(0) && HeldBall)
+        if (Input.GetMouseButtonDown(0) && HasBall)
         {
-            ThrowBall();
+            RPC_FireAndDropBall();
+            ball.GetComponent<MeshRenderer>().enabled = false;
+
         }
+        else
+        {
+            Debug.Log("No Ball");
+        }    
     }
 
+
+    
 
     #region
-    private void TryPickupBall()
-    {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
-        foreach (var hitCollider in hitColliders)
-        {
-            if (hitCollider.CompareTag("Ball"))
-            {
-                NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
-                BallPickUp ballPickUp = hitCollider.GetComponent<BallPickUp>();
-                if (ballNetworkObject && !ballNetworkObject.HasInputAuthority && ballPickUp)
-                {
-                    ballPickUp.RPC_PickUp(this);
-                    ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
-                    HeldBall = ballNetworkObject;
-                    if (_ballPrefab != null)
-                    {
-                        _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = true;
-                    }
-                    break;
-                }
-            }
-        }
-    }
+    //private void TryPickupBall()
+    //{
+    //    Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
+    //    foreach (var hitCollider in hitColliders)
+    //    {
+    //        if (hitCollider.CompareTag("Ball"))
+    //        {
+    //            NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
+    //            BallPickUp ballPickUp = hitCollider.GetComponent<BallPickUp>();
+    //            if (ballNetworkObject && !ballNetworkObject.HasInputAuthority && ballPickUp)
+    //            {
+    //                ballPickUp.RPC_PickUp(this);
+    //                ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
+    //                HeldBall = ballNetworkObject;
+    //                //if (_ballPrefab != null && !_ballPrefab.GetComponentInChildren<MeshRenderer>().enabled)
+    //                //{
+    //                //    HasBall = true;
+    //                //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = true;
+    //                //}
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
 
-    private void ThrowBall()
-    {
-        if (HeldBall.IsValid)
-        {
-            Vector3 throwDirection = transform.forward;
-            Ball2 ball = HeldBall.GetComponent<Ball2>();
-            if (ball != null)
-            {
-                ball.RpcThrow(throwDirection);
-                HeldBall.GetComponent<NetworkObject>().RemoveInputAuthority();
-                HeldBall = default;
-                _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
-            }
-        }
-    }
-
-   
-
+    //private void ThrowBall()
+    //{
+    //    if (HeldBall.IsValid)
+    //    {
+    //        Vector3 throwDirection = transform.forward;
+    //        Ball2 ball = HeldBall.GetComponent<Ball2>();
+    //        if (ball != null)
+    //        {
+    //            ball.RpcThrow(throwDirection);
+    //            HeldBall.GetComponent<NetworkObject>().RemoveInputAuthority();
+    //            HeldBall = default;
+    //            //if (_ballPrefab != null && _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled)
+    //            //{
+    //            //    HasBall = false;
+    //            //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
+    //            //}
+    //        }
+    //    }
+    //}
     #endregion
+
+
+
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_FireAndDropBall()
+    {
+        if (!HasBall) return;
+        _weaponHandler.Fire();
+        DropBall();
+    }
+
+
+    private void DropBall()
+    {
+        HasBall = false;
+
+        if (Runner.IsServer)
+        {
+            FindObjectOfType<BallPickUp>().Drop(this);
+
+        }
+        else
+        {
+            RPC_DropBallOnServer();
+        }
+
+    }
+
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_DropBallOnServer()
+    {
+        FindObjectOfType<BallPickUp>().Drop(this);
+    }
+
+
+
 
     private void ChangeColor()
     {
@@ -209,19 +270,7 @@ public class Player : NetworkBehaviour
 
     }
 
-    private void CheckGrounded()
-    {
-        Vector3 origin = transform.position + Vector3.up * 0.1f;
-        bool wasGrounded = _isGrounded;
-        _isGrounded = Physics.Raycast(origin, Vector3.down, _groundCheckDistance, _groundLayer);
-
-        Debug.DrawRay(origin, Vector3.down * _groundCheckDistance, _isGrounded ? Color.green : Color.red);
-
-        if (!_isGrounded && wasGrounded)
-        {
-            _animator.SetBool("Jumping", false);
-        }
-    }
+   
 
     public void Movement()
     {
@@ -242,11 +291,11 @@ public class Player : NetworkBehaviour
         }
 
         // DISPARO
-        if (_shootPressed)
-        {
-            //RaycastShoot();
-            _shootPressed = false;
-        }
+        //if (_shootPressed)
+        //{
+        //    //RaycastShoot();
+        //    _shootPressed = false;
+        //}
 
         // MOVIMIENTO
         if (direction != Vector3.zero)
@@ -275,28 +324,8 @@ public class Player : NetworkBehaviour
         // playerView.isRunning(true);
     }
 
-    //void RaycastShoot()
-    //{
-    //    Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
-    //    ray.origin += Camera.transform.forward;
-
-    //    Debug.DrawRay(ray.origin, ray.direction, Color.red, 1f);
-    //    Runner.Spawn(_ballPrefab, _ballSpawnTransform.position, _ballSpawnTransform.rotation);
-
-
-    //    if (Runner.GetPhysicsScene().Raycast(ray.origin,ray.direction, out var hit, 100, _shootLayer ))
-    //    {
-    //        if (hit.transform.GetComponent<Player>().Camera != null)
-    //            return;
-
-    //        Debug.Log(hit.transform.name);
-    //        var enemy = hit.transform.GetComponent<Player>();
-    //        enemy.RPC_TakeDamage(_shootDamage);
-    //    }
-
-    //    OnShooting();
-    //}
-
+   
+    #region POWER UP
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<JumpPower>())
@@ -326,8 +355,8 @@ public class Player : NetworkBehaviour
         _jumpForce = _defaultJump;
         ChangeColorRecursively(transform, Color.white);
     }
-
-      void ChangeColorRecursively(Transform parent, Color color)
+    #endregion
+    void ChangeColorRecursively(Transform parent, Color color)
     {
         foreach (Transform child in parent)
         {

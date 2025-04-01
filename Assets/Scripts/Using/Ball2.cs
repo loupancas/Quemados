@@ -1,4 +1,5 @@
 using Fusion;
+using Fusion.Addons.Physics;
 using UnityEngine;
 
 public class Ball2 : NetworkBehaviour
@@ -6,11 +7,13 @@ public class Ball2 : NetworkBehaviour
     [SerializeField] private float _moveForce = 7f;
     [SerializeField] private float _damage = 1f;
     [SerializeField] private float _lifeTime = 3f;
+    private NetworkRigidbody3D _networkRb;
     MeshRenderer _meshRenderer;
     private TickTimer _lifeTimer;
-
+    TickTimer _lifeTimeTickTimer = TickTimer.None;
     private void Awake()
     {
+        _networkRb = GetComponent<NetworkRigidbody3D>();
     }
 
     private void Start()
@@ -19,10 +22,12 @@ public class Ball2 : NetworkBehaviour
     }
     public override void Spawned()
     {
-        _meshRenderer = GetComponent<MeshRenderer>();
+        _networkRb.Rigidbody.AddForce(transform.forward * 10, ForceMode.VelocityChange);
 
-        _meshRenderer.enabled = false;
-        _lifeTimer = TickTimer.CreateFromSeconds(Runner, _lifeTime);
+        if (Object.HasStateAuthority)
+        {
+            _lifeTimeTickTimer = TickTimer.CreateFromSeconds(Runner, 2);
+        }
     }
 
     public void ShootBall()
@@ -33,13 +38,22 @@ public class Ball2 : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (!HasStateAuthority) return;
-        
-        if (!_lifeTimer.Expired(Runner))
+        if (Object.HasStateAuthority)
         {
-            Runner.Despawn(Object);
+            if (_lifeTimeTickTimer.Expired(Runner))
+            {
+                DespawnObject();
+            }
         }
     }
+
+    void DespawnObject()
+    {
+        _lifeTimeTickTimer = TickTimer.None;
+
+        Runner.Despawn(Object);
+    }
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -50,7 +64,7 @@ public class Ball2 : NetworkBehaviour
             other.GetComponent<Player>().RPC_TakeDamage(_damage);
         }
 
-        Runner.Despawn(Object);
+        DespawnObject();
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
