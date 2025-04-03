@@ -10,6 +10,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private RoomM _RoomManager;
     [SerializeField] private GameObject _readyButton;
+    [SerializeField] private BallPickUp _ballPickUpPrefab;
     public static PlayerSpawner Instance;
     private List<Transform> availableSpawnPoints;
     private int playerCount = 0;
@@ -28,6 +29,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     private void Start()
     {
         // GeneratePowerUpPositions();
+       
     }
     // Se ejecuta CADA VEZ que se conecta un cliente
     public void PlayerJoined(PlayerRef player)
@@ -39,6 +41,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             if (Runner.ActivePlayers.Count() == 1)
             {
                 Runner.Spawn(_RoomManager);
+                SpawnBallPickUp();
             }
            
 
@@ -64,5 +67,23 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         availableSpawnPoints.RemoveAt(spawnIndex);
     }
 
+    private void SpawnBallPickUp()
+    {
+        if (_ballPickUpPrefab != null)
+        {
+            // Selecciona un punto de aparición aleatorio de los disponibles
+            int spawnIndex = Random.Range(0, availableSpawnPoints.Count);
+            Transform spawnPoint = availableSpawnPoints[spawnIndex];
 
+            // Spawnea el BallPickUp en el punto seleccionado
+            Runner.Spawn(_ballPickUpPrefab, spawnPoint.position, spawnPoint.rotation);
+
+            // Elimina el punto de aparición de la lista de disponibles
+            availableSpawnPoints.RemoveAt(spawnIndex);
+        }
+        else
+        {
+            Debug.LogError("BallPickUp prefab is not assigned!");
+        }
+    }
 }

@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-using Unity.VisualScripting;
 using System.Linq;
-
+using System.Resources;
+using UnityEditor;
+using Fusion.Addons.Physics;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
@@ -17,6 +18,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
+    [SerializeField] private LayerMask _ballLayer;
     private Rigidbody _rgbd;
     public Animator _animator;
     private bool _isGrounded = true;
@@ -28,8 +30,18 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
-    [Networked]
-    public bool HasBall { get; set; }
+    //[field: SerializeField] public Transform CenterPoint { get; private set; }
+    //[field: SerializeField] public Transform InteractionPoint { get; private set; }
+    //[Networked, Capacity(2)] public NetworkLinkedList<Equipment> Equipments { get; }
+    [Networked] public bool HasBall { get; set; }
+    [SerializeField] private Transform ballSpawnPoint;
+    [SerializeField] private GameObject ballPrefab;
+    //public Equipment ActiveEquipment => Equipments.Get(0);
+    [field: Header("Stats")]
+    //[field: SerializeField] public float InteractionRadius { get; private set; }
+    //[SerializeField] private Inventory inventory;
+   
+    //public bool HasBall { get; set; }
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     private bool hasTeam = false;
@@ -55,12 +67,12 @@ public class Player : NetworkBehaviour
     public event Action<float> OnMovement = delegate {  };
     public event Action OnShooting = delegate {  };
 
-    [SerializeField] private Transform _ballSpawnTransform;
-    [SerializeField] WeaponHandler _weaponHandler;
+    //[SerializeField] private Transform _ballSpawnTransform;
+    //[SerializeField] WeaponHandler _weaponHandler;
    
-    [SerializeField] BallPickUp _ballpickup;
-    //[SerializeField] private Ball2 _ballPrefab;
-    public MeshRenderer ball;
+    //[SerializeField] BallPickUp _ballpickup;
+    ////[SerializeField] private Ball2 _ballPrefab;
+    //public MeshRenderer ball;
     private void Awake()
     {
         //if (_ballPrefab != null)
@@ -84,14 +96,23 @@ public class Player : NetworkBehaviour
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
-            ball.GetComponent<MeshRenderer>().enabled = false;
+            //ball.GetComponent<MeshRenderer>().enabled = false;
 
             HasBall = false;
-           
 
-            _weaponHandler = GetComponent<WeaponHandler>();
-          
-           
+            //inventory.OnItemAdded += InventoryChanged;
+            //inventory.OnItemRemoved += InventoryChanged;
+            //_weaponHandler = GetComponent<WeaponHandler>();
+
+            //if (_weaponHandler == null)
+            //{
+            //    Debug.LogError("WeaponHandler component is missing.");
+            //}
+            // Asignar autoridad de entrada
+            if (!Object.HasInputAuthority)
+            {
+                Object.AssignInputAuthority(Runner.LocalPlayer);
+            }
 
             StartCoroutine(WaitInit());
 
@@ -111,6 +132,13 @@ public class Player : NetworkBehaviour
         }
     }
 
+    void InventoryChanged(InventoryItem item)
+    {
+        //if (item == ResourcesManager.instance.moneyItem)
+        //{
+        //    InterfaceManager.instance.PrintCurrency(inventory);
+        //}
+    }
     void SynchronizeProperties()
     {
         OnNetColorChanged();
@@ -139,31 +167,29 @@ public class Player : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            //TryPickupBall();
-
-
-            _ballpickup.RPC_PickUp(this);
+            TryPickupBall();
+            Debug.Log("E key pressed");
+            //CollectableEntity collectableEntity = FindObjectOfType<CollectableEntity>();
+            //collectableEntity.Collect();
+            //_ballpickup.RPC_PickUp(this);
             //ball.GetComponent<NetworkObject>().AssignInputAuthority(Runner.LocalPlayer);
-            ball.GetComponent<MeshRenderer>().enabled = true;
+            //ball.GetComponent<MeshRenderer>().enabled = true;
 
-            // HasBall = true;
+            //HasBall = true;
 
         }
 
         if (Input.GetMouseButtonDown(0) && HasBall)
         {
             RPC_FireAndDropBall();
-            ball.GetComponent<MeshRenderer>().enabled = false;
-
+            //ball.GetComponent<MeshRenderer>().enabled = false;
+           
         }
-        else
-        {
-            Debug.Log("No Ball");
-        }    
+         
     }
 
 
-    
+
 
     #region
     //private void TryPickupBall()
@@ -213,39 +239,108 @@ public class Player : NetworkBehaviour
     #endregion
 
 
+    private void TryPickupBall()
+    {
+        Debug.Log("TryPickupBall called");
+        if (HasBall)
+        {
+            Debug.Log("Player already has a ball");
+            return;
+        }
 
+        if (!Object.HasInputAuthority)
+        {
+            Debug.Log("Player does not have input authority");
+            return;
+        }
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f, _ballLayer);
+        Debug.Log($"Number of colliders found: {hitColliders.Length}");
+
+        foreach (var hitCollider in hitColliders)
+        {
+            BallPickUp ballPickUp = hitCollider.GetComponent<BallPickUp>();
+            if (ballPickUp != null)
+            {
+                Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
+                RPC_PickUpBall(ballPickUp.Object);
+                break;
+            }
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_PickUpBall(NetworkObject ballObject)
+    {
+        Debug.Log("RPC_PickUpBall called");
+        BallPickUp ballPickUp = ballObject.GetComponent<BallPickUp>();
+        if (ballPickUp != null)
+        {
+            ballPickUp.PickUp(this);
+            HasBall = true;
+            MeshRenderer ballRenderer = ballObject.GetComponent<MeshRenderer>();
+            if (ballRenderer != null)
+            {
+                ballRenderer.enabled = false;
+            }
+        }
+    }
+
+ 
+
+    private void TryDropBall()
+    {
+        if (!HasBall) return;
+
+        if (!Object.HasInputAuthority) return;
+
+        RPC_FireAndDropBall();
+    }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     private void RPC_FireAndDropBall()
     {
         if (!HasBall) return;
-        _weaponHandler.Fire();
-        DropBall();
-    }
+        Vector3 throwDirection = transform.forward;
+        NetworkObject ballInstance = Runner.Spawn(ballPrefab, ballSpawnPoint.position, Quaternion.identity);
+        ballInstance.GetComponent<Ball2>().RpcThrow(throwDirection);
 
-
-    private void DropBall()
-    {
-        HasBall = false;
-
-        if (Runner.IsServer)
+        BallPickUp ballPickUp = FindObjectOfType<BallPickUp>(); // Encuentra la pelota en la escena
+        if (ballPickUp != null)
         {
-            FindObjectOfType<BallPickUp>().Drop(this);
+            ballPickUp.Drop(this);
+            HasBall = false;
 
+            MeshRenderer ballRenderer = ballPickUp.GetComponent<MeshRenderer>();
+            if (ballRenderer != null)
+            {
+                ballRenderer.enabled = true;
+            }
         }
-        else
-        {
-            RPC_DropBallOnServer();
-        }
-
     }
 
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    private void RPC_DropBallOnServer()
-    {
-        FindObjectOfType<BallPickUp>().Drop(this);
-    }
+    //private void DropBall()
+    //{
+    //    HasBall = false;
+
+    //    if (Runner.IsServer)
+    //    {
+    //        FindObjectOfType<BallPickUp>().Drop(this);
+
+    //    }
+    //    else
+    //    {
+    //        RPC_DropBallOnServer();
+    //    }
+
+    //}
+
+
+    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    //private void RPC_DropBallOnServer()
+    //{
+    //    FindObjectOfType<BallPickUp>().Drop(this);
+    //}
 
 
 

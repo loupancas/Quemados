@@ -1,81 +1,63 @@
 using Fusion;
-using Unity.VisualScripting;
 using UnityEngine;
-
 
 public class BallPickUp : NetworkBehaviour
 {
-
     public float Radius = 1f;
     public GameObject ActiveObject;
     public GameObject InactiveObject;
-    public static BallPickUp Instance;
 
-    [Networked]
-   
-    public bool IsPickedUp { get; set; }
+    [Networked] public bool IsPickedUp { get; set; }
 
-    private static Collider[] _colliders = new Collider[4];
+    
 
     public override void Spawned()
     {
-        Instance = this;
-        //IsPickedUp = false;
-        ActiveObject.SetActive(true);
-        InactiveObject.SetActive(false);
+        base.Spawned();
+        UpdateBallState();
     }
 
-
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_PickUp(Player player)
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_PickUp(NetworkObject player)
     {
-        if (IsPickedUp)
-        {
-            return;
-        }
+        if (IsPickedUp) return;
 
-        PickUp(player);
-       Render();
+        IsPickedUp = true;
+        player.GetComponent<Player>().HasBall = true;
+        UpdateBallState();
     }
 
-    private void PickUp(Player player)
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_Drop(NetworkObject player)
     {
-        if (Object.HasStateAuthority)
-        {
-            IsPickedUp = true;
-           player.HasBall = true; // Actualiza el estado del jugador
-        }
-    }
+        if (!IsPickedUp) return;
 
-    public void Drop(Player player)
-    {
-        if (Object.HasStateAuthority)
-        {
-            IsPickedUp = false;
-            player.HasBall = false; // Actualiza el estado del jugador
-        }
+        IsPickedUp = false;
+        player.GetComponent<Player>().HasBall = false;
+        UpdateBallState();
     }
 
     private void UpdateBallState()
     {
-        if (ActiveObject != null && InactiveObject != null)
-        {
-            ActiveObject.SetActive(!IsPickedUp);
-            InactiveObject.SetActive(IsPickedUp);
-        }
+        ActiveObject.SetActive(!IsPickedUp);
+        InactiveObject.SetActive(IsPickedUp);
     }
 
-    public override void Render()
+    public void PickUp(Player player)
     {
+        if (IsPickedUp) return;
+
+        IsPickedUp = true;
+        player.HasBall = true;
         UpdateBallState();
     }
 
-
-    private void OnDrawGizmos()
+    public void Drop(Player player)
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, Radius);
+        if (!IsPickedUp) return;
+
+        IsPickedUp = false;
+        player.HasBall = false;
+        UpdateBallState();
     }
 }
-
-

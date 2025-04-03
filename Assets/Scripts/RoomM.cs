@@ -83,7 +83,7 @@ public class RoomM : NetworkBehaviour
             PlayerSpawner.Instance.SpawnPlayer();
            // UIManager.instance.readyButton.SetActive(false);
             UIManager.instance.StartGame();
-            BallPickUp.Instance.Spawned();
+            //BallPickUp.Instance.Spawned();
         }
     }
 

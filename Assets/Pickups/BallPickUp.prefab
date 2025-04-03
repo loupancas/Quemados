@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5697299304320220166}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,9 +42,11 @@ GameObject:
   - component: {fileID: 3213089758189189634}
   - component: {fileID: 2215367245099980584}
   - component: {fileID: 3581806110196826828}
-  - component: {fileID: 4354489913654127016}
   - component: {fileID: 402227543326385711}
-  m_Layer: 0
+  - component: {fileID: 4750749882718072939}
+  - component: {fileID: 9019871002155227111}
+  - component: {fileID: 2287005966527570766}
+  m_Layer: 6
   m_Name: BallPickUp
   m_TagString: Ball
   m_Icon: {fileID: 0}
@@ -102,23 +104,8 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2215367245099980584}
-  - {fileID: 4354489913654127016}
---- !u!114 &4354489913654127016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7557985618528565026}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e937ef5e5083184eac15384903d6a2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 1
-  ActiveObject: {fileID: 8769020577367913447}
-  InactiveObject: {fileID: 1103419514539364420}
-  _IsPickedUp: 0
+  - {fileID: 4750749882718072939}
+  - {fileID: 9019871002155227111}
 --- !u!65 &402227543326385711
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -140,6 +127,62 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4750749882718072939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557985618528565026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 509e646b7d11b224289422162294ddf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Item>k__BackingField: {fileID: 11400000, guid: ef589a8afd9e5ad43a25e3766d69c3b7, type: 2}
+  _Count: 1
+--- !u!114 &9019871002155227111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557985618528565026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb7fe4c4f9180a246947240f39df559b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2287005966527570766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557985618528565026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 863df0c8bc5fc47418556c1b34f849fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnInteract:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInteractCharacter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4750749882718072939}
+        m_TargetAssemblyTypeName: CollectableEntity, Assembly-CSharp
+        m_MethodName: Collect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8769020577367913447
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,7 +195,7 @@ GameObject:
   - component: {fileID: 3347701288442637864}
   - component: {fileID: 9006738919640263235}
   - component: {fileID: 3054291874812923890}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Active
   m_TagString: Untagged
   m_Icon: {fileID: 0}
