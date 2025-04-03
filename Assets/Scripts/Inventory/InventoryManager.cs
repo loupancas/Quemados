@@ -9,13 +9,13 @@ public class InventoryManager : MonoBehaviour
 
     private void OnEnable() //suscribir
     {
-        Inventario.OnInventoryChange += DrawInventory;
-        Inventario.OnInventoryUpdate += UpdateInventory;
+        //Inventario.OnInventoryChange += DrawInventory;
+        //Inventario.OnInventoryUpdate += UpdateInventory;
     }
     private void OnDisabled() //desuscribir
     {
-        Inventario.OnInventoryChange -= DrawInventory;
-        Inventario.OnInventoryUpdate -= UpdateInventory;
+        //Inventario.OnInventoryChange -= DrawInventory;
+        //Inventario.OnInventoryUpdate -= UpdateInventory;
     }
 
 

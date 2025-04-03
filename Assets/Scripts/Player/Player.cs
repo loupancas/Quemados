@@ -132,13 +132,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    void InventoryChanged(InventoryItem item)
-    {
-        //if (item == ResourcesManager.instance.moneyItem)
-        //{
-        //    InterfaceManager.instance.PrintCurrency(inventory);
-        //}
-    }
+   
     void SynchronizeProperties()
     {
         OnNetColorChanged();
