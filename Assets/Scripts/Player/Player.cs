@@ -30,22 +30,15 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
-    //[field: SerializeField] public Transform CenterPoint { get; private set; }
-    //[field: SerializeField] public Transform InteractionPoint { get; private set; }
-    //[Networked, Capacity(2)] public NetworkLinkedList<Equipment> Equipments { get; }
+    [SerializeField] private Ball2 _currentBall;
     [Networked] public bool HasBall { get; set; }
     [SerializeField] private Transform ballSpawnPoint;
     [SerializeField] private GameObject ballPrefab;
-    //public Equipment ActiveEquipment => Equipments.Get(0);
     [field: Header("Stats")]
-    //[field: SerializeField] public float InteractionRadius { get; private set; }
-    //[SerializeField] private Inventory inventory;
-   
-    //public bool HasBall { get; set; }
+ 
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     private bool hasTeam = false;
-    //[Networked] public NetworkObject HeldBall { get; set; }
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -67,12 +60,7 @@ public class Player : NetworkBehaviour
     public event Action<float> OnMovement = delegate {  };
     public event Action OnShooting = delegate {  };
 
-    //[SerializeField] private Transform _ballSpawnTransform;
-    //[SerializeField] WeaponHandler _weaponHandler;
-   
-    //[SerializeField] BallPickUp _ballpickup;
-    ////[SerializeField] private Ball2 _ballPrefab;
-    //public MeshRenderer ball;
+ 
     private void Awake()
     {
         //if (_ballPrefab != null)
@@ -163,13 +151,7 @@ public class Player : NetworkBehaviour
         {
             TryPickupBall();
             Debug.Log("E key pressed");
-            //CollectableEntity collectableEntity = FindObjectOfType<CollectableEntity>();
-            //collectableEntity.Collect();
-            //_ballpickup.RPC_PickUp(this);
-            //ball.GetComponent<NetworkObject>().AssignInputAuthority(Runner.LocalPlayer);
-            //ball.GetComponent<MeshRenderer>().enabled = true;
-
-            //HasBall = true;
+        
 
         }
 
@@ -276,66 +258,48 @@ public class Player : NetworkBehaviour
             {
                 ballRenderer.enabled = false;
             }
+            _currentBall = Instantiate(ballPrefab).GetComponent<Ball2>();
+            if (_currentBall != null)
+            {
+                Debug.Log("Ball2 component assigned to _currentBall");
+            }
+            else
+            {
+                Debug.LogError("Failed to assign Ball2 component to _currentBall");
+            }
         }
     }
 
  
 
-    private void TryDropBall()
-    {
-        if (!HasBall) return;
-
-        if (!Object.HasInputAuthority) return;
-
-        RPC_FireAndDropBall();
-    }
+   
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     private void RPC_FireAndDropBall()
     {
-        if (!HasBall) return;
-        Vector3 throwDirection = transform.forward;
-        NetworkObject ballInstance = Runner.Spawn(ballPrefab, ballSpawnPoint.position, Quaternion.identity);
-        ballInstance.GetComponent<Ball2>().RpcThrow(throwDirection);
-
-        BallPickUp ballPickUp = FindObjectOfType<BallPickUp>(); // Encuentra la pelota en la escena
-        if (ballPickUp != null)
+        if (!HasInputAuthority)
         {
-            ballPickUp.Drop(this);
+            Debug.LogError("Player does not have input authority to fire and drop the ball.");
+            return;
+        }
+        Debug.Log($"Attempting to throw ball. Ball valid: {_currentBall?.Object?.IsValid ?? false}, Authority: {HasInputAuthority}");
+        // Lógica para lanzar la pelota
+        if (_currentBall != null)
+        {
+            Vector3 throwDirection = ballSpawnPoint.forward; // Dirección de lanzamiento desde ballSpawnPoint
+            _currentBall.transform.position = ballSpawnPoint.position; // Posición de lanzamiento desde ballSpawnPoint
+            _currentBall.RpcThrow(throwDirection);
             HasBall = false;
-
-            MeshRenderer ballRenderer = ballPickUp.GetComponent<MeshRenderer>();
-            if (ballRenderer != null)
-            {
-                ballRenderer.enabled = true;
-            }
+            _currentBall = null; // Limpiar la referencia a la pelota
+        }
+        else
+        {
+            Debug.LogError("No ball found in the scene to throw.");
         }
     }
 
 
-    //private void DropBall()
-    //{
-    //    HasBall = false;
-
-    //    if (Runner.IsServer)
-    //    {
-    //        FindObjectOfType<BallPickUp>().Drop(this);
-
-    //    }
-    //    else
-    //    {
-    //        RPC_DropBallOnServer();
-    //    }
-
-    //}
-
-
-    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    //private void RPC_DropBallOnServer()
-    //{
-    //    FindObjectOfType<BallPickUp>().Drop(this);
-    //}
-
+    
 
 
 
@@ -396,6 +360,7 @@ public class Player : NetworkBehaviour
             velocity.y = _rgbd.velocity.y;
             _rgbd.velocity = velocity;
             OnMovement(_rgbd.velocity.magnitude);
+            _animator.SetFloat("Speed", _rgbd.velocity.magnitude);
         }
         else
         {
@@ -403,6 +368,7 @@ public class Player : NetworkBehaviour
             velocity.x = 0;
             velocity.z = 0;
             _rgbd.velocity = velocity;
+            _animator.SetFloat("Speed", 0);
         }
     }
 

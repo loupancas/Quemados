@@ -21,15 +21,20 @@ public class Ball2 : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (Object.HasStateAuthority && lifeTimer.Expired(Runner))
-        {
-            Runner.Despawn(Object);
-        }
+        //if (Object.HasStateAuthority && lifeTimer.Expired(Runner))
+        //{
+        //    Runner.Despawn(Object);
+        //}
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RpcThrow(Vector3 direction)
     {
+        if (!HasStateAuthority)
+        {
+            Debug.LogError("Local simulation is not allowed to send this RPC on " + gameObject);
+            return;
+        }
         networkRb.Rigidbody.velocity = direction * moveForce;
     }
 
@@ -39,6 +44,7 @@ public class Ball2 : NetworkBehaviour
 
         if (other.gameObject.CompareTag("Player"))
         {
+            Debug.Log("Hit player: " + other.gameObject.name);
             other.GetComponent<Player>().RPC_TakeDamage(1);
         }
 

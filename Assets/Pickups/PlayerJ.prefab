@@ -2708,6 +2708,7 @@ MonoBehaviour:
   _defaultSpeed: 0
   _defaultJump: 0
   Camera: {fileID: 0}
+  _currentBall: {fileID: 3401989825405034583, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   _HasBall: 0
   ballSpawnPoint: {fileID: 1088013016198138683}
   ballPrefab: {fileID: 2698456587172576195, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}

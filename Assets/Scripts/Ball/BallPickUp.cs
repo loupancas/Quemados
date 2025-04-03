@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using System.Collections;
 
 public class BallPickUp : NetworkBehaviour
 {
@@ -24,6 +25,8 @@ public class BallPickUp : NetworkBehaviour
 
         IsPickedUp = true;
         player.GetComponent<Player>().HasBall = true;
+        // Asignar la autoridad de entrada al jugador
+        Object.AssignInputAuthority(player.InputAuthority);
         UpdateBallState();
     }
 
@@ -39,8 +42,22 @@ public class BallPickUp : NetworkBehaviour
 
     private void UpdateBallState()
     {
-        ActiveObject.SetActive(!IsPickedUp);
-        InactiveObject.SetActive(IsPickedUp);
+        if (IsPickedUp)
+        {
+            ActiveObject.SetActive(false);
+            InactiveObject.SetActive(true);
+        }
+        //else
+        //{
+        //    StartCoroutine(ActivateWithDelay(3f)); // Ajusta el tiempo de retraso según sea necesario
+        //}
+    }
+
+    private IEnumerator ActivateWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ActiveObject.SetActive(true);
+        InactiveObject.SetActive(false);
     }
 
     public void PickUp(Player player)

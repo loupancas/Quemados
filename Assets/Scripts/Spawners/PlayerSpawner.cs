@@ -11,6 +11,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private RoomM _RoomManager;
     [SerializeField] private GameObject _readyButton;
     [SerializeField] private BallPickUp _ballPickUpPrefab;
+    //[SerializeField] private Ball2 _ballPrefab;
     public static PlayerSpawner Instance;
     private List<Transform> availableSpawnPoints;
     private int playerCount = 0;
@@ -76,10 +77,21 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             Transform spawnPoint = availableSpawnPoints[spawnIndex];
 
             // Spawnea el BallPickUp en el punto seleccionado
-            Runner.Spawn(_ballPickUpPrefab, spawnPoint.position, spawnPoint.rotation);
+            Runner.Spawn(_ballPickUpPrefab, new Vector3(0,1,0), spawnPoint.rotation);
 
             // Elimina el punto de aparición de la lista de disponibles
-            availableSpawnPoints.RemoveAt(spawnIndex);
+            //availableSpawnPoints.RemoveAt(spawnIndex);
+
+            //Ball2 ball = Runner.Spawn(_ballPickUpPrefab, new Vector3(0, 1, 0), spawnPoint.rotation).GetComponent<Ball2>();
+
+            // Inicializa la pelota si es necesario
+            //if (_ballPrefab != null)
+            //{
+            //   Runner.Spawn(_ballPrefab, new Vector3(0, 0, 0), spawnPoint.rotation);
+            //}
+
+
+
         }
         else
         {
