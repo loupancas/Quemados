@@ -2616,6 +2616,7 @@ GameObject:
   - component: {fileID: 5092082051675686915}
   - component: {fileID: 8286251356075914588}
   - component: {fileID: 308506940785722130}
+  - component: {fileID: 5992165507469196777}
   m_Layer: 3
   m_Name: PlayerJ
   m_TagString: Player
@@ -2664,6 +2665,7 @@ MonoBehaviour:
   - {fileID: 2520541203971888833}
   - {fileID: 5092082051675686915}
   - {fileID: 308506940785722130}
+  - {fileID: 5992165507469196777}
 --- !u!114 &4811237176317586557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2688,13 +2690,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9548307174ed3244a5d4df9092e00a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _respawnDelay: 2
   _speed: 3
   _jumpForce: 6
   _playerDamageRadius: 3
   _groundLayer:
     serializedVersion: 2
     m_Bits: 128
-  _shootDamage: 25
   _shootLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -2702,7 +2704,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   _animator: {fileID: 973961904075978125}
-  _ball: {fileID: 715803800760509726, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   _xAxi: 0
   _yAxi: 0
   _jumpPressed: 0
@@ -2710,6 +2711,7 @@ MonoBehaviour:
   _defaultJump: 0
   Camera: {fileID: 0}
   _currentBall: {fileID: 3401989825405034583, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  _ball: {fileID: 715803800760509726, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   _HasBall: 0
   ballSpawnPoint: {fileID: 1088013016198138683}
   __teamColor: {r: 0, g: 0, b: 0, a: 0}
@@ -2804,6 +2806,24 @@ MonoBehaviour:
   SyncSettings: 79
   StateHashes: 000000008a18fce4b9abd9d32638cb43a21b1dac2251fe84e0233f26c01206a9b46d03cd336e528e471157ea
   TriggerHashes: 00000000bad385b1
+--- !u!114 &5992165507469196777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5676140270376297627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7c2b1a06f1088c409952c0b80dc4a8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _NickName:
+    _length: 0
+    _data:
+      Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  _Lives: 0
+  _Score: 0
 --- !u!1 &5760323094548395024
 GameObject:
   m_ObjectHideFlags: 0

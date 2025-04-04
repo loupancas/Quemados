@@ -689,42 +689,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1144270199}
-  - component: {fileID: 1144270198}
-  - component: {fileID: 1144270197}
+  - component: {fileID: 1144270201}
+  - component: {fileID: 1144270200}
   m_Layer: 0
-  m_Name: Inventario
+  m_Name: GameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1144270197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144270196}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9a77a7a046cb734586fd64a837f1ab4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dbUsables:
-  - {fileID: -308036548312528870, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
---- !u!114 &1144270198
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144270196}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d75a3d9a082c4fc46b0854fa83009e6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventory: []
+  m_IsActive: 1
 --- !u!4 &1144270199
 Transform:
   m_ObjectHideFlags: 0
@@ -740,6 +713,44 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1144270200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144270196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 1399313439
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1144270201}
+--- !u!114 &1144270201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144270196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27394077d371f4a4996f12b38e6a9361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _startDelay: 4
+  _endDelay: 4
+  _gameSessionLength: 180
+  _startEndDisplay: {fileID: 0}
+  _ingameTimerDisplay: {fileID: 0}
+  _playerOverview: {fileID: 0}
+  _ScreenBoundaryX: 0
+  _ScreenBoundaryY: 0
 --- !u!1001 &1209902361
 PrefabInstance:
   m_ObjectHideFlags: 0

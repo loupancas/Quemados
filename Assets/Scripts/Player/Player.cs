@@ -10,6 +10,9 @@ using Fusion.Addons.Physics;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
+    private PlayerDataNetworked _playerDataNetworked = null;
+    [SerializeField] private float _respawnDelay = 2.0f;
+    private ChangeDetector _changeDetector;
     //public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
@@ -18,10 +21,11 @@ public class Player : NetworkBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private LayerMask _shootLayer;
     [SerializeField] private LayerMask _ballCollisionLayer;
+    [Networked] private NetworkBool IsAlive { get; set; }
+    [Networked] private TickTimer RespawnTimer { get; set; }
     private Rigidbody _rgbd;
     public Animator _animator;
-    private bool _isGrounded = true;
-    [SerializeField] private BallBehaviour _ball;
+    [Header("Inputs")]
     public float _xAxi;
     public float _yAxi;
     public bool _jumpPressed;
@@ -29,18 +33,15 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump; 
     public Camera Camera;
+    [Header("Ball")]
     [SerializeField] private Ball2 _currentBall;
+    [SerializeField] private BallBehaviour _ball;
     [Networked] public bool HasBall { get; set; }
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
  
-    [Networked] private NetworkBool IsAlive { get; set; }
-    [Networked] private TickTimer RespawnTimer { get; set; }
-    [field: Header("Stats")]
- 
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
-    private bool hasTeam = false;
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -62,9 +63,6 @@ public class Player : NetworkBehaviour
     public event Action<float> OnMovement = delegate {  };
     public event Action OnShooting = delegate {  };
 
- 
- 
-
     public override void Spawned()
     {
         if (HasStateAuthority)
@@ -77,9 +75,9 @@ public class Player : NetworkBehaviour
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
-
+            _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
             HasBall = false;
-
+            IsAlive = true;
             if (!Object.HasInputAuthority)
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
@@ -88,19 +86,7 @@ public class Player : NetworkBehaviour
             StartCoroutine(WaitInit());
 
         }
-        else
-        {
-            Debug.Log("No State Authority");
-            //SynchronizeProperties();
-            //GameManager.Instance.AddNewPlayer(Runner.ActivePlayers.Count(), this);
-            //Debug.Log("index" + Runner.ActivePlayers.Count());
-            //if (GameManager.Instance.Runner.ActivePlayers.Count() == 2)
-            //{
-            //    Debug.Log("Start Countdown");
-            //    //StartCoroutine(UIManager.instance.StartCountdown(3));
-
-            //}
-        }
+       
     }
 
    
@@ -126,7 +112,6 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             TryPickupBall();
-            Debug.Log("E key pressed");
         
 
         }
@@ -263,6 +248,7 @@ public class Player : NetworkBehaviour
         //if (_shootCooldown.ExpiredOrNotRunning(Runner) == false) return;
 
         Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+        Debug.Log("Ball Spawned");
 
         //_shootCooldown = TickTimer.CreateFromSeconds(Runner, _delayBetweenShots);
     }
@@ -312,12 +298,12 @@ public class Player : NetworkBehaviour
 
         IsAlive = false;
 
-        //if (_playerDataNetworked.Lives > 1)
-        //    RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
-        //else
-        //    RespawnTimer = default;
+        if (_playerDataNetworked.Lives > 1)
+            RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
+        else
+            RespawnTimer = default;
 
-        //_playerDataNetworked.SubtractLife();
+        _playerDataNetworked.SubtractLife();
     }
 
 
