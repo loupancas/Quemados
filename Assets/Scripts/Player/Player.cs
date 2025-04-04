@@ -14,15 +14,14 @@ public class Player : NetworkBehaviour
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
     [SerializeField] public float _jumpForce = 5;
-    [SerializeField] private float _groundCheckDistance = 1.1f;
+    [SerializeField] private float _playerDamageRadius = 3f;
     [SerializeField] private LayerMask _groundLayer;
-    [SerializeField] private float _shootDamage = 25f;
     [SerializeField] private LayerMask _shootLayer;
-    [SerializeField] private LayerMask _ballLayer;
+    [SerializeField] private LayerMask _ballCollisionLayer;
     private Rigidbody _rgbd;
     public Animator _animator;
     private bool _isGrounded = true;
-    //private int fadeTime = 5;
+    [SerializeField] private BallBehaviour _ball;
     public float _xAxi;
     public float _yAxi;
     public bool _jumpPressed;
@@ -33,7 +32,10 @@ public class Player : NetworkBehaviour
     [SerializeField] private Ball2 _currentBall;
     [Networked] public bool HasBall { get; set; }
     [SerializeField] private Transform ballSpawnPoint;
-    [SerializeField] private GameObject ballPrefab;
+    private Collider[] _hits = new Collider[1];
+ 
+    [Networked] private NetworkBool IsAlive { get; set; }
+    [Networked] private TickTimer RespawnTimer { get; set; }
     [field: Header("Stats")]
  
     [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
@@ -61,16 +63,7 @@ public class Player : NetworkBehaviour
     public event Action OnShooting = delegate {  };
 
  
-    private void Awake()
-    {
-        //if (_ballPrefab != null)
-        //{
-        //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
-        //}
-
-     
-
-    }
+ 
 
     public override void Spawned()
     {
@@ -84,19 +77,9 @@ public class Player : NetworkBehaviour
             _rgbd = GetComponent<Rigidbody>();
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
-            //ball.GetComponent<MeshRenderer>().enabled = false;
 
             HasBall = false;
 
-            //inventory.OnItemAdded += InventoryChanged;
-            //inventory.OnItemRemoved += InventoryChanged;
-            //_weaponHandler = GetComponent<WeaponHandler>();
-
-            //if (_weaponHandler == null)
-            //{
-            //    Debug.LogError("WeaponHandler component is missing.");
-            //}
-            // Asignar autoridad de entrada
             if (!Object.HasInputAuthority)
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
@@ -121,11 +104,6 @@ public class Player : NetworkBehaviour
     }
 
    
-    void SynchronizeProperties()
-    {
-        OnNetColorChanged();
-    }
-
     public static void EnablePlayerControls()
     {
         //ControlsEnabled = true;
@@ -135,12 +113,10 @@ public class Player : NetworkBehaviour
     {
         if (!HasStateAuthority ) return;
 
-       //heckGrounded();
    
        _xAxi = Input.GetAxis("Horizontal");
         _yAxi = Input.GetAxis("Vertical");
 
-       //Debug.Log(moveInputVector);
 
         if (Input.GetKeyDown(KeyCode.Space) )
         {
@@ -157,8 +133,7 @@ public class Player : NetworkBehaviour
 
         if (Input.GetMouseButtonDown(0) && HasBall)
         {
-            RPC_FireAndDropBall();
-            //ball.GetComponent<MeshRenderer>().enabled = false;
+            Fire();
            
         }
          
@@ -229,7 +204,7 @@ public class Player : NetworkBehaviour
             Debug.Log("Player does not have input authority");
             return;
         }
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f, _ballLayer);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f, _ballCollisionLayer);
         Debug.Log($"Number of colliders found: {hitColliders.Length}");
 
         foreach (var hitCollider in hitColliders)
@@ -258,50 +233,39 @@ public class Player : NetworkBehaviour
             {
                 ballRenderer.enabled = false;
             }
-            _currentBall = Instantiate(ballPrefab).GetComponent<Ball2>();
-            if (_currentBall != null)
+            foreach (var ball in PlayerSpawner.Instance.SpawnedBalls)
             {
-                Debug.Log("Ball2 component assigned to _currentBall");
+                if (ball != null && !ball.IsPickedUp)
+                {
+                    _currentBall = ball;
+                    _currentBall.GetComponent<MeshRenderer>().enabled = true;
+                    ball.IsPickedUp = true;
+                    Debug.Log("Ball2 component assigned to _currentBall");
+                    break;
+                }
             }
-            else
-            {
-                Debug.LogError("Failed to assign Ball2 component to _currentBall");
-            }
+
         }
     }
 
  
 
-   
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    private void RPC_FireAndDropBall()
+    private void Fire()
     {
-        if (!HasInputAuthority)
-        {
-            Debug.LogError("Player does not have input authority to fire and drop the ball.");
-            return;
-        }
-        Debug.Log($"Attempting to throw ball. Ball valid: {_currentBall?.Object?.IsValid ?? false}, Authority: {HasInputAuthority}");
-        // Lógica para lanzar la pelota
-        if (_currentBall != null)
-        {
-            Vector3 throwDirection = ballSpawnPoint.forward; // Dirección de lanzamiento desde ballSpawnPoint
-            _currentBall.transform.position = ballSpawnPoint.position; // Posición de lanzamiento desde ballSpawnPoint
-            _currentBall.RpcThrow(throwDirection);
-            HasBall = false;
-            _currentBall = null; // Limpiar la referencia a la pelota
-        }
-        else
-        {
-            Debug.LogError("No ball found in the scene to throw.");
-        }
+          SpawnBullet();
+        HasBall = false;
     }
 
+    // Spawns a bullet which will be travelling in the direction the spaceship is facing
+    private void SpawnBullet()
+    {
+        //if (_shootCooldown.ExpiredOrNotRunning(Runner) == false) return;
 
-    
+        Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
 
-
+        //_shootCooldown = TickTimer.CreateFromSeconds(Runner, _delayBetweenShots);
+    }
 
     private void ChangeColor()
     {
@@ -318,13 +282,46 @@ public class Player : NetworkBehaviour
         //MOVIMIENTO
         Movement();
 
+        if (IsAlive && HasHitBall())
+        {
+            PlayerWasHit();
+        }
 
-      
 
     }
 
-   
+    private bool HasHitBall()
+    {
+        var count = Runner.GetPhysicsScene().OverlapSphere(_rgbd.position, _playerDamageRadius, _hits,
+            _ballCollisionLayer.value, QueryTriggerInteraction.UseGlobal);
 
+        if (count <= 0)
+            return false;
+
+        var ballBehaviour = _hits[0].GetComponent<BallBehaviour>();
+
+        return ballBehaviour.OnBallHit();
+    }
+
+    private void PlayerWasHit()
+    {
+        if (!HasStateAuthority) return;
+        Debug.Log("Player was hit by a ball");
+        //_rgdb.velocity = Vector3.zero;
+        //_rigidbody.angularVelocity = Vector3.zero;
+
+        IsAlive = false;
+
+        //if (_playerDataNetworked.Lives > 1)
+        //    RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
+        //else
+        //    RespawnTimer = default;
+
+        //_playerDataNetworked.SubtractLife();
+    }
+
+
+    #region movement
     public void Movement()
     {
         Vector3 camForward = Camera.transform.forward;
@@ -378,8 +375,8 @@ public class Player : NetworkBehaviour
         _animator.SetBool("Jumping", true);
         // playerView.isRunning(true);
     }
+    #endregion
 
-   
     #region POWER UP
     private void OnTriggerEnter(Collider other)
     {

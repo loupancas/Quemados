@@ -47,10 +47,10 @@ public class BallPickUp : NetworkBehaviour
             ActiveObject.SetActive(false);
             InactiveObject.SetActive(true);
         }
-        //else
-        //{
-        //    StartCoroutine(ActivateWithDelay(3f)); // Ajusta el tiempo de retraso según sea necesario
-        //}
+        else
+        {
+            StartCoroutine(ActivateWithDelay(3f)); // Ajusta el tiempo de retraso según sea necesario
+        }
     }
 
     private IEnumerator ActivateWithDelay(float delay)

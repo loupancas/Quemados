@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2051648418255335640}
   - component: {fileID: 8563648241071931854}
   - component: {fileID: 5304005436520246159}
+  - component: {fileID: 715803800760509726}
   m_Layer: 0
   m_Name: Ball2
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   m_GameObject: {fileID: 2698456587172576195}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.4248133, y: 1.3540001, z: 2.5170712}
+  m_LocalPosition: {x: 0.8356779, y: 1.3540001, z: 5.028947}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -123,6 +124,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveForce: 7
   lifeTime: 3
+  _playerLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!114 &2051648418255335640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,6 +146,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 3401989825405034583}
   - {fileID: 5304005436520246159}
+  - {fileID: 715803800760509726}
 --- !u!54 &8563648241071931854
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -191,3 +196,18 @@ MonoBehaviour:
     Position: 0.01
     Rotation: 0.01
     Scale: 0.01
+--- !u!114 &715803800760509726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2698456587172576195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee4dffd8ece0e24e817a7667d970144, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _points: 1
+  _ball: {fileID: 715803800760509726}
+  _visual: {fileID: 2698456587172576195}
