@@ -1529,6 +1529,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _runnerPrefab: {fileID: 2969039247513847594, guid: 68113ad87c087b448aba03c72ad0c770, type: 3}
+  _mainMenuHandler: {fileID: 1882859472}
 --- !u!1 &954660483
 GameObject:
   m_ObjectHideFlags: 0

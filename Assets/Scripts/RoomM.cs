@@ -7,7 +7,7 @@ using System.Linq;
 public class RoomM : NetworkBehaviour
 {
     public static RoomM Instance;
-
+    private GameController _gameStateController = null;
     //Dictionary<int, Player> _activePlayers;
     private Dictionary<PlayerRef, bool> _playerStates = new Dictionary<PlayerRef, bool>();
     [Networked] public bool isGameStart { get; set; } = false;
@@ -27,7 +27,11 @@ public class RoomM : NetworkBehaviour
         //_activePlayers = new Dictionary<int, Player>();
     }
 
-
+    public void StartRoom(GameController gameController)
+    {
+        isGameStart = true;
+        _gameStateController = gameController;
+    }
 
     public override void Spawned()
     {
@@ -81,9 +85,7 @@ public class RoomM : NetworkBehaviour
         if (player == Runner.LocalPlayer)
         {
             PlayerSpawner.Instance.SpawnPlayer();
-           // UIManager.instance.readyButton.SetActive(false);
             UIManager.instance.StartGame();
-            //BallPickUp.Instance.Spawned();
         }
     }
 

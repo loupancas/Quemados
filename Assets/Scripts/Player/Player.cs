@@ -10,7 +10,7 @@ using Fusion.Addons.Physics;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
-    private PlayerDataNetworked _playerDataNetworked = null;
+    public PlayerDataNetworked _playerDataNetworked = null;
     [SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
     //public static bool ControlsEnabled = false;
@@ -82,8 +82,9 @@ public class Player : NetworkBehaviour
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
-
-            StartCoroutine(WaitInit());
+            var playerRef = Object.InputAuthority;
+            _meshRenderer.material.color = GetColor(playerRef.PlayerId);
+            //StartCoroutine(WaitInit());
 
         }
        
@@ -411,34 +412,34 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_TakeDamage(float dmg)
-    {
-        Local_TakeDamage(dmg);
-    }
+    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    //public void RPC_TakeDamage(float dmg)
+    //{
+    //    Local_TakeDamage(dmg);
+    //}
 
-    public void Local_TakeDamage(float dmg)
-    {
-        NetworkedHealth -= dmg;
+    //public void Local_TakeDamage(float dmg)
+    //{
+    //    NetworkedHealth -= dmg;
 
-        if (NetworkedHealth <= 0)
-        {
-            //Dead();
-            //SetLoseScreenRPC();
-            //UIManager.instance.SetLoseScreen();
-            RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
-        }
-        else
-        {
-            Debug.Log("Player Hit");
-        }
+    //    if (NetworkedHealth <= 0)
+    //    {
+    //        //Dead();
+    //        //SetLoseScreenRPC();
+    //        //UIManager.instance.SetLoseScreen();
+    //        RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+    //    }
+    //    else
+    //    {
+    //        Debug.Log("Player Hit");
+    //    }
 
-    }
+    //}
 
-    void Dead()
-    {
-        Runner.Despawn(Object);
-    }
+    //void Dead()
+    //{
+    //    Runner.Despawn(Object);
+    //}
 
     //private void SetLoseScreenRPC()
     //{
@@ -462,4 +463,22 @@ public class Player : NetworkBehaviour
                 break;
         }
     }
+
+    public static Color GetColor(int player)
+    {
+        switch (player % 8)
+        {
+            case 0: return Color.red;
+            case 1: return Color.green;
+            case 2: return Color.blue;
+            case 3: return Color.yellow;
+            case 4: return Color.cyan;
+            case 5: return Color.grey;
+            case 6: return Color.magenta;
+            case 7: return Color.white;
+        }
+
+        return Color.black;
+    }
+
 }

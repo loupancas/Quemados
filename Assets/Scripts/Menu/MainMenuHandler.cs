@@ -60,6 +60,19 @@ public class MainMenuHandler : MonoBehaviour
     {
         _sharedBTN.interactable = false;
         _networkHandler.CreateGame(_sharedSessionName.text, "Game");
+    }   
+
+    public void OnStartGame()
+    {
+        SavePlayerData();
     }
-    
+
+    public void SavePlayerData()
+    {
+        PlayerPrefs.SetString("SharedSessionName", _sharedSessionName.text);
+        PlayerPrefs.SetString("PlayerNickName", _playerNickName.text);
+        PlayerPrefs.Save();
+    }
+
+
 }

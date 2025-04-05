@@ -12,9 +12,9 @@ using Fusion;
 
         private ChangeDetector _changeDetector;
 
-        // Game Session SPECIFIC Settings are used in the UI.
-        // The method passed to the OnChanged attribute is called everytime the [Networked] parameter is changed.
-        [HideInInspector]
+    // Game Session SPECIFIC Settings are used in the UI.
+    // The method passed to the OnChanged attribute is called everytime the [Networked] parameter is changed.
+    [HideInInspector]
         [Networked]
         public NetworkString<_16> NickName { get; private set; }
 
@@ -35,28 +35,41 @@ using Fusion;
             {
                 Lives = STARTING_LIVES;
                 Score = 0;
-                NickName = LocalPlayerData.NickName;
-            }
+            //NickName = LocalPlayerData.NickName;
+            string playerNickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
+            NickName = playerNickName;
+        }
 
             // --- All Clients
             // Set the local runtime references.
             
             FindObjectOfType<GameController>().TrackNewPlayer(this);
             _overviewPanel = FindObjectOfType<PlayerOverviewPanel>();
+
+        if (_overviewPanel != null)
+        {
             // Add an entry to the local Overview panel with the information of this spaceship
             _overviewPanel.AddEntry(Object.InputAuthority, this);
-            
+
             // Refresh panel visuals in Spawned to set to initial values.
             _overviewPanel.UpdateEntry(this);
+        }
+        else
+        {
+            Debug.LogError("PlayerOverviewPanel not found in the scene.");
+        }
 
-            _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+        _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         }
         
         // Remove the entry in the local Overview panel for this spaceship
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
+        if (_overviewPanel != null)
+        {
             _overviewPanel.RemoveEntry(this);
         }
+    }
         
         public override void Render()
         {

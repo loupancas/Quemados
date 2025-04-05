@@ -11,6 +11,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _victoryScreen;
     [SerializeField] private GameObject _loseScreen;
     [SerializeField] private GameObject _startGameScreen;
+    [SerializeField] private GameObject _infoPlayer;
+    [SerializeField] private GameObject _infoBall;
     [SerializeField] NetworkRunner runner;
     private PlayerRef player;
     [SerializeField] public GameObject readyButton;
@@ -71,6 +73,8 @@ public class UIManager : MonoBehaviour
     {
         //readyText.SetActive(false);
         _startGameScreen.SetActive(false);
+        _infoBall.SetActive(true);
+        _infoPlayer.SetActive(true);
     }
 
 }

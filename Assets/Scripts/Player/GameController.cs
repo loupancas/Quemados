@@ -27,10 +27,7 @@ using UnityEngine;
 		[Networked] private GamePhase Phase { get; set; }
 		[Networked] private NetworkBehaviourId Winner { get; set; }
 		
-		[Networked] public float ScreenBoundaryX { get; set; }
-		[Networked] public float ScreenBoundaryY { get; set; }
-
-		public bool GameIsRunning => Phase == GamePhase.Running;
+	    public bool GameIsRunning => Phase == GamePhase.Running;
 
 		//private SpawnPoint[] _spawnPoints;
 
@@ -78,11 +75,6 @@ using UnityEngine;
 			_ingameTimerDisplay.gameObject.SetActive(false);
 			_playerOverview.Clear();
 
-			// The spawn boundaries are based of the camera settings
-			ScreenBoundaryX = Camera.main.orthographicSize * Camera.main.aspect;
-			ScreenBoundaryY = Camera.main.orthographicSize;
-
-			Debug.Log($"ScreenBounds: {ScreenBoundaryX},{ScreenBoundaryY}");
 			
 			if (Object.HasStateAuthority)
 			{
@@ -129,8 +121,7 @@ using UnityEngine;
 
 			// --- Master client
 			// Starts the Spaceship and Asteroids spawners once the game start delay has expired
-			//FindObjectOfType<SpaceshipSpawner>().StartSpaceshipSpawner(this);
-			//FindObjectOfType<AsteroidSpawner>().StartAsteroidSpawner();
+			FindObjectOfType<RoomM>().StartRoom(this);
 			
 			// Switches to the Running GameState and sets the time to the length of a game session
 			Phase = GamePhase.Running;
@@ -158,14 +149,15 @@ using UnityEngine;
 			_startEndDisplay.gameObject.SetActive(true);
 			_ingameTimerDisplay.gameObject.SetActive(false);
 			_startEndDisplay.text = $"{playerData.NickName} won with {playerData.Score} points. Disconnecting in {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
-			//_startEndDisplay.color = SpaceshipController.GetColor(playerData.Object.InputAuthority.PlayerId);
+            _startEndDisplay.color = Player.GetColor(playerData.Object.InputAuthority.PlayerId);
 
-			// Shutdowns the current game session.
-			if (Timer.Expired(Runner))
+
+        // Shutdowns the current game session.
+        if (Timer.Expired(Runner))
 				Runner.Shutdown();
 		}
-
-		public void CheckIfGameHasEnded()
+   
+    public void CheckIfGameHasEnded()
 		{
 			// --- Master client
 			
@@ -213,7 +205,7 @@ using UnityEngine;
 				Winner = playerDataNetworkedId;
 			}
 
-			if (Winner == default) // when playing alone in host mode this marks the own player as winner
+			if (Winner == default && _playerDataNetworkedIds.Count > 0) // when playing alone in host mode this marks the own player as winner
 			{
 				Winner = _playerDataNetworkedIds[0];
 			}

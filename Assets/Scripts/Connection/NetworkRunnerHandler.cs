@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] private NetworkRunner _runnerPrefab;
-
+    [SerializeField] private MainMenuHandler _mainMenuHandler;
     NetworkRunner _currentRunner;
 
     public event Action OnJoinedLobby = delegate { };
@@ -78,6 +78,7 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
         else
         {
             Debug.Log("[Custom Msg] Game started");
+            _mainMenuHandler?.OnStartGame();
         }
     }
 

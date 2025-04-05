@@ -50,6 +50,8 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         }
     }
 
+   
+
     public void SpawnPlayer()
     {
         if (availableSpawnPoints.Count == 0)

@@ -29,9 +29,11 @@ using UnityEngine;
 
             var entry = Instantiate(_playerOverviewEntryPrefab, this.transform);
             entry.transform.localScale = Vector3.one;
-            //entry.color = SpaceshipController.GetColor(playerRef.PlayerId);
+            entry.color = Player.GetColor(playerRef.PlayerId);
 
-            _playerListEntries.Add(playerDataNetworked, entry);
+      
+
+        _playerListEntries.Add(playerDataNetworked, entry);
 
             UpdateEntry(playerDataNetworked);
         }
@@ -56,4 +58,7 @@ using UnityEngine;
 
             _playerListEntries.Remove(playerData);
         }
-    }
+
+  
+
+}
