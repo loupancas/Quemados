@@ -8,7 +8,7 @@ using UnityEngine;
 
 	public class GameController : NetworkBehaviour ,IPlayerJoined
 	{
-		enum GamePhase
+		public enum GamePhase
 		{
 			Starting,
 			Running,
@@ -29,53 +29,35 @@ using UnityEngine;
 		
 	    public bool GameIsRunning => Phase == GamePhase.Running;
 
-		//private SpawnPoint[] _spawnPoints;
+		public TickTimer GameStartTimer { get; private set; }
+		public float GameStartDelay = 5.0f;
 
 		private TickTimer _dontCheckforWinTimer;
 		
 		private List<NetworkBehaviourId> _playerDataNetworkedIds = new List<NetworkBehaviourId>();
-		
-		private static GameController _singleton;
-
-		public static GameController Singleton
-		{
-			get => _singleton;
-			private set
-			{
-				if (_singleton != null)
-				{
-					throw new InvalidOperationException();
-				}
-				_singleton = value;
-			}
-		}
+        public static GameController Instance { get; private set; }
+ 
 
 		private void Awake()
 		{
 			GetComponent<NetworkObject>().Flags |= NetworkObjectFlags.MasterClientObject;
-			Singleton = this;
-		}
+            if (Instance == null) Instance = this;
+            else Destroy(gameObject);
+        }
 
-		private void OnDestroy()
-		{
-			if (Singleton == this)
-			{
-				_singleton = null;
-			}
-			else
-			{
-				throw new InvalidOperationException();
-			}
-
-		}
-
+		
 		public override void Spawned()
 		{
-			_startEndDisplay.gameObject.SetActive(true);
+			_startEndDisplay.gameObject.SetActive(false);
 			_ingameTimerDisplay.gameObject.SetActive(false);
 			_playerOverview.Clear();
 
 			
+		}
+		
+		public void Starting()
+		{
+
 			if (Object.HasStateAuthority)
 			{
 				// Initialize the game state on the master client
@@ -83,7 +65,8 @@ using UnityEngine;
 				Timer = TickTimer.CreateFromSeconds(Runner, _startDelay);
 			}
 		}
-		
+
+
 		public override void Render()
 		{
 			// Update the game display with the information relevant to the current game phase
@@ -109,9 +92,9 @@ using UnityEngine;
 
 		private void UpdateStartingDisplay()
 		{
-			// --- All clients
-			// Display the remaining time until the game starts in seconds (rounded down to the closest full second)
-			_startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
+        // --- All clients
+        // Display the remaining time until the game starts in seconds (rounded down to the closest full second)
+        _startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
 
 			if (!Object.HasStateAuthority) 
 				return;
@@ -119,17 +102,31 @@ using UnityEngine;
 			if (!Timer.Expired(Runner)) 
 				return;
 
-			// --- Master client
-			// Starts the Spaceship and Asteroids spawners once the game start delay has expired
-			FindObjectOfType<RoomM>().StartRoom(this);
-			
-			// Switches to the Running GameState and sets the time to the length of a game session
-			Phase = GamePhase.Running;
+		// --- Master client
+		// Starts the Spaceship and Asteroids spawners once the game start delay has expired
+
+		//FindObjectOfType<PlayerSpawner>().SpawnPlayer();
+		//PlayerSpawner.Instance.SpawnPlayer();
+		//Debug.Log("Player Spawned");
+		if (!RoomM.Instance.isGameStart)
+			return;
+        // Switches to the Running GameState and sets the time to the length of a game session
+            Phase = GamePhase.Running;
 			Timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
 			_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
-		}
+	}
 
-		private void UpdateRunningDisplay()
+  //  public void StartRoom(RoomM room)
+  //  {
+  //      GameStartTimer = TickTimer.CreateFromSeconds(Runner, GameStartDelay);
+		//_startEndDisplay.gameObject.SetActive(true);
+  //      // Inicializa el estado del juego
+  //      //Phase = GamePhase.Running;
+  //      //Timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
+  //      //_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
+  //  }
+
+    private void UpdateRunningDisplay()
 		{
 			// --- All clients
 			// Display the remaining time until the game ends in seconds (rounded down to the closest full second)
@@ -181,7 +178,8 @@ using UnityEngine;
 				if (Runner.TryFindBehaviour(_playerDataNetworkedIds[i],
 					    out PlayerDataNetworked playerDataNetworkedComponent) == false)
 				{
-					_playerDataNetworkedIds.RemoveAt(i);
+                _playerDataNetworkedIds.RemoveAll(id => !Runner.TryFindBehaviour(id, out _));
+                //_playerDataNetworkedIds.RemoveAt(i);
 					i--;
 					continue;
 				}
@@ -227,5 +225,33 @@ using UnityEngine;
 		public void PlayerJoined(PlayerRef player)
 		{
 			_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
-		}
-	}
+              AssignPlayerColor(player);
+        }
+
+    private Dictionary<PlayerRef, Color> playerColors = new Dictionary<PlayerRef, Color>();
+    private Color[] availableColors = { Color.red, Color.blue, Color.green, Color.yellow };
+
+    public void AssignPlayerColor(PlayerRef playerRef)
+    {
+        if (!playerColors.ContainsKey(playerRef))
+        {
+            Color assignedColor = availableColors[playerColors.Count % availableColors.Length];
+            playerColors[playerRef] = assignedColor;
+
+            // Find the PlayerDataNetworked component and set the color
+            foreach (var playerDataId in _playerDataNetworkedIds)
+            {
+                if (Runner.TryFindBehaviour(playerDataId, out PlayerDataNetworked playerData) && playerData.Object.InputAuthority == playerRef)
+                {
+                    playerData.SetPlayerColor(assignedColor);
+                    break;
+                }
+            }
+        }
+    }
+
+    public Color GetPlayerColor(PlayerRef playerRef)
+    {
+        return playerColors.ContainsKey(playerRef) ? playerColors[playerRef] : Color.white;
+    }
+}

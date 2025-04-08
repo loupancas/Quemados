@@ -39,9 +39,9 @@ public class Player : NetworkBehaviour
     [Networked] public bool HasBall { get; set; }
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
- 
-    [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
+
+    // [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -63,16 +63,32 @@ public class Player : NetworkBehaviour
     public event Action<float> OnMovement = delegate {  };
     public event Action OnShooting = delegate {  };
 
+    private void Awake()
+    {
+        _rgbd = GetComponent<Rigidbody>();
+    }
+
     public override void Spawned()
     {
         if (HasStateAuthority)
         {
             LocalPlayer = this;
+            var playerData = GetComponent<PlayerDataNetworked>();
+            if (playerData != null)
+            {
+                SetColor(playerData.PlayerColor);
+            }
             NetworkedColor = GetComponentInChildren<Renderer>().material.color;
             Debug.Log("Local Player");
             Camera = Camera.main;
             Camera.GetComponent<ThirdPersonCamera>().Target = transform;
-            _rgbd = GetComponent<Rigidbody>();
+            //_rgbd = GetComponent<Rigidbody>();
+            if(_rgbd != null)
+            {
+                _rgbd.isKinematic = false;
+                _rgbd.velocity = Vector3.zero;
+                _rgbd.angularVelocity = Vector3.zero;
+            }
             _defaultJump = _jumpForce;
             _defaultSpeed = _speed;
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -83,14 +99,19 @@ public class Player : NetworkBehaviour
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
             var playerRef = Object.InputAuthority;
-            _meshRenderer.material.color = GetColor(playerRef.PlayerId);
+            //_meshRenderer.material.color = GameController.Instance.GetColor(playerRef.PlayerId);
             //StartCoroutine(WaitInit());
 
         }
        
+
     }
 
-   
+    public void SetColor(Color color)
+    {
+        _meshRenderer.material.color = color;
+    }
+
     public static void EnablePlayerControls()
     {
         //ControlsEnabled = true;
@@ -128,52 +149,6 @@ public class Player : NetworkBehaviour
 
 
 
-    #region
-    //private void TryPickupBall()
-    //{
-    //    Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
-    //    foreach (var hitCollider in hitColliders)
-    //    {
-    //        if (hitCollider.CompareTag("Ball"))
-    //        {
-    //            NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
-    //            BallPickUp ballPickUp = hitCollider.GetComponent<BallPickUp>();
-    //            if (ballNetworkObject && !ballNetworkObject.HasInputAuthority && ballPickUp)
-    //            {
-    //                ballPickUp.RPC_PickUp(this);
-    //                ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
-    //                HeldBall = ballNetworkObject;
-    //                //if (_ballPrefab != null && !_ballPrefab.GetComponentInChildren<MeshRenderer>().enabled)
-    //                //{
-    //                //    HasBall = true;
-    //                //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = true;
-    //                //}
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void ThrowBall()
-    //{
-    //    if (HeldBall.IsValid)
-    //    {
-    //        Vector3 throwDirection = transform.forward;
-    //        Ball2 ball = HeldBall.GetComponent<Ball2>();
-    //        if (ball != null)
-    //        {
-    //            ball.RpcThrow(throwDirection);
-    //            HeldBall.GetComponent<NetworkObject>().RemoveInputAuthority();
-    //            HeldBall = default;
-    //            //if (_ballPrefab != null && _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled)
-    //            //{
-    //            //    HasBall = false;
-    //            //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
-    //            //}
-    //        }
-    //    }
-    //}
-    #endregion
 
 
     private void TryPickupBall()
@@ -240,7 +215,7 @@ public class Player : NetworkBehaviour
     private void Fire()
     {
           SpawnBullet();
-        HasBall = false;
+          HasBall = false;
     }
 
     // Spawns a bullet which will be travelling in the direction the spaceship is facing
@@ -254,10 +229,10 @@ public class Player : NetworkBehaviour
         //_shootCooldown = TickTimer.CreateFromSeconds(Runner, _delayBetweenShots);
     }
 
-    private void ChangeColor()
-    {
-        _meshRenderer.material.color = _teamColor;
-    }
+    //private void ChangeColor()
+    //{
+    //    _meshRenderer.material.color = _teamColor;
+    //}
 
 
 
@@ -272,6 +247,7 @@ public class Player : NetworkBehaviour
         if (IsAlive && HasHitBall())
         {
             PlayerWasHit();
+            _playerDataNetworked.AddToScore(1);
         }
 
 
@@ -412,57 +388,24 @@ public class Player : NetworkBehaviour
         }
     }
 
-    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    //public void RPC_TakeDamage(float dmg)
+   
+    //private IEnumerator WaitInit()
     //{
-    //    Local_TakeDamage(dmg);
-    //}
+    //    yield return new WaitForSeconds(1);
 
-    //public void Local_TakeDamage(float dmg)
-    //{
-    //    NetworkedHealth -= dmg;
-
-    //    if (NetworkedHealth <= 0)
+    //    switch (Runner.LocalPlayer.PlayerId)
     //    {
-    //        //Dead();
-    //        //SetLoseScreenRPC();
-    //        //UIManager.instance.SetLoseScreen();
-    //        RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+    //        case 1:
+    //            _teamColor = Color.red;
+    //            break;
+    //        case 2:
+    //            _teamColor = Color.blue;
+    //            break;
+    //        default:
+    //            _teamColor = Color.yellow;
+    //            break;
     //    }
-    //    else
-    //    {
-    //        Debug.Log("Player Hit");
-    //    }
-
     //}
-
-    //void Dead()
-    //{
-    //    Runner.Despawn(Object);
-    //}
-
-    //private void SetLoseScreenRPC()
-    //{
-    //    UIManager.instance.SetLoseScreen();
-    //}
-
-    private IEnumerator WaitInit()
-    {
-        yield return new WaitForSeconds(1);
-
-        switch (Runner.LocalPlayer.PlayerId)
-        {
-            case 1:
-                _teamColor = Color.red;
-                break;
-            case 2:
-                _teamColor = Color.blue;
-                break;
-            default:
-                _teamColor = Color.yellow;
-                break;
-        }
-    }
 
     public static Color GetColor(int player)
     {

@@ -4,7 +4,7 @@ using UnityEngine;
 using Fusion;
 using System.Linq;
 
-public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
+public class PlayerSpawner : NetworkBehaviour
 {
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
@@ -30,8 +30,13 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     }
     private void Start()
     {
-        // GeneratePowerUpPositions();
-       
+        var runner = FindObjectOfType<NetworkRunner>();
+        if (runner == null)
+        {
+            Debug.LogError("NetworkRunner not found in the scene.");
+            return;
+        }
+
     }
     // Se ejecuta CADA VEZ que se conecta un cliente
     public void PlayerJoined(PlayerRef player)
@@ -39,14 +44,30 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         if (player == Runner.LocalPlayer)
         {
             _readyButton.SetActive(true);
-           
+
             if (Runner.ActivePlayers.Count() == 1)
             {
-                Runner.Spawn(_RoomManager);
-                SpawnBallPickUp();
-            }
-           
+                if (_RoomManager != null)
+                {
+                    Runner.Spawn(_RoomManager);
+                    SpawnBallPickUp();
 
+                }
+                else
+                {
+                    Debug.LogError("RoomManager is not assigned!");
+                }
+            }
+
+            //var gameController = FindObjectOfType<GameController>();
+            //if (gameController != null)
+            //{
+                //gameController.AssignPlayerColor(player);
+            //}
+            //else
+            //{
+                //Debug.LogError("GameController not found in the scene.");
+           // }
         }
     }
 
@@ -54,6 +75,11 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
     public void SpawnPlayer()
     {
+        if (_playerPrefab == null)
+        {
+            Debug.LogError("Player prefab is not assigned!");
+            return;
+        }
         if (availableSpawnPoints.Count == 0)
         {
             Debug.LogError("No available spawn points!");
@@ -65,7 +91,12 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         Transform spawnPoint = availableSpawnPoints[spawnIndex];
 
         // Spawnea el jugador en el punto seleccionado
-        Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation);
+        var spawnedPlayer = Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation);
+        if (spawnedPlayer == null)
+        {
+            Debug.LogError("Failed to spawn player!");
+            return;
+        }
 
         // Elimina el punto de aparición de la lista de disponibles
         availableSpawnPoints.RemoveAt(spawnIndex);
@@ -80,18 +111,36 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             Transform spawnPoint = availableSpawnPoints[spawnIndex];
 
             // Spawnea el BallPickUp en el punto seleccionado
-            Runner.Spawn(_ballPickUpPrefab, new Vector3(0,1,0), spawnPoint.rotation);
+            var spawnedBallPickUp = Runner.Spawn(_ballPickUpPrefab, new Vector3(0, 1, 0), spawnPoint.rotation);
+            if (spawnedBallPickUp == null)
+            {
+                Debug.LogError("Failed to spawn BallPickUp!");
+                return;
+            }
 
-            
+
         }
-        else if(_ballPrefab != null)
-        {
+        //else if(_ballPrefab != null)
+        //{
 
-            Ball2 newBall = Runner.Spawn(_ballPrefab, null, null).GetComponent<Ball2>();
-            SpawnedBalls.Add(newBall);
+        //    var spawnedBall = Runner.Spawn(_ballPrefab, null, null);
+        //    if (spawnedBall == null)
+        //    {
+        //        Debug.LogError("Failed to spawn Ball2!");
+        //        return;
+        //    }
 
-           Debug.Log("se añade ball2");
-        }
+        //    Ball2 newBall = spawnedBall.GetComponent<Ball2>();
+        //    if (newBall != null)
+        //    {
+        //        SpawnedBalls.Add(newBall);
+        //        Debug.Log("Ball2 added");
+        //    }
+        //    else
+        //    {
+        //        Debug.LogError("Failed to get Ball2 component!");
+        //    }
+        //}
         else
         {
             Debug.LogError("BallPickUp prefab is not assigned!");

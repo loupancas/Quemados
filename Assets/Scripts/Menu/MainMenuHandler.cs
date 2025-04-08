@@ -62,7 +62,7 @@ public class MainMenuHandler : MonoBehaviour
         _networkHandler.CreateGame(_sharedSessionName.text, "Game");
     }   
 
-    public void OnStartGame()
+    public void SetPlayerData()
     {
         SavePlayerData();
     }

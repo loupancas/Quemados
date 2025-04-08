@@ -13,7 +13,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _startGameScreen;
     [SerializeField] private GameObject _infoPlayer;
     [SerializeField] private GameObject _infoBall;
-    [SerializeField] NetworkRunner runner;
     private PlayerRef player;
     [SerializeField] public GameObject readyButton;
     private void Awake()
@@ -44,19 +43,7 @@ public class UIManager : MonoBehaviour
         _loseScreen.SetActive(false);
     }
 
-    //public IEnumerator StartCountdown(int duration)
-    //{
-    //    infoText.gameObject.SetActive(false);
-    //    countdownText.gameObject.SetActive(true);
-    //    while (duration > 0)
-    //    {
-    //        countdownText.text = duration.ToString();
-    //        yield return new WaitForSeconds(1);
-    //        duration--;
-    //    }
-    //    countdownText.gameObject.SetActive(false);
-    //    Player.EnablePlayerControls();
-    //}
+   
 
     public void SetReady()
     {
