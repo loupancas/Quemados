@@ -15,7 +15,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     public static PlayerSpawner Instance;
     private List<Transform> availableSpawnPoints;
     private int playerCount = 0;
-    public List<Ball2> SpawnedBalls { get; private set; } = new List<Ball2>();
+    //public List<Ball2> SpawnedBalls { get; private set; } = new List<Ball2>();
     private void Awake()
     {
         if (Instance == null)
@@ -88,7 +88,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         {
 
             Ball2 newBall = Runner.Spawn(_ballPrefab, null, null).GetComponent<Ball2>();
-            SpawnedBalls.Add(newBall);
+            //SpawnedBalls.Add(newBall);
 
            Debug.Log("se añade ball2");
         }

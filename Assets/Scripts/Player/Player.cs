@@ -219,17 +219,7 @@ public class Player : NetworkBehaviour
             {
                 ballRenderer.enabled = false;
             }
-            foreach (var ball in PlayerSpawner.Instance.SpawnedBalls)
-            {
-                if (ball != null && !ball.IsPickedUp)
-                {
-                    _currentBall = ball;
-                    _currentBall.GetComponent<MeshRenderer>().enabled = true;
-                    ball.IsPickedUp = true;
-                    Debug.Log("Ball2 component assigned to _currentBall");
-                    break;
-                }
-            }
+           
 
         }
     }
@@ -239,7 +229,8 @@ public class Player : NetworkBehaviour
 
     private void Fire()
     {
-          SpawnBullet();
+        var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+        ball.GetComponent<BallBehaviour>().Initialize(this);
         HasBall = false;
     }
 
@@ -294,17 +285,29 @@ public class Player : NetworkBehaviour
     {
         if (!HasStateAuthority) return;
         Debug.Log("Player was hit by a ball");
-        //_rgdb.velocity = Vector3.zero;
-        //_rigidbody.angularVelocity = Vector3.zero;
-
-        IsAlive = false;
+      
 
         if (_playerDataNetworked.Lives > 1)
+        {
             RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
-        else
-            RespawnTimer = default;
+            _playerDataNetworked.SubtractLife();
+            var ballBehaviour = _hits[0].GetComponent<BallBehaviour>();
+            if (ballBehaviour != null && ballBehaviour.ThrowingPlayer != null)
+            {
+                ballBehaviour.ThrowingPlayer._playerDataNetworked.AddToScore(1);
+            }
 
-        _playerDataNetworked.SubtractLife();
+        }
+        else
+        {
+            RespawnTimer = default;
+            IsAlive = false;
+            SetLoseScreenRPC();
+            UIManager.instance.SetLoseScreen();
+            RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+        }
+
+
     }
 
 
@@ -441,10 +444,10 @@ public class Player : NetworkBehaviour
     //    Runner.Despawn(Object);
     //}
 
-    //private void SetLoseScreenRPC()
-    //{
-    //    UIManager.instance.SetLoseScreen();
-    //}
+    private void SetLoseScreenRPC()
+    {
+        UIManager.instance.SetLoseScreen();
+    }
 
     private IEnumerator WaitInit()
     {

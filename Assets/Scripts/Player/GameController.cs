@@ -71,20 +71,27 @@ using UnityEngine;
 
 		public override void Spawned()
 		{
-			_startEndDisplay.gameObject.SetActive(true);
+			_startEndDisplay.gameObject.SetActive(false);
 			_ingameTimerDisplay.gameObject.SetActive(false);
 			_playerOverview.Clear();
 
 			
 			if (Object.HasStateAuthority)
 			{
-				// Initialize the game state on the master client
-				Phase = GamePhase.Starting;
-				Timer = TickTimer.CreateFromSeconds(Runner, _startDelay);
+            //_startEndDisplay.gameObject.SetActive(true);
+
+            // Initialize the game state on the master client
+            Phase = GamePhase.Starting;
+            Timer = TickTimer.CreateFromSeconds(Runner, _startDelay);
 			}
 		}
-		
-		public override void Render()
+
+		public void ActivateStartEndDisplay()
+		{
+			_startEndDisplay.gameObject.SetActive(true);
+		}
+
+    public override void Render()
 		{
 			// Update the game display with the information relevant to the current game phase
 			switch (Phase)
@@ -109,9 +116,10 @@ using UnityEngine;
 
 		private void UpdateStartingDisplay()
 		{
-			// --- All clients
-			// Display the remaining time until the game starts in seconds (rounded down to the closest full second)
-			_startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
+        // --- All clients
+        // Display the remaining time until the game starts in seconds (rounded down to the closest full second)
+
+        _startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
 
 			if (!Object.HasStateAuthority) 
 				return;

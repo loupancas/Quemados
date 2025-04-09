@@ -14,10 +14,10 @@ using static UnityEngine.ParticleSystem;
         [Tooltip("Optional new prefab to spawn when this asteroid is destroyed")]
         [SerializeField] private BallBehaviour _ball;
 
-        //[Tooltip("Destruction FX spawned when this asteroid is destroyed")]
-        //[SerializeField] private ParticleFx _impactFx;
+    //[Tooltip("Destruction FX spawned when this asteroid is destroyed")]
+    //[SerializeField] private ParticleFx _impactFx;
+        public Player ThrowingPlayer { get; private set; }
 
-     
 
         [Tooltip("The visual model of the asteroid")]
         [SerializeField] private GameObject _visual;
@@ -38,13 +38,18 @@ using static UnityEngine.ParticleSystem;
             _collider = GetComponent<Collider>();
         }
 
+        public void Initialize(Player throwingPlayer)
+        {
+            ThrowingPlayer = throwingPlayer;
+        }
+
         public override void Spawned()
         {
             // Reset rigidbody (it may be recycled from the pool and we don't want old inertia to stick)
-            _nrb.Teleport(transform.position);
-            _rb.position = transform.position;
-            _rb.velocity = Vector3.zero;
-            _rb.angularVelocity = Vector3.zero;
+            //_nrb.Teleport(transform.position);
+            //_rb.position = transform.position;
+            //_rb.velocity = Vector3.zero;
+            //_rb.angularVelocity = Vector3.zero;
 
             // Activate the visual and the collider (in case this is a recycled Asteroid)
             _visual.SetActive(true);

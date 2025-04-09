@@ -44,20 +44,6 @@ public class UIManager : MonoBehaviour
         _loseScreen.SetActive(false);
     }
 
-    //public IEnumerator StartCountdown(int duration)
-    //{
-    //    infoText.gameObject.SetActive(false);
-    //    countdownText.gameObject.SetActive(true);
-    //    while (duration > 0)
-    //    {
-    //        countdownText.text = duration.ToString();
-    //        yield return new WaitForSeconds(1);
-    //        duration--;
-    //    }
-    //    countdownText.gameObject.SetActive(false);
-    //    Player.EnablePlayerControls();
-    //}
-
     public void SetReady()
     {
         if (RoomM.Instance != null)
@@ -66,6 +52,7 @@ public class UIManager : MonoBehaviour
             readyButton.SetActive(false);
             _startGameScreen.SetActive(true);
             RoomM.Instance.RpcStartGame();
+            GameController.Singleton?.ActivateStartEndDisplay();
         }
     }
 

@@ -16,7 +16,7 @@ using Fusion;
     // The method passed to the OnChanged attribute is called everytime the [Networked] parameter is changed.
     [HideInInspector]
         [Networked]
-        public NetworkString<_16> NickName { get; private set; }
+        public string NickName { get; private set; }
 
         [HideInInspector]
         [Networked]
@@ -35,16 +35,14 @@ using Fusion;
             {
                 Lives = STARTING_LIVES;
                 Score = 0;
-            //NickName = LocalPlayerData.NickName;
-            string playerNickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
-            NickName = playerNickName;
+            NickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
         }
 
             // --- All Clients
             // Set the local runtime references.
             
             FindObjectOfType<GameController>().TrackNewPlayer(this);
-            _overviewPanel = FindObjectOfType<PlayerOverviewPanel>();
+           _overviewPanel = FindObjectOfType<PlayerOverviewPanel>();
 
         if (_overviewPanel != null)
         {
@@ -73,24 +71,28 @@ using Fusion;
         
         public override void Render()
         {
-            foreach (var change in _changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer))
-            {
-                _overviewPanel.UpdateEntry(this);
-                break;
-            }
+        foreach (var change in _changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer))
+        {
+            _overviewPanel.UpdateEntry(this);
+            break;
         }
+
+        //_overviewPanel?.UpdateEntry(this);
+    }
 
         // Increase the score by X amount of points
         public void AddToScore(int points)
         {
             Score += points;
-        }
+        //_overviewPanel?.UpdateEntry(this);
+    }
 
         // Decrease the current Lives by 1
         public void SubtractLife()
         {
             Lives--;
-        }
+        //_overviewPanel?.UpdateEntry(this);
+    }
 
         // RPC used to send player information to the Host
         [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
