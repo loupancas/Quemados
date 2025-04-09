@@ -11,21 +11,8 @@ using UnityEngine;
 
         private Dictionary<PlayerDataNetworked, TextMeshProUGUI> _playerListEntries =
             new Dictionary<PlayerDataNetworked, TextMeshProUGUI>();
-    public static PlayerOverviewPanel Instance { get; private set; }
 
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    public void Clear()
+        public void Clear()
         {
             foreach (var tmp in _playerListEntries.Values)
             {

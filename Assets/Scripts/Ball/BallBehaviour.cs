@@ -41,12 +41,12 @@ using static UnityEngine.ParticleSystem;
         public override void Spawned()
         {
             // Reset rigidbody (it may be recycled from the pool and we don't want old inertia to stick)
-            //_nrb.Teleport(transform.position);
-            //_rb.position = transform.position;
-            //_rb.velocity = new Vector3(0,0,0);
-            //_rb.angularVelocity = new Vector3(0, 0, 0);
+            _nrb.Teleport(transform.position);
+            _rb.position = transform.position;
+            _rb.velocity = Vector3.zero;
+            _rb.angularVelocity = Vector3.zero;
 
-        // Activate the visual and the collider (in case this is a recycled Asteroid)
+            // Activate the visual and the collider (in case this is a recycled Asteroid)
             _visual.SetActive(true);
             _collider.enabled = true;
         }
@@ -89,17 +89,10 @@ using static UnityEngine.ParticleSystem;
             if (Object == null) return false;
             if (IsAlive == false) return false;
 
-        if (Object.HasStateAuthority)
-        {
             RPC_BallHitEvent(transform.position);
-        }
-        else
-        {
-            Debug.LogWarning("Object not confirmed, RPC not sent.");
-        }
 
 
-        return true;
+            return true;
         }
 
         public override void FixedUpdateNetwork()

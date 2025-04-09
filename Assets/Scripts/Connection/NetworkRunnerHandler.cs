@@ -52,23 +52,16 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
 
     public async void CreateGame(string sessionName, string sceneName)
     {
-        _mainMenuHandler?.SetPlayerData();
         await InitializeGame(GameMode.Shared, sessionName, SceneUtility.GetBuildIndexByScenePath($"Scenes/{sceneName}"));
     }
     
     public async void JoinGame(SessionInfo sessionInfo)
     {
-        _mainMenuHandler?.SetPlayerData();
         await InitializeGame(GameMode.Shared, sessionInfo.Name, SceneManager.GetActiveScene().buildIndex);
     }
     
     async Task InitializeGame(GameMode gameMode, string sessionName, int sceneIndex)
     {
-        //_currentRunner=FindObjectOfType<NetworkRunner>();
-        //if (_currentRunner == null)
-        //{
-        //    _currentRunner = Instantiate(_runnerPrefab);
-        //}
         _currentRunner.ProvideInput = gameMode == GameMode.Shared;
 
         var result = await _currentRunner.StartGame(new StartGameArgs()
@@ -78,15 +71,15 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
             SessionName = sessionName
         });
         
-        //if (!result.Ok)
-        //{
-        //    Debug.LogError("[Custom error] Unable to start game");
-        //}
-        //else
-        //{
-        //    Debug.Log("[Custom Msg] Game started");
-        //    _mainMenuHandler?.SetPlayerData();
-        //}
+        if (!result.Ok)
+        {
+            Debug.LogError("[Custom error] Unable to start game");
+        }
+        else
+        {
+            Debug.Log("[Custom Msg] Game started");
+            _mainMenuHandler?.OnStartGame();
+        }
     }
 
     #endregion
