@@ -10,6 +10,7 @@ using Fusion.Addons.Physics;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
+    public Inventario inventario;
     public PlayerDataNetworked _playerDataNetworked = null;
     [SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
@@ -38,6 +39,11 @@ public class Player : NetworkBehaviour
     [SerializeField] private Ball2 _currentBall;
     [SerializeField] private BallBehaviour _ball;
     [Networked] public bool HasBall { get; set; }
+    public delegate void HasBallChangeHandler(bool hasBall);
+    public event HasBallChangeHandler OnHasBallChange;
+
+    public delegate void BallThrownHandler();
+    public event BallThrownHandler OnBallThrown;
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
  
@@ -86,33 +92,36 @@ public class Player : NetworkBehaviour
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
             var playerRef = Object.InputAuthority;
-            // Obtener el nombre del jugador desde PlayerPrefs
-            string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
-
-            // Llamar al método GetColor de PlayerSpawner
-            Color playerColor = PlayerSpawner.GetColor(playerName);
-
-            // Establecer el color del jugador
-            RPC_SetPlayerColor(playerColor);
+            StartCoroutine(InitializePlayerColor());
 
         }
 
     }
+
+    private IEnumerator InitializePlayerColor()
+    {
+        // Esperar hasta que el objeto esté confirmado
+        while (!Object.IsValid)
+        {
+            yield return null;
+        }
+
+        // Obtener el nombre del jugador desde PlayerPrefs
+        string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
+
+        // Llamar al método GetColor de PlayerSpawner
+        Color playerColor = PlayerSpawner.GetColor(playerName);
+
+        // Establecer el color del jugador
+        RPC_SetPlayerColor(playerColor);
+    }
+
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     private void RPC_SetPlayerColor(Color color)
     {
         NetworkedColor = color;
     }
-
-    public void SetPlayerColor(Color color)
-    {
-        if (_meshRenderer != null)
-        {
-            _meshRenderer.sharedMaterial.color = color;
-        }
-    }
-
 
     void Update()
     {
@@ -184,6 +193,7 @@ public class Player : NetworkBehaviour
         {
             ballPickUp.PickUp(this);
             HasBall = true;
+            OnHasBallChange?.Invoke(HasBall);
             MeshRenderer ballRenderer = ballObject.GetComponent<MeshRenderer>();
             if (ballRenderer != null)
             {
@@ -202,6 +212,8 @@ public class Player : NetworkBehaviour
         var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
         ball.GetComponent<BallBehaviour>().Initialize(this);
         HasBall = false;
+        OnHasBallChange?.Invoke(HasBall);
+        OnBallThrown?.Invoke();
     }
 
     // Spawns a bullet which will be travelling in the direction the spaceship is facing

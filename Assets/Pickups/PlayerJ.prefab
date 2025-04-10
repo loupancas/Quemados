@@ -2626,6 +2626,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9548307174ed3244a5d4df9092e00a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inventario: {fileID: 7321937606204783578, guid: 1f7ecb9377d7bb246a30737497ff847f, type: 3}
   _playerDataNetworked: {fileID: 5992165507469196777}
   _respawnDelay: 2
   _speed: 3
@@ -2651,7 +2652,6 @@ MonoBehaviour:
   _ball: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   _HasBall: 0
   ballSpawnPoint: {fileID: 1088013016198138683}
-  __teamColor: {r: 0, g: 0, b: 0, a: 0}
   _meshRenderer: {fileID: 3500929485112267311}
 --- !u!54 &575414237586548799
 Rigidbody:

@@ -6,19 +6,35 @@ public class InventoryManager : MonoBehaviour
 {
     public GameObject slotPrefab;
     public List<InventorySlots> inventorySlots = new List<InventorySlots>(4);
-
+    public Player player;
+    public Inventario inventario;
     private void OnEnable() //suscribir
     {
-        //Inventario.OnInventoryChange += DrawInventory;
-        //Inventario.OnInventoryUpdate += UpdateInventory;
+        Inventario.OnInventoryChange += DrawInventory;
+        Inventario.OnInventoryUpdate += UpdateInventory;
+        player.OnHasBallChange += HandleHasBallChange; // Suscribirse
+        player.OnBallThrown += HandleBallThrown; // Suscribirse 
     }
     private void OnDisabled() //desuscribir
     {
-        //Inventario.OnInventoryChange -= DrawInventory;
-        //Inventario.OnInventoryUpdate -= UpdateInventory;
+        Inventario.OnInventoryChange -= DrawInventory;
+        Inventario.OnInventoryUpdate -= UpdateInventory;
+        player.OnHasBallChange -= HandleHasBallChange; // Desuscribirse 
+        player.OnBallThrown -= HandleBallThrown; // Desuscribirse 
     }
 
+    private void Start()
+    {
+        if (player == null)
+        {
+            player = FindObjectOfType<Player>();
+        }
 
+        if (inventario == null)
+        {
+            inventario = player.GetComponent<Inventario>();
+        }
+    }
 
     void resetInvetory()
     {
@@ -61,7 +77,7 @@ public class InventoryManager : MonoBehaviour
     void createInventorySlot()
     {
 
-       // if (slotPrefab != null)
+      if (slotPrefab != null)
         {
             GameObject newSlot = Instantiate(slotPrefab);
             newSlot.transform.SetParent(transform, false);
@@ -74,6 +90,20 @@ public class InventoryManager : MonoBehaviour
         }
 
 
+    }
+
+    void HandleHasBallChange(bool hasBall)
+    {
+        if (hasBall)
+        {
+            UpdateInventory(player.inventario.GetInventory()); // Actualizar el inventario cuando el jugador tiene la pelota
+        }
+    }
+
+    // Manejar el evento de lanzar la pelota
+    void HandleBallThrown()
+    {
+        UpdateInventory(player.inventario.GetInventory()); // Actualizar el inventario cuando el jugador lanza la pelota
     }
 
 }
