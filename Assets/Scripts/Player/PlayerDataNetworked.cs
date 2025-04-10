@@ -8,7 +8,7 @@ using Fusion;
         private const int STARTING_LIVES = 3;
 
         // Local Runtime references
-        private PlayerOverviewPanel _overviewPanel = null;
+        private PlayerOverviewPanel _overviewPanel;
 
         private ChangeDetector _changeDetector;
 
@@ -16,15 +16,15 @@ using Fusion;
     // The method passed to the OnChanged attribute is called everytime the [Networked] parameter is changed.
     [HideInInspector]
         [Networked]
-        public string NickName { get; private set; }
+        public string NickName { get; set; }
 
         [HideInInspector]
         [Networked]
-        public int Lives { get; private set; }
+        public int Lives { get; set; }
 
         [HideInInspector]
         [Networked]
-        public int Score { get; private set; }
+        public int Score { get; set; }
 
         public override void Spawned()
         {
@@ -35,8 +35,8 @@ using Fusion;
             {
                 Lives = STARTING_LIVES;
                 Score = 0;
-            NickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
-        }
+                NickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
+            }
 
             // --- All Clients
             // Set the local runtime references.

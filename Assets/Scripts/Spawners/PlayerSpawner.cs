@@ -12,6 +12,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private GameObject _readyButton;
     [SerializeField] private BallPickUp _ballPickUpPrefab;
     [SerializeField] private Ball2 _ballPrefab;
+    [SerializeField] private PlayerOverviewPanel _playerOverviewPanel;
     public static PlayerSpawner Instance;
     private List<Transform> availableSpawnPoints;
     private int playerCount = 0;
@@ -27,10 +28,12 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             Destroy(gameObject);
         }
         availableSpawnPoints = new List<Transform>(spawnPoints);
+        Debug.Log("PlayerSpawner awake");
     }
     private void Start()
     {
         // GeneratePowerUpPositions();
+        Debug.Log("PlayerSpawner started");
        
     }
     // Se ejecuta CADA VEZ que se conecta un cliente
@@ -66,7 +69,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
         // Spawnea el jugador en el punto seleccionado
         Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation);
-
+        //ApplyPlayerData(_playerPrefab);
         // Elimina el punto de aparición de la lista de disponibles
         availableSpawnPoints.RemoveAt(spawnIndex);
     }
@@ -97,4 +100,35 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             Debug.LogError("BallPickUp prefab is not assigned!");
         }
     }
+
+
+    public void ApplyPlayerData()
+    {
+        string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
+        string sharedSessionName = PlayerPrefs.GetString("SharedSessionName", "DefaultSession");
+        string colorString = PlayerPrefs.GetString(playerName + "_Color", "#FFFFFF");
+
+        //if (ColorUtility.TryParseHtmlString("#" + colorString, out Color playerColor))
+        //{
+        //    Player playerComponent = playerObject.GetComponent<Player>();
+        //    if (playerComponent != null)
+        //    {
+        //        playerComponent.SetPlayerColor(playerColor);
+        //    }
+        //}
+
+        //// Crear y agregar PlayerDataNetworked
+        //    PlayerDataNetworked playerData = new PlayerDataNetworked
+        //    {
+        //        NickName = playerName,
+        //        Score = 0, // Inicializa con el puntaje inicial
+        //        Lives = 3 // Inicializa con el número de vidas inicial
+        //    };
+
+        //    // Agregar la entrada al PlayerOverviewPanel
+        //    _playerOverviewPanel.AddEntry(Runner.LocalPlayer, playerData);
+       
+    }
+
+
 }

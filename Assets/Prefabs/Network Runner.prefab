@@ -101,6 +101,7 @@ MonoBehaviour:
   _readyButton: {fileID: 7153709316755114132, guid: 1e64f4ff5f48ada449b23c026b20b425, type: 3}
   _ballPickUpPrefab: {fileID: 1457730783720594276, guid: c4647fec96e951c4e9638d9ccb36d20f, type: 3}
   _ballPrefab: {fileID: 3401989825405034583, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  _playerOverviewPanel: {fileID: 3135748679337466609, guid: 7fc9b7199cf66d54fb8373c2d145b296, type: 3}
 --- !u!114 &-8785035105522748499
 MonoBehaviour:
   m_ObjectHideFlags: 0

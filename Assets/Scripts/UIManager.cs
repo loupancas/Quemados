@@ -19,7 +19,8 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
       instance = this;
-     
+     Debug.Log("UIManager awake");
+        
     }
 
     void Start()

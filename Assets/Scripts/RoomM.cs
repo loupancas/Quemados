@@ -23,7 +23,7 @@ public class RoomM : NetworkBehaviour
         {
             Destroy(gameObject);
         }
-
+        Debug.Log("RoomM awake");
         //_activePlayers = new Dictionary<int, Player>();
     }
 
@@ -37,6 +37,7 @@ public class RoomM : NetworkBehaviour
     {
         RpcAddPlayer(Runner.LocalPlayer);
         UIManager.instance.SetPlayerRef(Runner.LocalPlayer);
+        Debug.Log("RoomM spawned");
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]

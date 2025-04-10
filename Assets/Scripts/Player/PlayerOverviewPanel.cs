@@ -9,11 +9,10 @@ using UnityEngine;
     {
     [SerializeField] private TextMeshProUGUI _playerOverviewEntryPrefab = null;
 
-    private Dictionary<PlayerDataNetworked, TextMeshProUGUI> _playerListEntries =
+        private Dictionary<PlayerDataNetworked, TextMeshProUGUI> _playerListEntries =
         new Dictionary<PlayerDataNetworked, TextMeshProUGUI>();
 
-    //[SerializeField] private GameObject playerEntryPrefab;
-    //    [SerializeField] private Transform entriesParent;
+   
 
         private Dictionary<PlayerRef, PlayerOverviewEntry> _playerEntries = new Dictionary<PlayerRef, PlayerOverviewEntry>();
 
@@ -44,18 +43,7 @@ using UnityEngine;
 
         UpdateEntry(playerDataNetworked);
 
-        //if (!_playerEntries.ContainsKey(playerRef))
-        //    {
-        //        // Instancia una nueva entrada de jugador
-        //        GameObject entryObject = Instantiate(playerEntryPrefab, entriesParent);
-        //        PlayerOverviewEntry entry = entryObject.GetComponent<PlayerOverviewEntry>();
-
-        //        // Actualiza la entrada con los datos del jugador
-        //        entry.UpdateEntry(playerDataNetworked);
-
-        //        // Agrega la entrada al diccionario
-        //        _playerEntries.Add(playerRef, entry);
-        //    }
+       
 
     }
 
@@ -66,11 +54,7 @@ using UnityEngine;
             entry.text = $"{playerData.NickName}\nScore: {playerData.Score}\nLives: {playerData.Lives}";
         }
 
-        //if (_playerEntries.TryGetValue(playerData.Object.InputAuthority, out PlayerOverviewEntry entry))
-        //    {
-        //        // Actualiza la entrada con los datos del jugador
-        //        entry.UpdateEntry(playerData);
-        //    }
+       
     }
 
 
@@ -84,12 +68,7 @@ using UnityEngine;
         }
 
         _playerListEntries.Remove(playerData);
-        //if (_playerEntries.TryGetValue(playerData.Object.InputAuthority, out PlayerOverviewEntry entry))
-        //{
-        //    // Elimina la entrada del diccionario y destruye el objeto de la UI
-        //    _playerEntries.Remove(playerData.Object.InputAuthority);
-        //    Destroy(entry.gameObject);
-        //}
+       
 
     }
 

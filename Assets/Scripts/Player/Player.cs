@@ -13,6 +13,7 @@ public class Player : NetworkBehaviour
     public PlayerDataNetworked _playerDataNetworked = null;
     [SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
+    //GameController _gameController;
     //public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
@@ -48,7 +49,7 @@ public class Player : NetworkBehaviour
     Color NetworkedColor { get; set; }
 
 
-    void OnNetColorChanged() => GetComponentInChildren<Renderer>().material.color = NetworkedColor;
+    void OnNetColorChanged() => GetComponentInChildren<Renderer>().sharedMaterial.color = NetworkedColor;
    
     #endregion
 
@@ -68,8 +69,10 @@ public class Player : NetworkBehaviour
         if (HasStateAuthority)
         {
             LocalPlayer = this;
-            NetworkedColor = GetComponentInChildren<Renderer>().material.color;
-            Debug.Log("Local Player");
+            
+            
+            NetworkedColor = GetComponentInChildren<Renderer>().sharedMaterial.color;
+            Debug.Log("Player spawned");
             Camera = Camera.main;
             Camera.GetComponent<ThirdPersonCamera>().Target = transform;
             _rgbd = GetComponent<Rigidbody>();
@@ -83,19 +86,20 @@ public class Player : NetworkBehaviour
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
             var playerRef = Object.InputAuthority;
-            _meshRenderer.material.color = GetColor(playerRef.PlayerId);
-            //StartCoroutine(WaitInit());
+            _meshRenderer.sharedMaterial.color = GetColor(playerRef.PlayerId);
 
         }
-       
+
     }
 
-   
-    public static void EnablePlayerControls()
+    public void SetPlayerColor(Color color)
     {
-        //ControlsEnabled = true;
+        if (_meshRenderer != null)
+        {
+            _meshRenderer.sharedMaterial.color = color;
+        }
     }
-    
+
     void Update()
     {
         if (!HasStateAuthority ) return;
@@ -126,54 +130,6 @@ public class Player : NetworkBehaviour
     }
 
 
-
-
-    #region
-    //private void TryPickupBall()
-    //{
-    //    Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f);
-    //    foreach (var hitCollider in hitColliders)
-    //    {
-    //        if (hitCollider.CompareTag("Ball"))
-    //        {
-    //            NetworkObject ballNetworkObject = hitCollider.GetComponent<NetworkObject>();
-    //            BallPickUp ballPickUp = hitCollider.GetComponent<BallPickUp>();
-    //            if (ballNetworkObject && !ballNetworkObject.HasInputAuthority && ballPickUp)
-    //            {
-    //                ballPickUp.RPC_PickUp(this);
-    //                ballNetworkObject.AssignInputAuthority(Runner.LocalPlayer);
-    //                HeldBall = ballNetworkObject;
-    //                //if (_ballPrefab != null && !_ballPrefab.GetComponentInChildren<MeshRenderer>().enabled)
-    //                //{
-    //                //    HasBall = true;
-    //                //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = true;
-    //                //}
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void ThrowBall()
-    //{
-    //    if (HeldBall.IsValid)
-    //    {
-    //        Vector3 throwDirection = transform.forward;
-    //        Ball2 ball = HeldBall.GetComponent<Ball2>();
-    //        if (ball != null)
-    //        {
-    //            ball.RpcThrow(throwDirection);
-    //            HeldBall.GetComponent<NetworkObject>().RemoveInputAuthority();
-    //            HeldBall = default;
-    //            //if (_ballPrefab != null && _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled)
-    //            //{
-    //            //    HasBall = false;
-    //            //    _ballPrefab.GetComponentInChildren<MeshRenderer>().enabled = false;
-    //            //}
-    //        }
-    //    }
-    //}
-    #endregion
 
 
     private void TryPickupBall()
@@ -260,7 +216,7 @@ public class Player : NetworkBehaviour
         //MOVIMIENTO
         Movement();
 
-        if (IsAlive && HasHitBall())
+        if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
         {
             PlayerWasHit();
         }
@@ -276,8 +232,9 @@ public class Player : NetworkBehaviour
         if (count <= 0)
             return false;
 
-        var ballBehaviour = _hits[0].GetComponent<BallBehaviour>();
-
+        var ballBehaviour = _hits[0]?.GetComponent<BallBehaviour>();
+        if (ballBehaviour == null)
+            return false;
         return ballBehaviour.OnBallHit();
     }
 
@@ -405,7 +362,7 @@ public class Player : NetworkBehaviour
             SkinnedMeshRenderer renderer = child.GetComponent<SkinnedMeshRenderer>();
             if (renderer != null)
             {
-                foreach (var material in renderer.materials)
+                foreach (var material in renderer.sharedMaterials)
                 {
                     material.color = color;
                 }
@@ -449,23 +406,6 @@ public class Player : NetworkBehaviour
         UIManager.instance.SetLoseScreen();
     }
 
-    private IEnumerator WaitInit()
-    {
-        yield return new WaitForSeconds(1);
-
-        switch (Runner.LocalPlayer.PlayerId)
-        {
-            case 1:
-                _teamColor = Color.red;
-                break;
-            case 2:
-                _teamColor = Color.blue;
-                break;
-            default:
-                _teamColor = Color.yellow;
-                break;
-        }
-    }
 
     public static Color GetColor(int player)
     {

@@ -14,6 +14,7 @@ public class BallPickUp : NetworkBehaviour
 
     public override void Spawned()
     {
+        Debug.Log("BallPickUp spawned");
         base.Spawned();
         UpdateBallState();
     }

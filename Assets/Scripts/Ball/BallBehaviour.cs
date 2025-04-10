@@ -45,15 +45,9 @@ using static UnityEngine.ParticleSystem;
 
         public override void Spawned()
         {
-            // Reset rigidbody (it may be recycled from the pool and we don't want old inertia to stick)
-            //_nrb.Teleport(transform.position);
-            //_rb.position = transform.position;
-            //_rb.velocity = Vector3.zero;
-            //_rb.angularVelocity = Vector3.zero;
-
-            // Activate the visual and the collider (in case this is a recycled Asteroid)
-            _visual.SetActive(true);
-            _collider.enabled = true;
+           // Activate the visual and the collider (in case this is a recycled Asteroid)
+            _visual.SetActive(false);
+            _collider.enabled = false;
         }
 
 
@@ -81,8 +75,10 @@ using static UnityEngine.ParticleSystem;
         // Only called on StateAuthority.
         public void InitState(Vector3 force)
         {
-            // Apply some random rotation to the asteroid
-            Vector3 torque = Random.insideUnitSphere * Random.Range(500.0f, 1500.0f);
+        _visual.SetActive(true);
+        _collider.enabled = true;
+        // Apply some random rotation to the asteroid
+        Vector3 torque = Random.insideUnitSphere * Random.Range(500.0f, 1500.0f);
             _rb.AddForce(force);
             _rb.AddTorque(torque);
         }

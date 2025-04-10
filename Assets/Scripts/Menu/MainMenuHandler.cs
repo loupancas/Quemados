@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +24,11 @@ public class MainMenuHandler : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _statusText;
-    
+
+    private Dictionary<string, Color> _playerColors = new Dictionary<string, Color>();
+    private List<Color> _availableColors = new List<Color> { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan };
+
+
     void Start()
     {
         _joinLobbyBTN.onClick.AddListener(Btn_JoinLobby);
@@ -69,10 +74,35 @@ public class MainMenuHandler : MonoBehaviour
 
     public void SavePlayerData()
     {
+        string playerName = _playerNickName.text;
         PlayerPrefs.SetString("SharedSessionName", _sharedSessionName.text);
-        PlayerPrefs.SetString("PlayerNickName", _playerNickName.text);
+        PlayerPrefs.SetString("PlayerNickName", playerName);
+
+        if (!_playerColors.ContainsKey(playerName))
+        {
+            Color playerColor = GetUniqueColor();
+            _playerColors[playerName] = playerColor;
+            PlayerPrefs.SetString(playerName + "_Color", ColorUtility.ToHtmlStringRGBA(playerColor));
+        }
+
         PlayerPrefs.Save();
+
+
     }
 
+    private Color GetUniqueColor()
+    {
+        if (_availableColors.Count > 0)
+        {
+            Color color = _availableColors[0];
+            _availableColors.RemoveAt(0);
+            return color;
+        }
+        else
+        {
+            // Si se acaban los colores disponibles
+            return new Color(Random.value, Random.value, Random.value);
+        }
+    }
 
 }
