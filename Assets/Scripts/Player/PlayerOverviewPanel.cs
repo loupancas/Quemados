@@ -16,9 +16,16 @@ using UnityEngine;
 
         private Dictionary<PlayerRef, PlayerOverviewEntry> _playerEntries = new Dictionary<PlayerRef, PlayerOverviewEntry>();
 
+    private PlayerRef _localPlayerRef;
+    private NetworkRunner _networkRunner;
+    private void Start()
+    {
+        _networkRunner = FindObjectOfType<NetworkRunner>();
+        // Asume que el jugador local es el que tiene la autoridad de entrada
+        _localPlayerRef = _networkRunner.LocalPlayer;
+    }
 
-
-         public void Clear()
+        public void Clear()
         {
             foreach (var tmp in _playerEntries.Values)
             {
@@ -32,10 +39,12 @@ using UnityEngine;
         {
         if (_playerListEntries.ContainsKey(playerDataNetworked)) return;
         if (playerDataNetworked == null) return;
-
+        // Solo agregar la entrada si es el jugador local
+        if (playerRef != _localPlayerRef) return;
         var entry = Instantiate(_playerOverviewEntryPrefab, this.transform);
         entry.transform.localScale = Vector3.one;
-        entry.color = Player.GetColor(playerRef.PlayerId);
+        string playerName = playerDataNetworked.NickName;
+        entry.color = PlayerSpawner.GetColor(playerName);
 
 
 
@@ -45,7 +54,7 @@ using UnityEngine;
 
        
 
-    }
+        }
 
         public void UpdateEntry(PlayerDataNetworked playerData)
         {
@@ -55,7 +64,7 @@ using UnityEngine;
         }
 
        
-    }
+        }
 
 
         public void RemoveEntry(PlayerDataNetworked playerData)
@@ -70,8 +79,8 @@ using UnityEngine;
         _playerListEntries.Remove(playerData);
        
 
-    }
+         }
 
   
 
-}
+    }

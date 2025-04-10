@@ -101,34 +101,16 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         }
     }
 
-
-    public void ApplyPlayerData()
+    public static Color GetColor(string playerName)
     {
-        string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
-        string sharedSessionName = PlayerPrefs.GetString("SharedSessionName", "DefaultSession");
         string colorString = PlayerPrefs.GetString(playerName + "_Color", "#FFFFFF");
-
-        //if (ColorUtility.TryParseHtmlString("#" + colorString, out Color playerColor))
-        //{
-        //    Player playerComponent = playerObject.GetComponent<Player>();
-        //    if (playerComponent != null)
-        //    {
-        //        playerComponent.SetPlayerColor(playerColor);
-        //    }
-        //}
-
-        //// Crear y agregar PlayerDataNetworked
-        //    PlayerDataNetworked playerData = new PlayerDataNetworked
-        //    {
-        //        NickName = playerName,
-        //        Score = 0, // Inicializa con el puntaje inicial
-        //        Lives = 3 // Inicializa con el número de vidas inicial
-        //    };
-
-        //    // Agregar la entrada al PlayerOverviewPanel
-        //    _playerOverviewPanel.AddEntry(Runner.LocalPlayer, playerData);
-       
+        if (ColorUtility.TryParseHtmlString("#" + colorString, out Color playerColor))
+        {
+            return playerColor;
+        }
+        return Color.white; // Color por defecto si no se encuentra el color guardado
     }
+
 
 
 }

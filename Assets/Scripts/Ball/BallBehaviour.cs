@@ -36,7 +36,8 @@ using static UnityEngine.ParticleSystem;
             _rb = GetComponent<Rigidbody>();
             _nrb = GetComponent<NetworkRigidbody3D>();
             _collider = GetComponent<Collider>();
-        }
+     
+    }
 
         public void Initialize(Player throwingPlayer)
         {
@@ -46,8 +47,8 @@ using static UnityEngine.ParticleSystem;
         public override void Spawned()
         {
            // Activate the visual and the collider (in case this is a recycled Asteroid)
-            _visual.SetActive(false);
-            _collider.enabled = false;
+            _visual.SetActive(true);
+            _collider.enabled = true;
         }
 
 
@@ -75,8 +76,6 @@ using static UnityEngine.ParticleSystem;
         // Only called on StateAuthority.
         public void InitState(Vector3 force)
         {
-        _visual.SetActive(true);
-        _collider.enabled = true;
         // Apply some random rotation to the asteroid
         Vector3 torque = Random.insideUnitSphere * Random.Range(500.0f, 1500.0f);
             _rb.AddForce(force);

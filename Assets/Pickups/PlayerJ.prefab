@@ -2628,7 +2628,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerDataNetworked: {fileID: 5992165507469196777}
   _respawnDelay: 2
-  _gameController: {fileID: 0}
   _speed: 3
   _jumpForce: 6
   _playerDamageRadius: 3
@@ -2648,8 +2647,8 @@ MonoBehaviour:
   _defaultSpeed: 0
   _defaultJump: 0
   Camera: {fileID: 0}
-  _currentBall: {fileID: 3401989825405034583, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
-  _ball: {fileID: 715803800760509726, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  _currentBall: {fileID: 3714362420389767206, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  _ball: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   _HasBall: 0
   ballSpawnPoint: {fileID: 1088013016198138683}
   __teamColor: {r: 0, g: 0, b: 0, a: 0}
@@ -3992,7 +3991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2051648418255335640, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: NetworkedBehaviours.Array.size
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2051648418255335640, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: NetworkedBehaviours.Array.data[0]
@@ -4001,7 +4000,7 @@ PrefabInstance:
     - target: {fileID: 2051648418255335640, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: NetworkedBehaviours.Array.data[2]
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 7100263577302350102}
     - target: {fileID: 2698456587172576195, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: m_Name
       value: Ball2
@@ -4046,9 +4045,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 3401989825405034583, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
-    - {fileID: 715803800760509726, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -4078,5 +4075,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7100263577302350102 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3714362420389767206, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  m_PrefabInstance: {fileID: 5838113087091396912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd9b7f5e019da3c459e78a74c69e7527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -78,7 +78,7 @@ using UnityEngine;
 			
 			if (Object.HasStateAuthority)
 			{
-            //_startEndDisplay.gameObject.SetActive(true);
+      
 
             // Initialize the game state on the master client
             Phase = GamePhase.Starting;
@@ -120,8 +120,8 @@ using UnityEngine;
         // Display the remaining time until the game starts in seconds (rounded down to the closest full second)
 
         _startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
-
-			if (!Object.HasStateAuthority) 
+        _startEndDisplay.gameObject.SetActive(true);
+        if (!Object.HasStateAuthority) 
 				return;
 
 			if (!Timer.Expired(Runner)) 
@@ -157,8 +157,13 @@ using UnityEngine;
 			_startEndDisplay.gameObject.SetActive(true);
 			_ingameTimerDisplay.gameObject.SetActive(false);
 			_startEndDisplay.text = $"{playerData.NickName} won with {playerData.Score} points. Disconnecting in {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
-            _startEndDisplay.color = Player.GetColor(playerData.Object.InputAuthority.PlayerId);
-
+        // Recuperar el color del jugador desde PlayerPrefs
+        string playerName = playerData.NickName;
+        string colorString = PlayerPrefs.GetString(playerName + "_Color", "#FFFFFF");
+        if (ColorUtility.TryParseHtmlString("#" + colorString, out Color playerColor))
+        {
+            _startEndDisplay.color = playerColor;
+        }
 
         // Shutdowns the current game session.
         if (Timer.Expired(Runner))

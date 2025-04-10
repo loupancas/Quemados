@@ -41,7 +41,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
  
-    [Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
+    //[Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     #region Networked Color Change
 
@@ -86,10 +86,23 @@ public class Player : NetworkBehaviour
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
             var playerRef = Object.InputAuthority;
-            _meshRenderer.sharedMaterial.color = GetColor(playerRef.PlayerId);
+            // Obtener el nombre del jugador desde PlayerPrefs
+            string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
+
+            // Llamar al método GetColor de PlayerSpawner
+            Color playerColor = PlayerSpawner.GetColor(playerName);
+
+            // Establecer el color del jugador
+            RPC_SetPlayerColor(playerColor);
 
         }
 
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_SetPlayerColor(Color color)
+    {
+        NetworkedColor = color;
     }
 
     public void SetPlayerColor(Color color)
@@ -99,6 +112,7 @@ public class Player : NetworkBehaviour
             _meshRenderer.sharedMaterial.color = color;
         }
     }
+
 
     void Update()
     {
@@ -201,10 +215,7 @@ public class Player : NetworkBehaviour
         //_shootCooldown = TickTimer.CreateFromSeconds(Runner, _delayBetweenShots);
     }
 
-    private void ChangeColor()
-    {
-        _meshRenderer.material.color = _teamColor;
-    }
+    
 
 
 
@@ -362,7 +373,7 @@ public class Player : NetworkBehaviour
             SkinnedMeshRenderer renderer = child.GetComponent<SkinnedMeshRenderer>();
             if (renderer != null)
             {
-                foreach (var material in renderer.sharedMaterials)
+                foreach (var material in renderer.materials)
                 {
                     material.color = color;
                 }
@@ -407,21 +418,5 @@ public class Player : NetworkBehaviour
     }
 
 
-    public static Color GetColor(int player)
-    {
-        switch (player % 8)
-        {
-            case 0: return Color.red;
-            case 1: return Color.green;
-            case 2: return Color.blue;
-            case 3: return Color.yellow;
-            case 4: return Color.cyan;
-            case 5: return Color.grey;
-            case 6: return Color.magenta;
-            case 7: return Color.white;
-        }
-
-        return Color.black;
-    }
 
 }

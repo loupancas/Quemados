@@ -50,10 +50,11 @@ public class UIManager : MonoBehaviour
         if (RoomM.Instance != null)
         {
             RoomM.Instance.RpcOnPlayerConfirm(player);
+            GameController.Singleton?.ActivateStartEndDisplay();
+
             readyButton.SetActive(false);
             _startGameScreen.SetActive(true);
             RoomM.Instance.RpcStartGame();
-            GameController.Singleton?.ActivateStartEndDisplay();
         }
     }
 
