@@ -25,9 +25,7 @@ public class MainMenuHandler : MonoBehaviour
     [Header("Texts")]
     [SerializeField] private TMP_Text _statusText;
 
-    private Dictionary<string, Color> _playerColors = new Dictionary<string, Color>();
-    private List<Color> _availableColors = new List<Color> { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan };
-
+    
 
     void Start()
     {
@@ -78,31 +76,12 @@ public class MainMenuHandler : MonoBehaviour
         PlayerPrefs.SetString("SharedSessionName", _sharedSessionName.text);
         PlayerPrefs.SetString("PlayerNickName", playerName);
 
-        if (!_playerColors.ContainsKey(playerName))
-        {
-            Color playerColor = GetUniqueColor();
-            _playerColors[playerName] = playerColor;
-            PlayerPrefs.SetString(playerName + "_Color", ColorUtility.ToHtmlStringRGBA(playerColor));
-        }
-
         PlayerPrefs.Save();
-
+        Debug.Log($"Player {playerName} data saved with color: {PlayerPrefs.GetString(playerName + "_Color")}");
+    
 
     }
 
-    private Color GetUniqueColor()
-    {
-        if (_availableColors.Count > 0)
-        {
-            Color color = _availableColors[0];
-            _availableColors.RemoveAt(0);
-            return color;
-        }
-        else
-        {
-            // Si se acaban los colores disponibles
-            return new Color(Random.value, Random.value, Random.value);
-        }
-    }
+   
 
 }

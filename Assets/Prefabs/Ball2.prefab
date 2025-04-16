@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 8563648241071931854}
   - component: {fileID: 5304005436520246159}
   - component: {fileID: 4971252348030142504}
-  - component: {fileID: 3714362420389767206}
   m_Layer: 9
   m_Name: Ball2
   m_TagString: Ball
@@ -129,7 +128,6 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 5304005436520246159}
   - {fileID: 4971252348030142504}
-  - {fileID: 3714362420389767206}
 --- !u!54 &8563648241071931854
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -193,21 +191,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _points: 1
   _ball: {fileID: 4971252348030142504}
+  _player: {fileID: 5676140270376297627, guid: f12cf3661567c0a42ad2a3c5c74c1849, type: 3}
   _visual: {fileID: 2698456587172576195}
---- !u!114 &3714362420389767206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2698456587172576195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd9b7f5e019da3c459e78a74c69e7527, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveForce: 7
-  lifeTime: 5
-  _playerLayer:
-    serializedVersion: 2
-    m_Bits: 8

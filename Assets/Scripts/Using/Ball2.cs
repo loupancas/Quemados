@@ -57,7 +57,7 @@ public class Ball2 : NetworkBehaviour
 
                 if (Runner.TryGetPlayerObject(Object.InputAuthority, out var playerNetworkObject))
                 {
-                    //playerNetworkObject.GetComponent<PlayerDataNetworked>().AddToScore(BallBehaviour.Points);
+                    playerNetworkObject.GetComponent<PlayerDataNetworked>().AddToScore(ballBehaviour.Points);
                 }
                 return true;
             }

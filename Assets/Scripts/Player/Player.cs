@@ -14,7 +14,7 @@ public class Player : NetworkBehaviour
     public PlayerDataNetworked _playerDataNetworked = null;
     [SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
-    //GameController _gameController;
+    private int _localPlayerId;
     //public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
@@ -36,17 +36,15 @@ public class Player : NetworkBehaviour
     public float _defaultJump; 
     public Camera Camera;
     [Header("Ball")]
-    [SerializeField] private Ball2 _currentBall;
     [SerializeField] private BallBehaviour _ball;
     [Networked] public bool HasBall { get; set; }
     public delegate void HasBallChangeHandler(bool hasBall);
     public event HasBallChangeHandler OnHasBallChange;
-
     public delegate void BallThrownHandler();
     public event BallThrownHandler OnBallThrown;
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
- 
+    private PlayerManager _playerManager;
     //[Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     #region Networked Color Change
@@ -74,8 +72,7 @@ public class Player : NetworkBehaviour
     {
         if (HasStateAuthority)
         {
-            LocalPlayer = this;
-            
+            LocalPlayer = this;        
             
             NetworkedColor = GetComponentInChildren<Renderer>().sharedMaterial.color;
             Debug.Log("Player spawned");
@@ -92,47 +89,61 @@ public class Player : NetworkBehaviour
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
             var playerRef = Object.InputAuthority;
-            StartCoroutine(InitializePlayerColor());
+           // StartCoroutine(InitializePlayerColor());
 
         }
 
     }
 
-    private IEnumerator InitializePlayerColor()
+    private void Start()
     {
-        // Esperar hasta que el objeto esté confirmado
-        while (!Object.IsValid)
+        _playerManager = FindObjectOfType<PlayerManager>();
+        SetPlayerColor(_playerManager.GetPlayerColor(_localPlayerId));
+    }
+
+    public void SetPlayerColor(Color color)
+    {
+        if (_meshRenderer != null)
         {
-            yield return null;
+            _meshRenderer.material.color = _playerManager.GetPlayerColor(_localPlayerId);
         }
-
-        // Obtener el nombre del jugador desde PlayerPrefs
-        string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
-
-        // Llamar al método GetColor de PlayerSpawner
-        Color playerColor = PlayerSpawner.GetColor(playerName);
-
-        // Establecer el color del jugador
-        RPC_SetPlayerColor(playerColor);
     }
 
+    //private IEnumerator InitializePlayerColor()
+    //{
+    //    // Esperar hasta que el objeto esté confirmado
+    //    while (!Object.IsValid)
+    //    {
+    //        yield return null;
+    //    }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    private void RPC_SetPlayerColor(Color color)
-    {
-        NetworkedColor = color;
-    }
+    //    // Obtener el nombre del jugador desde PlayerPrefs
+    //    string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
+
+    //    // Llamar al método GetColor de PlayerSpawner
+    //    Color playerColor = PlayerSpawner.GetColor(playerName);
+
+    //    // Establecer el color del jugador
+    //    RPC_SetPlayerColor(playerColor);
+    //}
+
+
+    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    //private void RPC_SetPlayerColor(Color color)
+    //{
+    //    NetworkedColor = color;
+    //}
 
     void Update()
     {
-        if (!HasStateAuthority ) return;
+        if (!HasStateAuthority) return;
 
-   
-       _xAxi = Input.GetAxis("Horizontal");
+
+        _xAxi = Input.GetAxis("Horizontal");
         _yAxi = Input.GetAxis("Vertical");
 
 
-        if (Input.GetKeyDown(KeyCode.Space) )
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             _jumpPressed = true;
         }
@@ -140,16 +151,16 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             TryPickupBall();
-        
+
 
         }
 
         if (Input.GetMouseButtonDown(0) && HasBall)
         {
             Fire();
-           
+
         }
-         
+
     }
 
 
@@ -178,31 +189,31 @@ public class Player : NetworkBehaviour
             if (ballPickUp != null)
             {
                 Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
-                RPC_PickUpBall(ballPickUp.Object);
+                ballPickUp.PickUp(this);
                 break;
             }
         }
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    private void RPC_PickUpBall(NetworkObject ballObject)
-    {
-        Debug.Log("RPC_PickUpBall called");
-        BallPickUp ballPickUp = ballObject.GetComponent<BallPickUp>();
-        if (ballPickUp != null)
-        {
-            ballPickUp.PickUp(this);
-            HasBall = true;
-            OnHasBallChange?.Invoke(HasBall);
-            MeshRenderer ballRenderer = ballObject.GetComponent<MeshRenderer>();
-            if (ballRenderer != null)
-            {
-                ballRenderer.enabled = false;
-            }
+    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    //private void RPC_PickUpBall(NetworkObject ballObject)
+    //{
+    //    Debug.Log("RPC_PickUpBall called");
+    //    BallPickUp ballPickUp = ballObject.GetComponent<BallPickUp>();
+    //    if (ballPickUp != null)
+    //    {
+    //        ballPickUp.PickUp(this);
+    //        HasBall = true;
+    //        OnHasBallChange?.Invoke(HasBall);
+    //        MeshRenderer ballRenderer = ballObject.GetComponent<MeshRenderer>();
+    //        if (ballRenderer != null)
+    //        {
+    //            ballRenderer.enabled = false;
+    //        }
            
 
-        }
-    }
+    //    }
+    //}
 
  
 
@@ -210,26 +221,23 @@ public class Player : NetworkBehaviour
     private void Fire()
     {
         var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
-        ball.GetComponent<BallBehaviour>().Initialize(this);
-        HasBall = false;
-        OnHasBallChange?.Invoke(HasBall);
-        OnBallThrown?.Invoke();
+        ball.GetComponent<BallBehaviour>().Initialize( LocalPlayer, gameObject);
+        BallPickUp ballPickUp = ball.GetComponent<BallPickUp>();
+        if (ballPickUp != null)
+        {
+            //ballPickUp.Drop(this );
+            ball.InitState(_rgbd.velocity);
+            //HasBall = false;
+            //OnHasBallChange?.Invoke(HasBall);
+            //MeshRenderer ballRenderer = Object.GetComponent<MeshRenderer>();
+            //if (ballRenderer != null)
+            //{
+            //    ballRenderer.enabled = true;
+            //}
+
+        }
+        //OnBallThrown?.Invoke();
     }
-
-    // Spawns a bullet which will be travelling in the direction the spaceship is facing
-    private void SpawnBullet()
-    {
-        //if (_shootCooldown.ExpiredOrNotRunning(Runner) == false) return;
-
-        Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
-        Debug.Log("Ball Spawned");
-
-        //_shootCooldown = TickTimer.CreateFromSeconds(Runner, _delayBetweenShots);
-    }
-
-    
-
-
 
     public override void FixedUpdateNetwork()
     {
@@ -423,6 +431,42 @@ public class Player : NetworkBehaviour
     //{
     //    Runner.Despawn(Object);
     //}
+
+    //private IEnumerator WaitInit()
+    //{
+    //    yield return new WaitForSeconds(1);
+
+    //    switch (Runner.LocalPlayer.PlayerId)
+    //    {
+    //        case 1:
+    //            _teamColor = Color.red;
+    //            break;
+    //        case 2:
+    //            _teamColor = Color.blue;
+    //            break;
+    //        default:
+    //            _teamColor = Color.yellow;
+    //            break;
+    //    }
+    //}
+
+    //public static Color GetColor(int player)
+    //{
+    //    switch (player % 8)
+    //    {
+    //        case 0: return Color.red;
+    //        case 1: return Color.green;
+    //        case 2: return Color.blue;
+    //        case 3: return Color.yellow;
+    //        case 4: return Color.cyan;
+    //        case 5: return Color.grey;
+    //        case 6: return Color.magenta;
+    //        case 7: return Color.white;
+    //    }
+
+    //    return Color.black;
+    //}
+
 
     private void SetLoseScreenRPC()
     {

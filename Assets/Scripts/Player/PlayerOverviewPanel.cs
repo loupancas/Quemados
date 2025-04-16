@@ -12,17 +12,19 @@ using UnityEngine;
         private Dictionary<PlayerDataNetworked, TextMeshProUGUI> _playerListEntries =
         new Dictionary<PlayerDataNetworked, TextMeshProUGUI>();
 
-   
 
-        private Dictionary<PlayerRef, PlayerOverviewEntry> _playerEntries = new Dictionary<PlayerRef, PlayerOverviewEntry>();
 
-    private PlayerRef _localPlayerRef;
+    private Dictionary<int, PlayerOverviewEntry> _playerEntries = new Dictionary<int, PlayerOverviewEntry>();
+
+    private int _localPlayerId;
     private NetworkRunner _networkRunner;
+    private PlayerManager _playerManager;
     private void Start()
     {
         _networkRunner = FindObjectOfType<NetworkRunner>();
         // Asume que el jugador local es el que tiene la autoridad de entrada
-        _localPlayerRef = _networkRunner.LocalPlayer;
+        _localPlayerId = _networkRunner.LocalPlayer.PlayerId;
+        _playerManager = FindObjectOfType<PlayerManager>();
     }
 
         public void Clear()
@@ -40,13 +42,14 @@ using UnityEngine;
         if (_playerListEntries.ContainsKey(playerDataNetworked)) return;
         if (playerDataNetworked == null) return;
         // Solo agregar la entrada si es el jugador local
-        if (playerRef != _localPlayerRef) return;
+        if (playerRef.PlayerId != _localPlayerId) return;
         var entry = Instantiate(_playerOverviewEntryPrefab, this.transform);
         entry.transform.localScale = Vector3.one;
-        string playerName = playerDataNetworked.NickName;
-        entry.color = PlayerSpawner.GetColor(playerName);
-
-
+        //string playerName = playerDataNetworked.NickName;
+        if (_playerManager != null)
+        {
+            entry.color = _playerManager.GetPlayerColor(playerRef.PlayerId);
+        }
 
         _playerListEntries.Add(playerDataNetworked, entry);
 

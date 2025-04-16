@@ -10,13 +10,13 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private RoomM _RoomManager;
     [SerializeField] private GameObject _readyButton;
-    [SerializeField] private BallPickUp _ballPickUpPrefab;
-    [SerializeField] private Ball2 _ballPrefab;
+    [SerializeField] private GameObject _ballPickUpPrefab;
+    //[SerializeField] private BallBehaviour _ballPrefab;
     [SerializeField] private PlayerOverviewPanel _playerOverviewPanel;
     public static PlayerSpawner Instance;
     private List<Transform> availableSpawnPoints;
-    private int playerCount = 0;
-    //public List<Ball2> SpawnedBalls { get; private set; } = new List<Ball2>();
+    public event System.Action<PlayerRef> OnPlayerJoinedEvent;
+
     private void Awake()
     {
         if (Instance == null)
@@ -32,7 +32,6 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     }
     private void Start()
     {
-        // GeneratePowerUpPositions();
         Debug.Log("PlayerSpawner started");
        
     }
@@ -48,13 +47,14 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
                 Runner.Spawn(_RoomManager);
                 SpawnBallPickUp();
             }
-           
-
+            string playerName = PlayerPrefs.GetString("PlayerNickName", "UnknownPlayer");
+            
         }
+
+        OnPlayerJoinedEvent?.Invoke(player);
     }
 
    
-
     public void SpawnPlayer()
     {
         if (availableSpawnPoints.Count == 0)
@@ -63,15 +63,12 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             return;
         }
 
-        // Selecciona un punto de aparición aleatorio de los disponibles
         int spawnIndex = Random.Range(0, availableSpawnPoints.Count);
         Transform spawnPoint = availableSpawnPoints[spawnIndex];
 
-        // Spawnea el jugador en el punto seleccionado
         Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation);
-        //ApplyPlayerData(_playerPrefab);
-        // Elimina el punto de aparición de la lista de disponibles
         availableSpawnPoints.RemoveAt(spawnIndex);
+       // OnPlayerJoinedEvent?.Invoke(Runner.LocalPlayer);
     }
 
     private void SpawnBallPickUp()
@@ -83,33 +80,26 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             Transform spawnPoint = availableSpawnPoints[spawnIndex];
 
             // Spawnea el BallPickUp en el punto seleccionado
-            Runner.Spawn(_ballPickUpPrefab, new Vector3(0,1,0), spawnPoint.rotation);
+            NetworkObject ballObject = Runner.Spawn(_ballPickUpPrefab, new Vector3(0,1,0), spawnPoint.rotation);
+            BallBehaviour ballBehaviour = ballObject.GetComponent<BallBehaviour>();
+            //ballBehaviour.Initialize( Player.LocalPlayer   , _playerPrefab);
 
-            
         }
-        else if(_ballPrefab != null)
-        {
+        //else if(_ballPrefab != null)
+        //{
 
-            Ball2 newBall = Runner.Spawn(_ballPrefab, null, null).GetComponent<Ball2>();
-            //SpawnedBalls.Add(newBall);
+        //    BallBehaviour newBall = Runner.Spawn(_ballPrefab, null, null).GetComponent<BallBehaviour>();
+        //    //SpawnedBalls.Add(newBall);
 
-           Debug.Log("se añade ball2");
-        }
+        //   Debug.Log("se añade ball2");
+        //}
         else
         {
             Debug.LogError("BallPickUp prefab is not assigned!");
         }
     }
 
-    public static Color GetColor(string playerName)
-    {
-        string colorString = PlayerPrefs.GetString(playerName + "_Color", "#FFFFFF");
-        if (ColorUtility.TryParseHtmlString("#" + colorString, out Color playerColor))
-        {
-            return playerColor;
-        }
-        return Color.white; // Color por defecto si no se encuentra el color guardado
-    }
+   
 
 
 
