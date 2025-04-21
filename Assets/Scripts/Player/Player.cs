@@ -7,6 +7,7 @@ using System.Linq;
 using System.Resources;
 using UnityEditor;
 using Fusion.Addons.Physics;
+using Unity.VisualScripting;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
@@ -84,6 +85,8 @@ public class Player : NetworkBehaviour
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
             HasBall = false;
             IsAlive = true;
+
+            _ball = GetComponentInChildren<BallBehaviour>();
             if (!Object.HasInputAuthority)
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
@@ -151,7 +154,7 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             TryPickupBall();
-
+           _ball.ActivateBall();
 
         }
 
@@ -190,6 +193,7 @@ public class Player : NetworkBehaviour
             {
                 Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
                 ballPickUp.PickUp(this);
+                
                 break;
             }
         }
@@ -220,22 +224,42 @@ public class Player : NetworkBehaviour
 
     private void Fire()
     {
-        var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
-        ball.GetComponent<BallBehaviour>().Initialize( LocalPlayer, gameObject);
-        BallPickUp ballPickUp = ball.GetComponent<BallPickUp>();
-        if (ballPickUp != null)
-        {
-            //ballPickUp.Drop(this );
-            ball.InitState(_rgbd.velocity);
-            //HasBall = false;
-            //OnHasBallChange?.Invoke(HasBall);
-            //MeshRenderer ballRenderer = Object.GetComponent<MeshRenderer>();
-            //if (ballRenderer != null)
-            //{
-            //    ballRenderer.enabled = true;
-            //}
+        if (!Object.IsValid)
+            return;
 
+        var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+        var ballBehaviour = ball.GetComponent<BallBehaviour>();
+        if (ballBehaviour != null)
+        {
+            ballBehaviour.SetThrowingPlayer(this);
+            ballBehaviour.SetReady();
         }
+        //if (ball != null)
+        //{
+        //    var ballBehaviour = ball.GetComponent<BallBehaviour>();
+        //    if (ballBehaviour != null)
+        //    {
+        //        ballBehaviour.Initialize(LocalPlayer, gameObject);
+        //    }
+        //}
+
+
+        //var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+        //ball.GetComponent<BallBehaviour>().Initialize( LocalPlayer, gameObject);
+        //BallPickUp ballPickUp = ball.GetComponent<BallPickUp>();
+        //if (ballPickUp != null)
+        //{
+        //    //ballPickUp.Drop(this );
+        //    ball.InitState(_rgbd.velocity);
+        //    //HasBall = false;
+        //    //OnHasBallChange?.Invoke(HasBall);
+        //    //MeshRenderer ballRenderer = Object.GetComponent<MeshRenderer>();
+        //    //if (ballRenderer != null)
+        //    //{
+        //    //    ballRenderer.enabled = true;
+        //    //}
+
+        //}
         //OnBallThrown?.Invoke();
     }
 
@@ -247,10 +271,14 @@ public class Player : NetworkBehaviour
         //MOVIMIENTO
         Movement();
 
+
+
         if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
-        {
-            PlayerWasHit();
-        }
+            ApplyDamage(_ball.ThrowingPlayer);
+
+
+
+
 
 
     }
@@ -263,40 +291,127 @@ public class Player : NetworkBehaviour
         if (count <= 0)
             return false;
 
-        var ballBehaviour = _hits[0]?.GetComponent<BallBehaviour>();
-        if (ballBehaviour == null)
+        //var ballBehaviour = _hits[0]?.GetComponent<BallBehaviour>();
+
+        _ball = _hits[0]?.GetComponent<BallBehaviour>();
+        if (_ball == null || !_ball.Object.IsValid)
+        {
+            Debug.LogWarning("Ball is not valid or not confirmed.");
             return false;
-        return ballBehaviour.OnBallHit();
+        }
+
+        // Verificar si la pelota fue lanzada por otro jugador
+        if (_ball.ThrowingPlayer == this)
+        {
+            Debug.Log("Player hit their own ball, no damage applied.");
+            return false; // El jugador no debería dañarse con su propia pelota
+        }
+
+        //if (_ball.ThrowingPlayerId == Object.Id)
+        //{
+        //    Debug.Log("Player hit their own ball, no damage applied.");
+        //    return false;
+        //}
+        //else
+        //{
+
+            // Si la pelota es válida y fue lanzada por otro jugador, aplicar daño
+            Debug.Log("Player hit by an enemy ball!");
+          
+        
+
+
+
+        return true;
     }
 
-    private void PlayerWasHit()
+    private void ApplyDamage(Player throwingPlayer)
     {
-        if (!HasStateAuthority) return;
-        Debug.Log("Player was hit by a ball");
-      
+        //if (!HasStateAuthority)
+        //    return;
 
-        if (_playerDataNetworked.Lives > 1)
+        //// Reducir la vida del jugador
+        //_playerDataNetworked.SubtractLife();
+
+        //// Opcional: Incrementar la puntuación del jugador que lanzó la pelota
+        //if (throwingPlayer != null)
+        //{
+        //    throwingPlayer._playerDataNetworked.AddToScore(1);
+        //}
+        if (!HasStateAuthority || throwingPlayer == null)
+            return;
+
+        // Acceder a _playerDataNetworkedIds desde GameController
+        var playerIds = GameController.Singleton._playerDataNetworkedIds;
+
+        // Verificar si el jugador ya ha causado daño
+        if (playerIds.Contains(throwingPlayer.Id))
         {
-            RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
-            _playerDataNetworked.SubtractLife();
-            var ballBehaviour = _hits[0].GetComponent<BallBehaviour>();
-            if (ballBehaviour != null && ballBehaviour.ThrowingPlayer != null)
-            {
-                ballBehaviour.ThrowingPlayer._playerDataNetworked.AddToScore(1);
-            }
-
+            Debug.Log("Damage already applied by this player.");
+            return;
         }
-        else
+
+        // Agregar el jugador a la lista
+        playerIds.Add(throwingPlayer.Id);
+
+        // Aplicar daño y lógica adicional
+        _playerDataNetworked.SubtractLife();
+        throwingPlayer._playerDataNetworked.AddToScore(1);
+
+        if (_playerDataNetworked.Lives <= 0)
         {
-            RespawnTimer = default;
             IsAlive = false;
+            Debug.Log("Player has been eliminated.");
             SetLoseScreenRPC();
             UIManager.instance.SetLoseScreen();
             RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
         }
 
-
+        // Verificar si el jugador ha muerto
+        //if (_playerDataNetworked.Lives <= 0)
+        //{
+        //    IsAlive = false;
+        //    Debug.Log("Player has been eliminated.");
+        //    SetLoseScreenRPC();
+        //    UIManager.instance.SetLoseScreen();
+        //    RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+        //    // Aquí puedes manejar la lógica de eliminación del jugador
+        //}
     }
+
+    //private void PlayerWasHit()
+    //{
+    //    if (!HasStateAuthority || !Object.IsValid)
+    //    {
+    //        Debug.LogWarning("Player object is not valid or does not have state authority.");
+    //        return;
+    //    }
+
+    //    Debug.Log("Player was hit by a ball.");
+
+
+    //    if (_playerDataNetworked.Lives > 1)
+    //    {
+    //        RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
+    //        _playerDataNetworked.SubtractLife();
+    //        var ballBehaviour = _hits[0].GetComponent<BallBehaviour>();
+    //        if (ballBehaviour != null && ballBehaviour.Object.IsValid && ballBehaviour.ThrowingPlayer != null)
+    //        {
+    //            ballBehaviour.ThrowingPlayer._playerDataNetworked.AddToScore(1);
+    //        }
+
+    //    }
+    //    else
+    //    {
+    //        RespawnTimer = default;
+    //        IsAlive = false;
+    //        SetLoseScreenRPC();
+    //        UIManager.instance.SetLoseScreen();
+    //        RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+    //    }
+
+
+    //}
 
 
     #region movement

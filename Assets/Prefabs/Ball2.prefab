@@ -191,5 +191,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _points: 1
   _ball: {fileID: 4971252348030142504}
+  _playerLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  moveForce: 7
   _player: {fileID: 5676140270376297627, guid: f12cf3661567c0a42ad2a3c5c74c1849, type: 3}
   _visual: {fileID: 2698456587172576195}
+  _IsThrown: 0

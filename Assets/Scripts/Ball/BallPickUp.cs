@@ -10,7 +10,8 @@ public class BallPickUp : NetworkBehaviour
 
     [Networked] public bool IsPickedUp { get; set; }
 
-    //[Networked(OnChanged = nameof(OnIsPickedUpChanged))] public bool IsPickedUp { get; set; }
+  
+
 
     private bool previousIsPickedUp;
     public override void Spawned()
@@ -42,10 +43,12 @@ public class BallPickUp : NetworkBehaviour
         RPC_UpdateBallState();
     }
 
-    //private static void OnIsPickedUpChanged(Changed<BallPickUp> changed)
+    //private static void OnIsPickedUpChanged(BallPickUp ballPickUp, bool oldValue, bool newValue)
     //{
-    //    changed.Behaviour.UpdateBallState();
+    //    ballPickUp.UpdateBallState();
     //}
+
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_UpdateBallState()
     {
@@ -58,19 +61,23 @@ public class BallPickUp : NetworkBehaviour
             ActiveObject.SetActive(false);
             InactiveObject.SetActive(true);
         }
-        else
+        else if(GameController.Singleton.GameIsRunning && !IsPickedUp)
         {
             RPC_Respawn(); // Ajusta el tiempo de retraso según sea necesario
         }
+
+        Debug.Log($"Ball state updated: IsPickedUp = {IsPickedUp}");
+
+
     }
-    //public override void FixedUpdateNetwork()
-    //{
-    //    if (previousIsPickedUp != IsPickedUp)
-    //    {
-    //        UpdateBallState();
-    //        previousIsPickedUp = IsPickedUp;
-    //    }
-    //}
+    public override void FixedUpdateNetwork()
+    {
+        if (previousIsPickedUp != IsPickedUp)
+        {
+            UpdateBallState();
+            previousIsPickedUp = IsPickedUp;
+        }
+    }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_Respawn()
@@ -97,17 +104,11 @@ public class BallPickUp : NetworkBehaviour
         }
         else
         {
-            // Manually assign input authority if not already assigned
-            if (player.Object.HasInputAuthority)
-            {
+          
                 Object.AssignInputAuthority(player.Object.InputAuthority);
                 Debug.Log("Input authority assigned to player");
                 RPC_PickUp(player.Object);
-            }
-            else
-            {
-                Debug.LogWarning("Player does not have input authority to pick up the ball");
-            }
+            
         }
 
         //IsPickedUp = true;
@@ -128,4 +129,5 @@ public class BallPickUp : NetworkBehaviour
         //player.HasBall = false;
         //UpdateBallState();
     }
+    
 }

@@ -85,7 +85,7 @@ public class RoomM : NetworkBehaviour
     {
         if (player == Runner.LocalPlayer)
         {
-            PlayerSpawner.Instance.SpawnPlayer();
+            PlayerSpawner.Instance.SpawnPlayerWithDelay(player, 1f);
             UIManager.instance.StartGame();
         }
     }

@@ -33,7 +33,7 @@ using UnityEngine;
 
 		private TickTimer _dontCheckforWinTimer;
 		
-		private List<NetworkBehaviourId> _playerDataNetworkedIds = new List<NetworkBehaviourId>();
+		public List<NetworkBehaviourId> _playerDataNetworkedIds = new List<NetworkBehaviourId>();
 		
 		private static GameController _singleton;
 

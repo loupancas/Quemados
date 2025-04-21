@@ -37,11 +37,12 @@ using Fusion;
                 Score = 0;
                 NickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
             }
+        Debug.Log("PlayerDataNetworked object has been spawned!");
+        
+        // --- All Clients
+        // Set the local runtime references.
 
-            // --- All Clients
-            // Set the local runtime references.
-            
-            FindObjectOfType<GameController>().TrackNewPlayer(this);
+        FindObjectOfType<GameController>().TrackNewPlayer(this);
            _overviewPanel = FindObjectOfType<PlayerOverviewPanel>();
 
         if (_overviewPanel != null)
@@ -80,10 +81,28 @@ using Fusion;
         //_overviewPanel?.UpdateEntry(this);
     }
 
-        // Increase the score by X amount of points
-        public void AddToScore(int points)
+   
+
+
+    // Increase the score by X amount of points
+    public void AddToScore(int points)
         {
-            Score += points;
+
+        if (!Object.HasStateAuthority)
+        {
+            Debug.LogError("Cannot modify Score. The object does not have state authority.");
+            return;
+        }
+
+        Score += points;
+        if (_overviewPanel != null)
+        {
+            _overviewPanel.UpdateEntry(this);
+        }
+        else
+        {
+            Debug.LogWarning("OverviewPanel is null. Cannot update the score entry.");
+        }
         //_overviewPanel?.UpdateEntry(this);
     }
 

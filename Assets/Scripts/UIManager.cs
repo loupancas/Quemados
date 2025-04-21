@@ -25,7 +25,12 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        
+
+        if (runner == null)
+        {
+            runner = FindObjectOfType<NetworkRunner>();
+        }
+       
     }
 
     public void SetPlayerRef(PlayerRef newPlayer)
