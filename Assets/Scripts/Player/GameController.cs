@@ -29,7 +29,6 @@ using UnityEngine;
 		
 	    public bool GameIsRunning => Phase == GamePhase.Running;
 
-		//private SpawnPoint[] _spawnPoints;
 
 		private TickTimer _dontCheckforWinTimer;
 		
@@ -80,7 +79,6 @@ using UnityEngine;
 			{
       
 
-            // Initialize the game state on the master client
             Phase = GamePhase.Starting;
             Timer = TickTimer.CreateFromSeconds(Runner, _startDelay);
 			}
@@ -93,7 +91,6 @@ using UnityEngine;
 
     public override void Render()
 		{
-			// Update the game display with the information relevant to the current game phase
 			switch (Phase)
 			{
 				case GamePhase.Starting:
@@ -165,7 +162,6 @@ using UnityEngine;
             _startEndDisplay.color = playerColor;
         }
 
-        // Shutdowns the current game session.
         if (Timer.Expired(Runner))
 				Runner.Shutdown();
 		}
@@ -180,7 +176,6 @@ using UnityEngine;
 				return;
 			}
 
-			// Dont check for the first few seconds of the match or after a player joined for a winner to allow for players to join and spawn their spaceships
 			if (_dontCheckforWinTimer.Expired(Runner) == false)
 			{
 				return;
@@ -203,8 +198,7 @@ using UnityEngine;
 			}
 			
 			
-			// If more than 1 player is left alive, the game continues.
-			// If only 1 player is left, the game ends immediately.
+			
 			if (playersAlive > 1 || (Runner.ActivePlayers.Count() == 1 && playersAlive == 1)) return;
 
 			foreach (var playerDataNetworkedId in _playerDataNetworkedIds)
@@ -218,7 +212,7 @@ using UnityEngine;
 				Winner = playerDataNetworkedId;
 			}
 
-			if (Winner == default && _playerDataNetworkedIds.Count > 0) // when playing alone in host mode this marks the own player as winner
+			if (Winner == default && _playerDataNetworkedIds.Count > 0) 
 			{
 				Winner = _playerDataNetworkedIds[0];
 			}

@@ -28,8 +28,6 @@ public class BallPickUp : NetworkBehaviour
 
         IsPickedUp = true;
         player.GetComponent<Player>().HasBall = true;
-        // Asignar la autoridad de entrada al jugador
-        // Object.AssignInputAuthority(player.InputAuthority);
         RPC_UpdateBallState();
     }
 
@@ -43,10 +41,7 @@ public class BallPickUp : NetworkBehaviour
         RPC_UpdateBallState();
     }
 
-    //private static void OnIsPickedUpChanged(BallPickUp ballPickUp, bool oldValue, bool newValue)
-    //{
-    //    ballPickUp.UpdateBallState();
-    //}
+ 
 
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -111,9 +106,7 @@ public class BallPickUp : NetworkBehaviour
             
         }
 
-        //IsPickedUp = true;
-        //player.HasBall = true;
-        //UpdateBallState();
+      
     }
 
     public void Drop(Player player)
@@ -125,9 +118,7 @@ public class BallPickUp : NetworkBehaviour
             Debug.Log("Drop");
             RPC_Drop(player.Object);
         }
-        //IsPickedUp = false;
-        //player.HasBall = false;
-        //UpdateBallState();
+      
     }
     
 }

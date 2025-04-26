@@ -1,13 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
-using System.Linq;
-using System.Resources;
-using UnityEditor;
-using Fusion.Addons.Physics;
-using Unity.VisualScripting;
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
@@ -16,7 +10,6 @@ public class Player : NetworkBehaviour
     [SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
     private int _localPlayerId;
-    //public static bool ControlsEnabled = false;
     [Header("Stats")]
     [SerializeField] public float _speed = 3;
     [SerializeField] public float _jumpForce = 5;
@@ -40,13 +33,10 @@ public class Player : NetworkBehaviour
     [SerializeField] private BallBehaviour _ball;
     [Networked] public bool HasBall { get; set; }
     public delegate void HasBallChangeHandler(bool hasBall);
-    public event HasBallChangeHandler OnHasBallChange;
     public delegate void BallThrownHandler();
-    public event BallThrownHandler OnBallThrown;
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
     private PlayerManager _playerManager;
-    //[Networked, OnChangedRender(nameof(ChangeColor))] public Color _teamColor { get; set; }
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
     #region Networked Color Change
 
@@ -92,7 +82,6 @@ public class Player : NetworkBehaviour
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
             var playerRef = Object.InputAuthority;
-           // StartCoroutine(InitializePlayerColor());
 
         }
 
@@ -112,30 +101,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    //private IEnumerator InitializePlayerColor()
-    //{
-    //    // Esperar hasta que el objeto esté confirmado
-    //    while (!Object.IsValid)
-    //    {
-    //        yield return null;
-    //    }
-
-    //    // Obtener el nombre del jugador desde PlayerPrefs
-    //    string playerName = PlayerPrefs.GetString("PlayerNickName", "DefaultPlayer");
-
-    //    // Llamar al método GetColor de PlayerSpawner
-    //    Color playerColor = PlayerSpawner.GetColor(playerName);
-
-    //    // Establecer el color del jugador
-    //    RPC_SetPlayerColor(playerColor);
-    //}
-
-
-    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    //private void RPC_SetPlayerColor(Color color)
-    //{
-    //    NetworkedColor = color;
-    //}
+  
 
     void Update()
     {
@@ -199,28 +165,6 @@ public class Player : NetworkBehaviour
         }
     }
 
-    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    //private void RPC_PickUpBall(NetworkObject ballObject)
-    //{
-    //    Debug.Log("RPC_PickUpBall called");
-    //    BallPickUp ballPickUp = ballObject.GetComponent<BallPickUp>();
-    //    if (ballPickUp != null)
-    //    {
-    //        ballPickUp.PickUp(this);
-    //        HasBall = true;
-    //        OnHasBallChange?.Invoke(HasBall);
-    //        MeshRenderer ballRenderer = ballObject.GetComponent<MeshRenderer>();
-    //        if (ballRenderer != null)
-    //        {
-    //            ballRenderer.enabled = false;
-    //        }
-           
-
-    //    }
-    //}
-
- 
-
 
     private void Fire()
     {
@@ -234,33 +178,7 @@ public class Player : NetworkBehaviour
             ballBehaviour.SetThrowingPlayer(this);
             ballBehaviour.SetReady();
         }
-        //if (ball != null)
-        //{
-        //    var ballBehaviour = ball.GetComponent<BallBehaviour>();
-        //    if (ballBehaviour != null)
-        //    {
-        //        ballBehaviour.Initialize(LocalPlayer, gameObject);
-        //    }
-        //}
-
-
-        //var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
-        //ball.GetComponent<BallBehaviour>().Initialize( LocalPlayer, gameObject);
-        //BallPickUp ballPickUp = ball.GetComponent<BallPickUp>();
-        //if (ballPickUp != null)
-        //{
-        //    //ballPickUp.Drop(this );
-        //    ball.InitState(_rgbd.velocity);
-        //    //HasBall = false;
-        //    //OnHasBallChange?.Invoke(HasBall);
-        //    //MeshRenderer ballRenderer = Object.GetComponent<MeshRenderer>();
-        //    //if (ballRenderer != null)
-        //    //{
-        //    //    ballRenderer.enabled = true;
-        //    //}
-
-        //}
-        //OnBallThrown?.Invoke();
+       
     }
 
     public override void FixedUpdateNetwork()
@@ -273,11 +191,8 @@ public class Player : NetworkBehaviour
 
 
 
-        if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
-            ApplyDamage(_ball.ThrowingPlayer);
-
-
-
+        //if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
+        //    ApplyDamage(_ball.ThrowingPlayer);
 
 
 
@@ -291,7 +206,6 @@ public class Player : NetworkBehaviour
         if (count <= 0)
             return false;
 
-        //var ballBehaviour = _hits[0]?.GetComponent<BallBehaviour>();
 
         _ball = _hits[0]?.GetComponent<BallBehaviour>();
         if (_ball == null || !_ball.Object.IsValid)
@@ -315,7 +229,6 @@ public class Player : NetworkBehaviour
         //else
         //{
 
-            // Si la pelota es válida y fue lanzada por otro jugador, aplicar daño
             Debug.Log("Player hit by an enemy ball!");
           
         
@@ -327,24 +240,12 @@ public class Player : NetworkBehaviour
 
     private void ApplyDamage(Player throwingPlayer)
     {
-        //if (!HasStateAuthority)
-        //    return;
-
-        //// Reducir la vida del jugador
-        //_playerDataNetworked.SubtractLife();
-
-        //// Opcional: Incrementar la puntuación del jugador que lanzó la pelota
-        //if (throwingPlayer != null)
-        //{
-        //    throwingPlayer._playerDataNetworked.AddToScore(1);
-        //}
+     
         if (!HasStateAuthority || throwingPlayer == null)
             return;
 
-        // Acceder a _playerDataNetworkedIds desde GameController
         var playerIds = GameController.Singleton._playerDataNetworkedIds;
 
-        // Verificar si el jugador ya ha causado daño
         if (playerIds.Contains(throwingPlayer.Id))
         {
             Debug.Log("Damage already applied by this player.");
@@ -379,40 +280,7 @@ public class Player : NetworkBehaviour
         //}
     }
 
-    //private void PlayerWasHit()
-    //{
-    //    if (!HasStateAuthority || !Object.IsValid)
-    //    {
-    //        Debug.LogWarning("Player object is not valid or does not have state authority.");
-    //        return;
-    //    }
-
-    //    Debug.Log("Player was hit by a ball.");
-
-
-    //    if (_playerDataNetworked.Lives > 1)
-    //    {
-    //        RespawnTimer = TickTimer.CreateFromSeconds(Runner, _respawnDelay);
-    //        _playerDataNetworked.SubtractLife();
-    //        var ballBehaviour = _hits[0].GetComponent<BallBehaviour>();
-    //        if (ballBehaviour != null && ballBehaviour.Object.IsValid && ballBehaviour.ThrowingPlayer != null)
-    //        {
-    //            ballBehaviour.ThrowingPlayer._playerDataNetworked.AddToScore(1);
-    //        }
-
-    //    }
-    //    else
-    //    {
-    //        RespawnTimer = default;
-    //        IsAlive = false;
-    //        SetLoseScreenRPC();
-    //        UIManager.instance.SetLoseScreen();
-    //        RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
-    //    }
-
-
-    //}
-
+   
 
     #region movement
     public void Movement()
@@ -518,69 +386,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    //public void RPC_TakeDamage(float dmg)
-    //{
-    //    Local_TakeDamage(dmg);
-    //}
-
-    //public void Local_TakeDamage(float dmg)
-    //{
-    //    NetworkedHealth -= dmg;
-
-    //    if (NetworkedHealth <= 0)
-    //    {
-    //        //Dead();
-    //        //SetLoseScreenRPC();
-    //        //UIManager.instance.SetLoseScreen();
-    //        RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("Player Hit");
-    //    }
-
-    //}
-
-    //void Dead()
-    //{
-    //    Runner.Despawn(Object);
-    //}
-
-    //private IEnumerator WaitInit()
-    //{
-    //    yield return new WaitForSeconds(1);
-
-    //    switch (Runner.LocalPlayer.PlayerId)
-    //    {
-    //        case 1:
-    //            _teamColor = Color.red;
-    //            break;
-    //        case 2:
-    //            _teamColor = Color.blue;
-    //            break;
-    //        default:
-    //            _teamColor = Color.yellow;
-    //            break;
-    //    }
-    //}
-
-    //public static Color GetColor(int player)
-    //{
-    //    switch (player % 8)
-    //    {
-    //        case 0: return Color.red;
-    //        case 1: return Color.green;
-    //        case 2: return Color.blue;
-    //        case 3: return Color.yellow;
-    //        case 4: return Color.cyan;
-    //        case 5: return Color.grey;
-    //        case 6: return Color.magenta;
-    //        case 7: return Color.white;
-    //    }
-
-    //    return Color.black;
-    //}
+    
 
 
     private void SetLoseScreenRPC()

@@ -52,12 +52,10 @@ public class BallSpawner : NetworkBehaviour
 
     private void SpawnBall()
     {
-        //Vector3 spawnPosition = new Vector3(Random.Range(-10f, 10f), 1f, Random.Range(-10f, 10f));
         spawnPosition = new Vector3(0, 1.28f, 0);
         if (ballPrefab != null)
         {
-            //ballPrefab.GetComponentInChildren<BallPickUp>().ActiveObject.SetActive(true);
-            //Runner.Spawn(ballPrefab, spawnPosition, Quaternion.identity);
+           
             GameObject newBall = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
             Runner.Spawn(newBall, spawnPosition, Quaternion.identity);
         }

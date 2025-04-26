@@ -12,15 +12,15 @@ public class InventoryManager : MonoBehaviour
     {
         Inventario.OnInventoryChange += DrawInventory;
         Inventario.OnInventoryUpdate += UpdateInventory;
-        player.OnHasBallChange += HandleHasBallChange; // Suscribirse
-        player.OnBallThrown += HandleBallThrown; // Suscribirse 
+        //player.OnHasBallChange += HandleHasBallChange; // Suscribirse
+       // player.OnBallThrown += HandleBallThrown; // Suscribirse 
     }
     private void OnDisabled() //desuscribir
     {
         Inventario.OnInventoryChange -= DrawInventory;
         Inventario.OnInventoryUpdate -= UpdateInventory;
-        player.OnHasBallChange -= HandleHasBallChange; // Desuscribirse 
-        player.OnBallThrown -= HandleBallThrown; // Desuscribirse 
+        //player.OnHasBallChange -= HandleHasBallChange; // Desuscribirse 
+       // player.OnBallThrown -= HandleBallThrown; // Desuscribirse 
     }
 
     private void Start()
