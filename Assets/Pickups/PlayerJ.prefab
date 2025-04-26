@@ -2616,7 +2616,8 @@ MonoBehaviour:
   _defaultSpeed: 0
   _defaultJump: 0
   Camera: {fileID: 0}
-  _ball: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  _inGameBall: {fileID: 7419478113033501347}
+  _prefabBall: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   _HasBall: 0
   ballSpawnPoint: {fileID: 458657023550924609}
   _meshRenderer: {fileID: 3500929485112267311}
@@ -4061,3 +4062,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8276800743290396699, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
   m_PrefabInstance: {fileID: 2452816529550242443}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7419478113033501347 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  m_PrefabInstance: {fileID: 2452816529550242443}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee4dffd8ece0e24e817a7667d970144, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

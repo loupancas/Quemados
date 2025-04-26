@@ -59,7 +59,6 @@ public class UIManager : MonoBehaviour
 
             readyButton.SetActive(false);
             _startGameScreen.SetActive(true);
-            RoomM.Instance.RpcStartGame();
         }
     }
 

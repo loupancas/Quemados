@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Fusion;
+using UnityEngine.Serialization;
+
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer { get; set; }
@@ -10,8 +12,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
     private int _localPlayerId;
-    [Header("Stats")]
-    [SerializeField] public float _speed = 3;
+    [Header("Stats")] [SerializeField] public float _speed = 3;
     [SerializeField] public float _jumpForce = 5;
     [SerializeField] private float _playerDamageRadius = 3f;
     [SerializeField] private LayerMask _groundLayer;
@@ -21,23 +22,29 @@ public class Player : NetworkBehaviour
     [Networked] private TickTimer RespawnTimer { get; set; }
     private Rigidbody _rgbd;
     public Animator _animator;
-    [Header("Inputs")]
-    public float _xAxi;
+    [Header("Inputs")] public float _xAxi;
     public float _yAxi;
     public bool _jumpPressed;
     private bool _shootPressed;
     public float _defaultSpeed;
-    public float _defaultJump; 
+    public float _defaultJump;
     public Camera Camera;
-    [Header("Ball")]
-    [SerializeField] private BallBehaviour _ball;
+
+    [FormerlySerializedAs("_ball")] [Header("Ball")] [SerializeField]
+    private BallBehaviour _inGameBall;
+
+    [SerializeField] private BallBehaviour _prefabBall;
     [Networked] public bool HasBall { get; set; }
+
     public delegate void HasBallChangeHandler(bool hasBall);
+
     public delegate void BallThrownHandler();
+
     [SerializeField] private Transform ballSpawnPoint;
     private Collider[] _hits = new Collider[1];
     private PlayerManager _playerManager;
     [SerializeField] private SkinnedMeshRenderer _meshRenderer;
+
     #region Networked Color Change
 
     [Networked, OnChangedRender(nameof(OnNetColorChanged))]
@@ -45,26 +52,27 @@ public class Player : NetworkBehaviour
 
 
     void OnNetColorChanged() => GetComponentInChildren<Renderer>().sharedMaterial.color = NetworkedColor;
-   
+
     #endregion
 
     #region Networked Health Change
 
     [Networked, OnChangedRender(nameof(OnNetHealthChanged))]
     private float NetworkedHealth { get; set; } = 3;
+
     void OnNetHealthChanged() => Debug.Log($"Life = {NetworkedHealth}");
 
     #endregion
 
-    public event Action<float> OnMovement = delegate {  };
-    public event Action OnShooting = delegate {  };
+    public event Action<float> OnMovement = delegate { };
+    public event Action OnShooting = delegate { };
 
     public override void Spawned()
     {
         if (HasStateAuthority)
         {
-            LocalPlayer = this;        
-            
+            LocalPlayer = this;
+
             NetworkedColor = GetComponentInChildren<Renderer>().sharedMaterial.color;
             Debug.Log("Player spawned");
             Camera = Camera.main;
@@ -76,15 +84,14 @@ public class Player : NetworkBehaviour
             HasBall = false;
             IsAlive = true;
 
-            _ball = GetComponentInChildren<BallBehaviour>();
+            //_ball = GetComponentInChildren<BallBehaviour>();
             if (!Object.HasInputAuthority)
             {
                 Object.AssignInputAuthority(Runner.LocalPlayer);
             }
+
             var playerRef = Object.InputAuthority;
-
         }
-
     }
 
     private void Start()
@@ -101,7 +108,6 @@ public class Player : NetworkBehaviour
         }
     }
 
-  
 
     void Update()
     {
@@ -120,19 +126,14 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             TryPickupBall();
-           _ball.ActivateBall();
-
+            //_ball?.ActivateBall();
         }
 
         if (Input.GetMouseButtonDown(0) && HasBall)
         {
             Fire();
-
         }
-
     }
-
-
 
 
     private void TryPickupBall()
@@ -149,6 +150,7 @@ public class Player : NetworkBehaviour
             Debug.Log("Player does not have input authority");
             return;
         }
+
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1f, _ballCollisionLayer);
         Debug.Log($"Number of colliders found: {hitColliders.Length}");
 
@@ -159,7 +161,7 @@ public class Player : NetworkBehaviour
             {
                 Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
                 ballPickUp.PickUp(this);
-                
+
                 break;
             }
         }
@@ -171,54 +173,48 @@ public class Player : NetworkBehaviour
         if (!Object.IsValid)
             return;
 
-        var ball = Runner.Spawn(_ball, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+        var ball = Runner.Spawn(_prefabBall, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
         var ballBehaviour = ball.GetComponent<BallBehaviour>();
         if (ballBehaviour != null)
         {
             ballBehaviour.SetThrowingPlayer(this);
             ballBehaviour.SetReady();
         }
-       
     }
 
     public override void FixedUpdateNetwork()
     {
-       
         if (!HasStateAuthority) return;
 
         //MOVIMIENTO
         Movement();
 
 
-
-        //if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
-        //    ApplyDamage(_ball.ThrowingPlayer);
-
-
-
+        if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
+            ApplyDamage(_inGameBall.ThrowingPlayer);
     }
 
     private bool HasHitBall()
     {
         var count = Runner.GetPhysicsScene().OverlapSphere(_rgbd.position, _playerDamageRadius, _hits,
-            _ballCollisionLayer.value, QueryTriggerInteraction.UseGlobal);
+            _ballCollisionLayer, QueryTriggerInteraction.UseGlobal);
 
         if (count <= 0)
             return false;
 
 
-        _ball = _hits[0]?.GetComponent<BallBehaviour>();
-        if (_ball == null || !_ball.Object.IsValid)
+        _inGameBall = _hits[0]?.GetComponent<BallBehaviour>();
+        if (_inGameBall == null || !_inGameBall.Object.IsValid)
         {
             Debug.LogWarning("Ball is not valid or not confirmed.");
             return false;
         }
 
         // Verificar si la pelota fue lanzada por otro jugador
-        if (_ball.ThrowingPlayer == this)
+        if (_inGameBall.ThrowingPlayer == this)
         {
             Debug.Log("Player hit their own ball, no damage applied.");
-            return false; // El jugador no debería dañarse con su propia pelota
+            return false; // El jugador no deberï¿½a daï¿½arse con su propia pelota
         }
 
         //if (_ball.ThrowingPlayerId == Object.Id)
@@ -229,18 +225,14 @@ public class Player : NetworkBehaviour
         //else
         //{
 
-            Debug.Log("Player hit by an enemy ball!");
-          
-        
-
-
+        Debug.Log("Player hit by an enemy ball!");
+        //Avisarle a la pelota que choco
 
         return true;
     }
 
     private void ApplyDamage(Player throwingPlayer)
     {
-     
         if (!HasStateAuthority || throwingPlayer == null)
             return;
 
@@ -255,7 +247,7 @@ public class Player : NetworkBehaviour
         // Agregar el jugador a la lista
         playerIds.Add(throwingPlayer.Id);
 
-        // Aplicar daño y lógica adicional
+        // Aplicar daï¿½o y lï¿½gica adicional
         _playerDataNetworked.SubtractLife();
         throwingPlayer._playerDataNetworked.AddToScore(1);
 
@@ -276,13 +268,13 @@ public class Player : NetworkBehaviour
         //    SetLoseScreenRPC();
         //    UIManager.instance.SetLoseScreen();
         //    RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
-        //    // Aquí puedes manejar la lógica de eliminación del jugador
+        //    // Aquï¿½ puedes manejar la lï¿½gica de eliminaciï¿½n del jugador
         //}
     }
 
-   
 
     #region movement
+
     public void Movement()
     {
         Vector3 camForward = Camera.transform.forward;
@@ -336,9 +328,11 @@ public class Player : NetworkBehaviour
         _animator.SetBool("Jumping", true);
         // playerView.isRunning(true);
     }
+
     #endregion
 
     #region POWER UP
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<JumpPower>())
@@ -350,6 +344,7 @@ public class Player : NetworkBehaviour
             ChangeColorRecursively(transform, Color.red);
             StartCoroutine(NormalizeStats(jumpPower.fadeTime));
         }
+
         if (other.gameObject.GetComponent<SpeedPower>())
         {
             Debug.Log("PowerUp Speed");
@@ -359,7 +354,7 @@ public class Player : NetworkBehaviour
             ChangeColorRecursively(transform, Color.blue);
             StartCoroutine(NormalizeStats(speedPower.fadeTime));
         }
-    }   
+    }
 
     IEnumerator NormalizeStats(float fadeTime)
     {
@@ -368,7 +363,9 @@ public class Player : NetworkBehaviour
         _jumpForce = _defaultJump;
         ChangeColorRecursively(transform, Color.white);
     }
+
     #endregion
+
     void ChangeColorRecursively(Transform parent, Color color)
     {
         foreach (Transform child in parent)
@@ -381,19 +378,14 @@ public class Player : NetworkBehaviour
                     material.color = color;
                 }
             }
-            
+
             ChangeColorRecursively(child, color);
         }
     }
-
-    
 
 
     private void SetLoseScreenRPC()
     {
         UIManager.instance.SetLoseScreen();
     }
-
-
-
 }

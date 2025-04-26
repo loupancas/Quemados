@@ -749,6 +749,7 @@ MonoBehaviour:
   _startEndDisplay: {fileID: 4034307185447280452}
   _ingameTimerDisplay: {fileID: 1373951016648664129}
   _playerOverview: {fileID: 4777992741441094517}
+  _playerDataNetworkedIds: []
 --- !u!1 &1179364920
 GameObject:
   m_ObjectHideFlags: 0
@@ -1938,7 +1939,7 @@ MonoBehaviour:
   _infoPlayer: {fileID: 8106611697702645735}
   _infoBall: {fileID: 8242510882176914323}
   runner: {fileID: 1209902362}
-  readyButton: {fileID: 7153709316755114132, guid: 1e64f4ff5f48ada449b23c026b20b425, type: 3}
+  readyButton: {fileID: 5996263385705676375}
 --- !u!1 &1929505384512352380
 GameObject:
   m_ObjectHideFlags: 0

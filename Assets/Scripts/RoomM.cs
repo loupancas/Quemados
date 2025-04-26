@@ -72,7 +72,9 @@ public class RoomM : NetworkBehaviour
 
         if (everyoneIsReady)
         {
+            Debug.Log("RoomM confirmed");
             isGameStart = true;
+            RpcStartGame();
             foreach (var actualPlayerRef in _playerStates.Keys)
             {
                 RpcSpawnPlayer(actualPlayerRef);
