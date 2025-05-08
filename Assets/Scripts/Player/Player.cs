@@ -30,8 +30,9 @@ public class Player : NetworkBehaviour
     public float _defaultJump;
     public Camera Camera;
 
-    [FormerlySerializedAs("_ball")] [Header("Ball")] [SerializeField]
-    private BallBehaviour _inGameBall;
+    //[FormerlySerializedAs("_ball")] [Header("Ball")] [SerializeField]
+    
+    [SerializeField] private BallBehaviour _inGameBall;
 
     [SerializeField] private BallBehaviour _prefabBall;
     [Networked] public bool HasBall { get; set; }
@@ -160,8 +161,8 @@ public class Player : NetworkBehaviour
             if (ballPickUp != null)
             {
                 Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
-                ballPickUp.PickUp(this);
-
+                ballPickUp.RPC_PickUp(Object);
+                HasBall = true;
                 break;
             }
         }
@@ -172,8 +173,10 @@ public class Player : NetworkBehaviour
     {
         if (!Object.IsValid)
             return;
-
         var ball = Runner.Spawn(_prefabBall, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+
+        
+        Debug.Log("Ball thrown by player ");
         var ballBehaviour = ball.GetComponent<BallBehaviour>();
         if (ballBehaviour != null)
         {
@@ -191,7 +194,10 @@ public class Player : NetworkBehaviour
 
 
         if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
+        {
             ApplyDamage(_inGameBall.ThrowingPlayer);
+        }
+            
     }
 
     private bool HasHitBall()
@@ -217,25 +223,20 @@ public class Player : NetworkBehaviour
             return false; // El jugador no deber�a da�arse con su propia pelota
         }
 
-        //if (_ball.ThrowingPlayerId == Object.Id)
-        //{
-        //    Debug.Log("Player hit their own ball, no damage applied.");
-        //    return false;
-        //}
-        //else
-        //{
+       
 
         Debug.Log("Player hit by an enemy ball!");
         //Avisarle a la pelota que choco
-
+        //_inGameBall.RPC_ResetBall();
         return true;
     }
 
     private void ApplyDamage(Player throwingPlayer)
     {
+        Debug.Log("ApplyDamage called");
+
         if (!HasStateAuthority || throwingPlayer == null)
             return;
-
         var playerIds = GameController.Singleton._playerDataNetworkedIds;
 
         if (playerIds.Contains(throwingPlayer.Id))
@@ -249,6 +250,7 @@ public class Player : NetworkBehaviour
 
         // Aplicar da�o y l�gica adicional
         _playerDataNetworked.SubtractLife();
+       Debug.Log($"Player {throwingPlayer.Id} hit player {Id} with ball!");
         throwingPlayer._playerDataNetworked.AddToScore(1);
 
         if (_playerDataNetworked.Lives <= 0)
@@ -260,16 +262,7 @@ public class Player : NetworkBehaviour
             RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
         }
 
-        // Verificar si el jugador ha muerto
-        //if (_playerDataNetworked.Lives <= 0)
-        //{
-        //    IsAlive = false;
-        //    Debug.Log("Player has been eliminated.");
-        //    SetLoseScreenRPC();
-        //    UIManager.instance.SetLoseScreen();
-        //    RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
-        //    // Aqu� puedes manejar la l�gica de eliminaci�n del jugador
-        //}
+       
     }
 
 

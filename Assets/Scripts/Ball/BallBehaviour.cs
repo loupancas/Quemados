@@ -43,13 +43,11 @@ public class BallBehaviour : NetworkBehaviour
         _collider = GetComponent<Collider>();
     }
 
-    public void SetThrowingPlayerID(Player player)
-    {
-        ThrowingPlayerId = player.Object.Id; // Guarda el ID del jugador
-    }
+    
 
     public void SetThrowingPlayer(Player player)
     {
+        Debug.Log("Throwing player: " + player);
         ThrowingPlayer = player;
     }
 
@@ -77,7 +75,7 @@ public class BallBehaviour : NetworkBehaviour
     {
         //IsReady = true;
         IsThrown = true;
-        _hitPlayer = false;
+        //_hitPlayer = false;
     }
 
     public void ReseteState()
@@ -160,44 +158,47 @@ public class BallBehaviour : NetworkBehaviour
     }
 
 
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_OnBallHit()
-    {
-        if (IsThrown)
-        {
-            IsThrown = false;
-            Debug.Log("Ball hit detected and state reset.");
-        }
-    }
+    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    //public void RPC_OnBallHit()
+    //{
+    //    if (IsThrown)
+    //    {
+    //        IsThrown = false;
+    //        Debug.Log("Ball hit detected and state reset.");
+    //    }
+    //}
 
-    public bool OnBallHit()
-    {
-        if (Object.HasStateAuthority)
-        {
-            if (IsThrown)
-            {
-                IsThrown = false;
-                return true;
-            }
-        }
-        else
-        {
-            RPC_OnBallHit();
-        }
+    //public bool OnBallHit()
+    //{
+    //    if (Object.HasStateAuthority)
+    //    {
+    //        if (IsThrown)
+    //        {
+    //            IsThrown = false;
+    //            return true;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        RPC_OnBallHit();
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
 
     public override void FixedUpdateNetwork()
     {
         if (_hitPlayer)
         {
-            transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
+            RPC_ResetBall();
+            //transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
         }
         else
         {
-            Runner.Despawn(Object);
+            //Runner.Despawn(Object);
+            //RPC_ResetBall();
+            transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
             return;
         }
 

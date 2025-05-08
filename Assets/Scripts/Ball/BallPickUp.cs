@@ -21,11 +21,16 @@ public class BallPickUp : NetworkBehaviour
         UpdateBallState();
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_PickUp(NetworkObject player)
     {
         if (IsPickedUp) return;
-
+        var playerComponent = player.GetComponent<Player>();
+        if (playerComponent == null)
+        {
+            Debug.LogError("El objeto proporcionado no es un jugador válido.");
+            return;
+        }
         IsPickedUp = true;
         player.GetComponent<Player>().HasBall = true;
         RPC_UpdateBallState();
@@ -91,22 +96,26 @@ public class BallPickUp : NetworkBehaviour
     {
         Debug.Log("PickUp method called");
         if (IsPickedUp) return;
-        Debug.Log($"Object.HasInputAuthority: {Object.HasInputAuthority}");
-        if (Object.HasInputAuthority)
+        if (player.Object.HasInputAuthority)
         {
-            Debug.Log("PickUp");
+            Debug.Log("Player has input authority, attempting to pick up the ball.");
+
+            // Assign input authority to the ball if it doesn't already have it
+            if (!Object.HasInputAuthority)
+            {
+                Object.AssignInputAuthority(player.Object.InputAuthority);
+                Debug.Log("Input authority assigned to player");
+            }
+
+            // Call the RPC to pick up the ball
             RPC_PickUp(player.Object);
         }
         else
         {
-          
-                Object.AssignInputAuthority(player.Object.InputAuthority);
-                Debug.Log("Input authority assigned to player");
-                RPC_PickUp(player.Object);
-            
+            Debug.LogError("Player does not have input authority to pick up the ball.");
         }
 
-      
+
     }
 
     public void Drop(Player player)

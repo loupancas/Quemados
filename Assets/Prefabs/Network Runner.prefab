@@ -93,14 +93,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 5676140270376297627, guid: f12cf3661567c0a42ad2a3c5c74c1849, type: 3}
-  spawnPoints:
-  - {fileID: 6200543689202152179, guid: e94f9f26b0da33947a9269d4fe736b89, type: 3}
-  - {fileID: 3955355429662853133, guid: 95c3306d9189a6d418a6d9a9a910681b, type: 3}
-  - {fileID: 4873440023200129103, guid: 322c8609eb482b14b84c82685b4cb37d, type: 3}
   _RoomManager: {fileID: 3677265040693238202, guid: 6ef9a5a645197424985eac0b0073c7e5, type: 3}
   _readyButton: {fileID: 7153709316755114132, guid: 1e64f4ff5f48ada449b23c026b20b425, type: 3}
   _ballPickUpPrefab: {fileID: 976377901155889633, guid: c4647fec96e951c4e9638d9ccb36d20f, type: 3}
   _playerOverviewPanel: {fileID: 3135748679337466609, guid: 7fc9b7199cf66d54fb8373c2d145b296, type: 3}
+  spawnPoints:
+  - {fileID: 6200543689202152179, guid: e94f9f26b0da33947a9269d4fe736b89, type: 3}
+  - {fileID: 3955355429662853133, guid: 95c3306d9189a6d418a6d9a9a910681b, type: 3}
+  - {fileID: 4873440023200129103, guid: 322c8609eb482b14b84c82685b4cb37d, type: 3}
+  - {fileID: 4206345768777673094, guid: 0dffaf2d98a86f14ab3918f6b8e97bd5, type: 3}
+  - {fileID: 2657986194915646847, guid: 3219c44f7a3a51a4293c9cb2cce15593, type: 3}
+  - {fileID: 1792406922689416560, guid: a203954610d26af49bdac8e3e23d2b69, type: 3}
+  - {fileID: 501007049296939252, guid: 531c80ac6c39d7942afecbd0cc8c00c1, type: 3}
+  - {fileID: 4819589264137728196, guid: b841477f48c93094d9ca3888c76e9b8e, type: 3}
+  - {fileID: 2018985249077643915, guid: e0eed6268aa8c8849b3aa840204c263d, type: 3}
+  - {fileID: 4049373647800864122, guid: 49a5852811090fa4093d2372d2d15118, type: 3}
+  - {fileID: 8716214195238974250, guid: 29de044357adb4f42953949d428ce69a, type: 3}
 --- !u!114 &-8785035105522748499
 MonoBehaviour:
   m_ObjectHideFlags: 0

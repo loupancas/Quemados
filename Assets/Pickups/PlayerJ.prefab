@@ -3987,7 +3987,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2051648418255335640, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: Flags
-      value: 786433
+      value: 262145
       objectReference: {fileID: 0}
     - target: {fileID: 2051648418255335640, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: SortKey
@@ -4011,7 +4011,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8276800743290396699, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.38400006
+      value: 1.69
       objectReference: {fileID: 0}
     - target: {fileID: 8276800743290396699, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: m_LocalRotation.w
