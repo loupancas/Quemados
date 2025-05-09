@@ -211,7 +211,7 @@ public class Player : NetworkBehaviour
             {
                 Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
                 ballPickUp.RPC_PickUp(Object);
-                //HasBall = true;
+                HasBall = true;
                 
                 break;
             }
@@ -227,6 +227,7 @@ public class Player : NetworkBehaviour
         ball.IsThrown = true;
         ball.SetThrowingPlayer(this);
         HasBall = false;
+       
 
         Debug.Log("Ball thrown by player ");
         //var ballBehaviour = ball.GetComponent<BallBehaviour>();
@@ -244,9 +245,10 @@ public class Player : NetworkBehaviour
         //MOVIMIENTO
         Movement();
 
-
+        Debug.Log(GameController.Singleton.GameIsRunning.ToString()); 
         if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
         {
+            Debug.Log("hit");
             ApplyDamage(_inGameBall.ThrowingPlayer);
         }
             

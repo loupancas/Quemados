@@ -15,8 +15,8 @@ using UnityEngine;
 			Ending
 		}
 
-		[SerializeField] private float _startDelay = 4.0f;
-		[SerializeField] private float _endDelay = 4.0f;
+		[SerializeField] private float _startDelay = 60.0f;
+		[SerializeField] private float _endDelay = 60.0f;
 		[SerializeField] private float _gameSessionLength = 180.0f;
 		
 		[SerializeField] private TextMeshProUGUI _startEndDisplay;
@@ -91,7 +91,8 @@ using UnityEngine;
 
     public override void Render()
 		{
-			switch (Phase)
+        Debug.Log($"Client {Runner.LocalPlayer}: Phase = {Phase}");
+        switch (Phase)
 			{
 				case GamePhase.Starting:
 					UpdateStartingDisplay();
@@ -127,11 +128,11 @@ using UnityEngine;
 			// --- Master client
 			// Starts the Spaceship and Asteroids spawners once the game start delay has expired
 			FindObjectOfType<RoomM>().StartRoom(this);
-			
-			// Switches to the Running GameState and sets the time to the length of a game session
-			Phase = GamePhase.Running;
+        Debug.Log("Game is now running!");
+        // Switches to the Running GameState and sets the time to the length of a game session
+        Phase = GamePhase.Running;
 			Timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
-			_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
+			_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 175);
 		}
 
 		private void UpdateRunningDisplay()
@@ -141,6 +142,8 @@ using UnityEngine;
 			_startEndDisplay.gameObject.SetActive(false);
 			_ingameTimerDisplay.gameObject.SetActive(true);
 			_ingameTimerDisplay.text = $"{Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0).ToString("000")} seconds left... Player RTT: {(int)(1000*Runner.GetPlayerRtt(Runner.LocalPlayer))}ms";
+		Debug.Log("juego en proceso");
+
 		}
 
 		private void UpdateEndingDisplay()
@@ -233,6 +236,7 @@ using UnityEngine;
 
 		public void PlayerJoined(PlayerRef player)
 		{
-			_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
+        Debug.Log($"Player {player} joined. Current Phase: {Phase}");
+        _dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
 		}
 	}

@@ -32,7 +32,7 @@ public class BallPickUp : NetworkBehaviour
         //    return;
         //}
         IsPickedUp = true;
-        player.GetComponent<Player>().HasBall = true;
+        //player.GetComponent<Player>().HasBall = true;
        
         RPC_UpdateBallState();
     }
@@ -55,21 +55,23 @@ public class BallPickUp : NetworkBehaviour
     {
         UpdateBallState();
 
+        if(!IsPickedUp) return;
+
         foreach (var player in PlayerSpawner.Instance.Players)
         {
             var playerComponent = player.GetComponent<Player>();
 
             if (playerComponent != null)
             {
-                if (playerComponent.HasBall)
+                if (playerComponent.HasBall==true)
                 {
 
                     playerComponent.RpcRequestSetSniper(true);
-                    playerComponent.RpcRequestSetVictim(false);
+                    //playerComponent.RpcRequestSetVictim(false);
                 }
                 else
                 {
-                    playerComponent.RpcRequestSetSniper(false);
+                    //playerComponent.RpcRequestSetSniper(false);
                     playerComponent.RpcRequestSetVictim(true);
                 }
             }
@@ -85,7 +87,21 @@ public class BallPickUp : NetworkBehaviour
         }
         else if(GameController.Singleton.GameIsRunning && !IsPickedUp)
         {
-            RPC_Respawn(); // Ajusta el tiempo de retraso según sea necesario
+            //RPC_Respawn(); // Ajusta el tiempo de retraso según sea necesario
+            ActiveObject.SetActive(true);
+            InactiveObject.SetActive(false);
+            foreach (var player in PlayerSpawner.Instance.Players)
+            {
+                var playerComponent = player.GetComponent<Player>();
+                if (playerComponent != null)
+                {
+
+                    playerComponent.sniper = false;
+                    playerComponent.victim = false;
+
+
+                }
+            }
         }
 
         Debug.Log($"Ball state updated: IsPickedUp = {IsPickedUp}");

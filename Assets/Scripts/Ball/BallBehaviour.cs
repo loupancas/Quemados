@@ -19,7 +19,7 @@ public class BallBehaviour : NetworkBehaviour
 
     [Tooltip("The visual model of the asteroid")] [SerializeField]
     private GameObject _visual;
-    [SerializeField] BallPickUp _ballPickUp;
+    
     private bool _isVisualActive;
     [Networked] public Player ThrowingPlayer { get; set; }
     [Networked] private TickTimer DespawnTimer { get; set; }
@@ -41,6 +41,7 @@ public class BallBehaviour : NetworkBehaviour
         _rb = GetComponent<Rigidbody>();
         _nrb = GetComponent<NetworkRigidbody3D>();
         _collider = GetComponent<Collider>();
+       
     }
 
     
@@ -101,17 +102,16 @@ public class BallBehaviour : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetBall()
     {
-        
-        _visual.SetActive(false);
-        _ballPickUp = GetComponent<BallPickUp>();
-        if (_ballPickUp != null)
-        {
-            _ballPickUp.IsPickedUp = false;
-            _ballPickUp.RPC_Respawn();
-        }
+        ResetBall();
+        //_visual.SetActive(false);
+        //_ballPickUp = GetComponent<BallPickUp>();
+        //if (_ballPickUp != null)
+        //{
+        //    _ballPickUp.IsPickedUp = false;
+        //    _ballPickUp.RPC_UpdateBallState();
 
+        //}
     }
-
     public void ResetBall()
     {
         IsThrown = false;
