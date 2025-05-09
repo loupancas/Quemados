@@ -75,7 +75,11 @@ using Fusion;
 
     }
 
-   
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RequestSubtractLife()
+    {
+        SubtractLife();
+    }
 
 
     public void AddToScore(int points)

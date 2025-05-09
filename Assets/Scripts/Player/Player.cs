@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Fusion;
-using UnityEngine.Serialization;
+
 
 public class Player : NetworkBehaviour
 {
@@ -36,6 +36,12 @@ public class Player : NetworkBehaviour
 
     [SerializeField] private BallBehaviour _prefabBall;
     [Networked] public bool HasBall { get; set; }
+
+
+    [Networked] public bool victim { get; set; }
+
+    [Networked] public bool sniper { get; set; }
+
 
     public delegate void HasBallChangeHandler(bool hasBall);
 
@@ -94,6 +100,49 @@ public class Player : NetworkBehaviour
             var playerRef = Object.InputAuthority;
         }
     }
+
+    public void SetVictim(bool value)
+    {
+        if (HasStateAuthority) // Ensure only the server modifies this
+        {
+            victim = value;
+        }
+        else
+        {
+            Debug.LogWarning("Only the server can modify the 'victim' variable.");
+        }
+    }
+
+    public void SetSniper(bool value)
+    {
+        if (HasStateAuthority) // Ensure only the server modifies this
+        {
+            sniper = value;
+        }
+        else
+        {
+            Debug.LogWarning("Only the server can modify the 'sniper' variable.");
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RpcRequestSetVictim(bool value)
+    {
+        if (HasStateAuthority) // Server processes the request
+        {
+            SetVictim(value);
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RpcRequestSetSniper(bool value)
+    {
+        if (HasStateAuthority) // Server processes the request
+        {
+            SetSniper(value);
+        }
+    }
+
 
     private void Start()
     {
@@ -162,7 +211,8 @@ public class Player : NetworkBehaviour
             {
                 Debug.Log("BallPickUp component found, calling RPC_PickUpBall");
                 ballPickUp.RPC_PickUp(Object);
-                HasBall = true;
+                //HasBall = true;
+                
                 break;
             }
         }
@@ -173,16 +223,18 @@ public class Player : NetworkBehaviour
     {
         if (!Object.IsValid)
             return;
-        var ball = Runner.Spawn(_prefabBall, ballSpawnPoint.position, _rgbd.rotation, Object.InputAuthority);
+        var ball = Runner.Spawn(_prefabBall, ballSpawnPoint.position, Quaternion.identity, Object.InputAuthority);
+        ball.IsThrown = true;
+        ball.SetThrowingPlayer(this);
+        HasBall = false;
 
-        
         Debug.Log("Ball thrown by player ");
-        var ballBehaviour = ball.GetComponent<BallBehaviour>();
-        if (ballBehaviour != null)
-        {
-            ballBehaviour.SetThrowingPlayer(this);
-            ballBehaviour.SetReady();
-        }
+        //var ballBehaviour = ball.GetComponent<BallBehaviour>();
+        //if (ballBehaviour != null)
+        //{
+        //    ballBehaviour.SetThrowingPlayer(this);
+        //    ballBehaviour.SetReady();
+        //}
     }
 
     public override void FixedUpdateNetwork()
@@ -227,31 +279,41 @@ public class Player : NetworkBehaviour
 
         Debug.Log("Player hit by an enemy ball!");
         //Avisarle a la pelota que choco
-        //_inGameBall.RPC_ResetBall();
+        _inGameBall.NotifyCollision(this);
+
         return true;
     }
 
     private void ApplyDamage(Player throwingPlayer)
     {
-        Debug.Log("ApplyDamage called");
+        Debug.Log("ApplyDamage called-----------------");
 
         if (!HasStateAuthority || throwingPlayer == null)
             return;
-        var playerIds = GameController.Singleton._playerDataNetworkedIds;
+        //var playerIds = GameController.Singleton._playerDataNetworkedIds;
 
-        if (playerIds.Contains(throwingPlayer.Id))
-        {
-            Debug.Log("Damage already applied by this player.");
-            return;
-        }
+        //if (playerIds.Contains(throwingPlayer.Id))
+        //{
+        //    Debug.Log("Damage already applied by this player.");
+        //    return;
+        //}
 
-        // Agregar el jugador a la lista
-        playerIds.Add(throwingPlayer.Id);
+        //// Agregar el jugador a la lista
+        //playerIds.Add(throwingPlayer.Id);
 
         // Aplicar da�o y l�gica adicional
-        _playerDataNetworked.SubtractLife();
-       Debug.Log($"Player {throwingPlayer.Id} hit player {Id} with ball!");
-        throwingPlayer._playerDataNetworked.AddToScore(1);
+        if (victim==true)
+        {
+            _playerDataNetworked.SubtractLife();
+            Debug.Log("se resto vida");
+        }
+        else if (sniper == true)
+        {
+            _playerDataNetworked.AddToScore(1);
+            Debug.Log("se sumo punto");
+        }
+
+       
 
         if (_playerDataNetworked.Lives <= 0)
         {
@@ -376,7 +438,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void SetLoseScreenRPC()
     {
         UIManager.instance.SetLoseScreen();

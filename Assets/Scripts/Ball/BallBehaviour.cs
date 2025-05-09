@@ -19,7 +19,7 @@ public class BallBehaviour : NetworkBehaviour
 
     [Tooltip("The visual model of the asteroid")] [SerializeField]
     private GameObject _visual;
-
+    [SerializeField] BallPickUp _ballPickUp;
     private bool _isVisualActive;
     [Networked] public Player ThrowingPlayer { get; set; }
     [Networked] private TickTimer DespawnTimer { get; set; }
@@ -35,7 +35,7 @@ public class BallBehaviour : NetworkBehaviour
     private Collider _collider;
 
     private bool _hitPlayer = false;
-
+   
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -49,15 +49,18 @@ public class BallBehaviour : NetworkBehaviour
     {
         Debug.Log("Throwing player: " + player);
         ThrowingPlayer = player;
+        _visual.SetActive(true);
     }
 
+  
     public override void Spawned()
     {
-        if (IsReady == true)
+        if (IsThrown == true)
         {
             if (GameController.Singleton.GameIsRunning)
             {
                 RPC_UpdateBallVisual();
+                SetReady();
             }
         }
         else
@@ -67,14 +70,16 @@ public class BallBehaviour : NetworkBehaviour
 
 
         //_collider.enabled = true;
-        DespawnTimer = TickTimer.CreateFromSeconds(Runner, 10);
+        DespawnTimer = TickTimer.CreateFromSeconds(Runner, 5);
         //StartCoroutine(SetReadyAfterDelay(0.5f));
     }
 
     public void SetReady()
     {
         //IsReady = true;
-        IsThrown = true;
+        
+        transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
+        IsThrown = false;
         //_hitPlayer = false;
     }
 
@@ -96,7 +101,15 @@ public class BallBehaviour : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetBall()
     {
-        ResetBall();
+        
+        _visual.SetActive(false);
+        _ballPickUp = GetComponent<BallPickUp>();
+        if (_ballPickUp != null)
+        {
+            _ballPickUp.IsPickedUp = false;
+            _ballPickUp.RPC_Respawn();
+        }
+
     }
 
     public void ResetBall()
@@ -121,84 +134,46 @@ public class BallBehaviour : NetworkBehaviour
         Debug.Log("Ball has been activated and is ready for use.");
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
-    private void RPC_BallHitEvent(Vector3 p)
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_NotifyCollision()
     {
-        if (!Object.IsValid)
-        {
-            Debug.LogWarning("RPC_BallHitEvent called on an invalid object.");
-            return;
-        }
+       Debug.Log($"Ball collided with player {ThrowingPlayerId}");
+        // Aquí puedes manejar lógica adicional, como desactivar la pelota o registrar el impacto.
+        _hitPlayer = true;
+        RPC_ResetBall();
+    }
 
-        if (!IsReady)
-        {
-            Debug.LogWarning("La pelota no est� lista para interactuar.");
-            return;
-        }
-
-        _collider.enabled = false;
-
-
-        if (HasStateAuthority && IsReady)
-        {
-            if (_player != null)
-            {
-                PlayerDataNetworked playerData = _player.GetComponent<PlayerDataNetworked>();
-                if (playerData != null)
-                {
-                    playerData.AddToScore(_points);
-                    Debug.Log("add to score.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("ThrowingPlayer is null or the same as _player.");
-            }
-        }
+    public void NotifyCollision(Player hitPlayer)
+    {
+       
+        // Aquí puedes manejar lógica adicional, como desactivar la pelota o registrar el impacto.
+        //if (Object.HasStateAuthority)
+        //{
+        //    RPC_ResetBall();
+        //}
+        //else
+        //{
+        //    RPC_NotifyCollision();
+        //}
+        RPC_NotifyCollision();
     }
 
 
-    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    //public void RPC_OnBallHit()
-    //{
-    //    if (IsThrown)
-    //    {
-    //        IsThrown = false;
-    //        Debug.Log("Ball hit detected and state reset.");
-    //    }
-    //}
-
-    //public bool OnBallHit()
-    //{
-    //    if (Object.HasStateAuthority)
-    //    {
-    //        if (IsThrown)
-    //        {
-    //            IsThrown = false;
-    //            return true;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        RPC_OnBallHit();
-    //    }
-
-    //    return false;
-    //}
 
 
     public override void FixedUpdateNetwork()
     {
         if (_hitPlayer)
         {
-            RPC_ResetBall();
+           _visual.SetActive(false);
             //transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
         }
         else
         {
             //Runner.Despawn(Object);
-            //RPC_ResetBall();
             transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
+            CheckLifetime();
+            //transform.Translate(transform.forward * 10 * Runner.DeltaTime, Space.World);
             return;
         }
 

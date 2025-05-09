@@ -25,26 +25,27 @@ public class BallPickUp : NetworkBehaviour
     public void RPC_PickUp(NetworkObject player)
     {
         if (IsPickedUp) return;
-        var playerComponent = player.GetComponent<Player>();
-        if (playerComponent == null)
-        {
-            Debug.LogError("El objeto proporcionado no es un jugador válido.");
-            return;
-        }
+        //var playerComponent = player.GetComponent<Player>();
+        //if (playerComponent == null)
+        //{
+        //    Debug.LogError("El objeto proporcionado no es un jugador válido.");
+        //    return;
+        //}
         IsPickedUp = true;
         player.GetComponent<Player>().HasBall = true;
+       
         RPC_UpdateBallState();
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_Drop(NetworkObject player)
-    {
-        if (!IsPickedUp) return;
+    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    //public void RPC_Drop(NetworkObject player)
+    //{
+    //    if (!IsPickedUp) return;
         
-        IsPickedUp = false;
-        player.GetComponent<Player>().HasBall = false;
-        RPC_UpdateBallState();
-    }
+    //    IsPickedUp = false;
+    //    player.GetComponent<Player>().HasBall = false;
+    //    RPC_UpdateBallState();
+    //}
 
  
 
@@ -53,6 +54,27 @@ public class BallPickUp : NetworkBehaviour
     public void RPC_UpdateBallState()
     {
         UpdateBallState();
+
+        foreach (var player in PlayerSpawner.Instance.Players)
+        {
+            var playerComponent = player.GetComponent<Player>();
+
+            if (playerComponent != null)
+            {
+                if (playerComponent.HasBall)
+                {
+
+                    playerComponent.RpcRequestSetSniper(true);
+                    playerComponent.RpcRequestSetVictim(false);
+                }
+                else
+                {
+                    playerComponent.RpcRequestSetSniper(false);
+                    playerComponent.RpcRequestSetVictim(true);
+                }
+            }
+        }
+
     }
     private void UpdateBallState()
     {
@@ -82,7 +104,20 @@ public class BallPickUp : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_Respawn()
     {
+        foreach (var player in PlayerSpawner.Instance.Players)
+        {
+            var playerComponent = player.GetComponent<Player>();
+            if (playerComponent != null)
+            {
+
+                playerComponent.sniper = false;
+                playerComponent.victim = false;
+
+
+            }
+        }
         StartCoroutine(ActivateWithDelay(3f));
+       
     }
 
     private IEnumerator ActivateWithDelay(float delay)
@@ -118,16 +153,16 @@ public class BallPickUp : NetworkBehaviour
 
     }
 
-    public void Drop(Player player)
-    {
-        //if (!IsPickedUp) return;
+    //public void Drop(Player player)
+    //{
+    //    //if (!IsPickedUp) return;
 
-        if (Object.HasInputAuthority)
-        {
-            Debug.Log("Drop");
-            RPC_Drop(player.Object);
-        }
+    //    if (Object.HasInputAuthority)
+    //    {
+    //        Debug.Log("Drop");
+    //        RPC_Drop(player.Object);
+    //    }
       
-    }
+    //}
     
 }

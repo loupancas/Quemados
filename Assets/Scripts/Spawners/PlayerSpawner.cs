@@ -15,6 +15,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     private List<Transform> availableSpawnPoints;
     public event System.Action<PlayerRef> OnPlayerJoinedEvent;
     [SerializeField] private List<Transform> spawnPoints; // Lista de puntos de spawn
+    public List<NetworkObject> Players { get; private set; } = new List<NetworkObject>();
 
 
     private void Awake()
@@ -53,7 +54,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             string playerName = PlayerPrefs.GetString("PlayerNickName", "UnknownPlayer");
             
         }
-
+       
         OnPlayerJoinedEvent?.Invoke(player);
     }
 
@@ -73,7 +74,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
         // Instanciar al jugador en el punto de spawn
         NetworkObject playerObject = Runner.Spawn(_playerPrefab, spawnPoint.position, spawnPoint.rotation, player);
-
+        Players.Add(playerObject);
         Debug.Log($"Player {player} spawned at {spawnPoint.position}");
     }
 
