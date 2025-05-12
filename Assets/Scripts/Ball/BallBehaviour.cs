@@ -26,8 +26,8 @@ public class BallBehaviour : NetworkBehaviour
     [Networked] public bool IsThrown { get; set; }
 
     [Networked] public NetworkId ThrowingPlayerId { get; private set; }
-
-    public bool IsAlive => _visual.activeSelf;
+  
+    public bool activar;
     public int Points => _points;
 
     private Rigidbody _rb;
@@ -35,13 +35,17 @@ public class BallBehaviour : NetworkBehaviour
     private Collider _collider;
 
     private bool _hitPlayer = false;
+
+    [SerializeField] private PlayerDataNetworked _playerDataNetworked;
    
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _nrb = GetComponent<NetworkRigidbody3D>();
         _collider = GetComponent<Collider>();
-       
+      
+
+      
     }
 
     
@@ -49,6 +53,7 @@ public class BallBehaviour : NetworkBehaviour
     public void SetThrowingPlayer(Player player)
     {
         Debug.Log("Throwing player: " + player);
+
         ThrowingPlayer = player;
         _visual.SetActive(true);
     }
@@ -60,7 +65,7 @@ public class BallBehaviour : NetworkBehaviour
         {
             if (GameController.Singleton.GameIsRunning)
             {
-                RPC_UpdateBallVisual();
+                //RPC_UpdateBallVisual();
                 SetReady();
             }
         }
@@ -119,7 +124,7 @@ public class BallBehaviour : NetworkBehaviour
 
         _visual.SetActive(false);
         _collider.enabled = false;
-
+        activar = true;
 
         Debug.Log("Ball has been reset and deactivated.");
     }
@@ -140,6 +145,8 @@ public class BallBehaviour : NetworkBehaviour
        Debug.Log($"Ball collided with player {ThrowingPlayerId}");
         // Aquí puedes manejar lógica adicional, como desactivar la pelota o registrar el impacto.
         _hitPlayer = true;
+        _playerDataNetworked.AddToScore(1);
+
         RPC_ResetBall();
     }
 

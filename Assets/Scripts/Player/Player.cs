@@ -35,6 +35,8 @@ public class Player : NetworkBehaviour
     [SerializeField] private BallBehaviour _inGameBall;
 
     [SerializeField] private BallBehaviour _prefabBall;
+
+    [SerializeField] private BallPickUp _ballPickUp;
     [Networked] public bool HasBall { get; set; }
 
 
@@ -42,6 +44,7 @@ public class Player : NetworkBehaviour
 
     [Networked] public bool sniper { get; set; }
 
+    [SerializeField] private bool _dmgApplied;
 
     public delegate void HasBallChangeHandler(bool hasBall);
 
@@ -66,6 +69,7 @@ public class Player : NetworkBehaviour
 
     [Networked, OnChangedRender(nameof(OnNetHealthChanged))]
     private float NetworkedHealth { get; set; } = 3;
+    public PlayerRef PlayerRef { get; internal set; }
 
     void OnNetHealthChanged() => Debug.Log($"Life = {NetworkedHealth}");
 
@@ -227,7 +231,7 @@ public class Player : NetworkBehaviour
         ball.IsThrown = true;
         ball.SetThrowingPlayer(this);
         HasBall = false;
-       
+      
 
         Debug.Log("Ball thrown by player ");
         //var ballBehaviour = ball.GetComponent<BallBehaviour>();
@@ -244,22 +248,22 @@ public class Player : NetworkBehaviour
 
         //MOVIMIENTO
         Movement();
+        Debug.Log("dmg" + _dmgApplied.ToString());
 
-        Debug.Log(GameController.Singleton.GameIsRunning.ToString()); 
         if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
         {
             Debug.Log("hit");
             ApplyDamage(_inGameBall.ThrowingPlayer);
+            _dmgApplied = true; 
         }
-            
     }
 
     private bool HasHitBall()
     {
         var count = Runner.GetPhysicsScene().OverlapSphere(_rgbd.position, _playerDamageRadius, _hits,
             _ballCollisionLayer, QueryTriggerInteraction.UseGlobal);
-
-        if (count <= 0)
+        Debug.Log($"Number of colliders hit: {count}");
+        if (count <= 0 || _dmgApplied)
             return false;
 
 
@@ -282,7 +286,7 @@ public class Player : NetworkBehaviour
         Debug.Log("Player hit by an enemy ball!");
         //Avisarle a la pelota que choco
         _inGameBall.NotifyCollision(this);
-
+       
         return true;
     }
 
@@ -292,43 +296,50 @@ public class Player : NetworkBehaviour
 
         if (!HasStateAuthority || throwingPlayer == null)
             return;
-        //var playerIds = GameController.Singleton._playerDataNetworkedIds;
-
-        //if (playerIds.Contains(throwingPlayer.Id))
-        //{
-        //    Debug.Log("Damage already applied by this player.");
-        //    return;
-        //}
-
-        //// Agregar el jugador a la lista
-        //playerIds.Add(throwingPlayer.Id);
+       
 
         // Aplicar da�o y l�gica adicional
-        if (victim==true)
+        if (victim==true && !_dmgApplied)
         {
             _playerDataNetworked.SubtractLife();
             Debug.Log("se resto vida");
-        }
-        else if (sniper == true)
-        {
-            _playerDataNetworked.AddToScore(1);
-            Debug.Log("se sumo punto");
+            StartCoroutine(ResetDamageFlag());
+
+
         }
 
-       
+        if (sniper)
+        {
+            throwingPlayer._playerDataNetworked.AddToScore(1);
+        }
+
+
+
 
         if (_playerDataNetworked.Lives <= 0)
         {
             IsAlive = false;
             Debug.Log("Player has been eliminated.");
             SetLoseScreenRPC();
-            UIManager.instance.SetLoseScreen();
-            RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+            //UIManager.instance.SetLoseScreen();
+            //RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
         }
 
-       
+        if(_playerDataNetworked.Score >= 3)
+        {
+            Debug.Log("Player has won the game.");
+            SetWinScreenRPC();
+
+        }
+
+        //StartCoroutine(ResetDamageFlag());
     }
 
+    private IEnumerator ResetDamageFlag()
+    {
+        yield return new WaitForSeconds(0.1f); // Ajusta el tiempo según sea necesario
+        _dmgApplied = false;
+    }
 
     #region movement
 
@@ -440,9 +451,14 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    
     private void SetLoseScreenRPC()
     {
         UIManager.instance.SetLoseScreen();
+    }
+
+    private void SetWinScreenRPC()
+    {
+        UIManager.instance.SetVictoryScreen();
     }
 }

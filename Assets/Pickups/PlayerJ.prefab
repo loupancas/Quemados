@@ -2618,7 +2618,11 @@ MonoBehaviour:
   Camera: {fileID: 0}
   _inGameBall: {fileID: 7419478113033501347}
   _prefabBall: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+  _ballPickUp: {fileID: 1457730783720594276, guid: c4647fec96e951c4e9638d9ccb36d20f, type: 3}
   _HasBall: 0
+  _victim: 0
+  _sniper: 0
+  _dmgApplied: 0
   ballSpawnPoint: {fileID: 458657023550924609}
   _meshRenderer: {fileID: 3500929485112267311}
 --- !u!54 &575414237586548799
@@ -4001,6 +4005,10 @@ PrefabInstance:
       propertyPath: _player
       value: 
       objectReference: {fileID: 5676140270376297627}
+    - target: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
+      propertyPath: _playerDataNetworked
+      value: 
+      objectReference: {fileID: 5992165507469196777}
     - target: {fileID: 8276800743290396699, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.8356781

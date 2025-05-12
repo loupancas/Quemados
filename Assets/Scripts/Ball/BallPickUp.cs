@@ -10,7 +10,7 @@ public class BallPickUp : NetworkBehaviour
 
     [Networked] public bool IsPickedUp { get; set; }
 
-  
+    [SerializeField] BallBehaviour ballBehaviour;
 
 
     private bool previousIsPickedUp;
@@ -37,19 +37,7 @@ public class BallPickUp : NetworkBehaviour
         RPC_UpdateBallState();
     }
 
-    //[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    //public void RPC_Drop(NetworkObject player)
-    //{
-    //    if (!IsPickedUp) return;
-        
-    //    IsPickedUp = false;
-    //    player.GetComponent<Player>().HasBall = false;
-    //    RPC_UpdateBallState();
-    //}
-
- 
-
-
+  
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_UpdateBallState()
     {
@@ -112,7 +100,7 @@ public class BallPickUp : NetworkBehaviour
     {
         if (previousIsPickedUp != IsPickedUp)
         {
-            UpdateBallState();
+           // UpdateBallState();
             previousIsPickedUp = IsPickedUp;
         }
     }
@@ -132,6 +120,7 @@ public class BallPickUp : NetworkBehaviour
 
             }
         }
+        if(ballBehaviour.activar)
         StartCoroutine(ActivateWithDelay(3f));
        
     }
@@ -169,16 +158,6 @@ public class BallPickUp : NetworkBehaviour
 
     }
 
-    //public void Drop(Player player)
-    //{
-    //    //if (!IsPickedUp) return;
-
-    //    if (Object.HasInputAuthority)
-    //    {
-    //        Debug.Log("Drop");
-    //        RPC_Drop(player.Object);
-    //    }
-      
-    //}
+   
     
 }

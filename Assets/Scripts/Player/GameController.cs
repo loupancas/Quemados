@@ -91,7 +91,7 @@ using UnityEngine;
 
     public override void Render()
 		{
-        Debug.Log($"Client {Runner.LocalPlayer}: Phase = {Phase}");
+       // Debug.Log($"Client {Runner.LocalPlayer}: Phase = {Phase}");
         switch (Phase)
 			{
 				case GamePhase.Starting:
@@ -142,7 +142,7 @@ using UnityEngine;
 			_startEndDisplay.gameObject.SetActive(false);
 			_ingameTimerDisplay.gameObject.SetActive(true);
 			_ingameTimerDisplay.text = $"{Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0).ToString("000")} seconds left... Player RTT: {(int)(1000*Runner.GetPlayerRtt(Runner.LocalPlayer))}ms";
-		Debug.Log("juego en proceso");
+		//Debug.Log("juego en proceso");
 
 		}
 

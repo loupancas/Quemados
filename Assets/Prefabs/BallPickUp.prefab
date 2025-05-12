@@ -214,6 +214,7 @@ MonoBehaviour:
   ActiveObject: {fileID: 407476136060784799}
   InactiveObject: {fileID: 4660743995606629258}
   _IsPickedUp: 0
+  ballBehaviour: {fileID: 4971252348030142504, guid: f65e59d7a619eaf45b0751fcb7fe6e50, type: 3}
 --- !u!1 &4660743995606629258
 GameObject:
   m_ObjectHideFlags: 0

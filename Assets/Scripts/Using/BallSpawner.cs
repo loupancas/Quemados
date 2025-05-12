@@ -31,7 +31,7 @@ public class BallSpawner : NetworkBehaviour
         if (ballPrefab == null) return;
 
         BallPickUp ballPickUp = ballPrefab.GetComponentInChildren<BallPickUp>();
-        if (ballPickUp != null && ballPickUp.IsPickedUp)
+        if (ballPickUp != null && !ballPickUp.IsPickedUp)
         {
             timer += Runner.DeltaTime;
             if (timer >= spawnInterval)

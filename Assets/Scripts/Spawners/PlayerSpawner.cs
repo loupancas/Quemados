@@ -51,8 +51,8 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
                 Runner.Spawn(_RoomManager);
                 SpawnBallPickUp();
             }
-            string playerName = PlayerPrefs.GetString("PlayerNickName", "UnknownPlayer");
-            
+            string playerName = PlayerPrefs.GetString("UserNickName", "UnknownPlayer");
+            Debug.Log("Player name: " + playerName);
         }
        
         OnPlayerJoinedEvent?.Invoke(player);
