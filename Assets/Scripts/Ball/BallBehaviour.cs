@@ -159,7 +159,7 @@ public class BallBehaviour : NetworkBehaviour
         _hitPlayer = true;
         //_playerDataNetworked.AddToScore(1);
 
-        RPC_ResetBall();
+        ResetBall();
     }
 
     public void NotifyCollision(Player hitPlayer)
@@ -202,6 +202,6 @@ public class BallBehaviour : NetworkBehaviour
     private void CheckLifetime()
     {
         if (DespawnTimer.Expired(Runner) == false) return;
-        RPC_ResetBall();
+        ResetBall();
     }
 }

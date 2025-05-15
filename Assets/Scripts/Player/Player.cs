@@ -298,8 +298,6 @@ public class Player : NetworkBehaviour
         if (!HasStateAuthority || throwingPlayer == null)
             return;
        
-
-        // Aplicar da�o y l�gica adicional
         if (victim && !_dmgApplied)
         {
             _playerDataNetworked.SubtractLife();
@@ -311,8 +309,7 @@ public class Player : NetworkBehaviour
                 IsAlive = false;
                 Debug.Log("Player has been eliminated.");
                 SetLoseScreenRPC();
-                //UIManager.instance.SetLoseScreen();
-                //RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+               
             }
 
         }
@@ -337,7 +334,8 @@ public class Player : NetworkBehaviour
 
     private IEnumerator ResetDamageFlag()
     {
-        yield return new WaitForSeconds(0.1f); // Ajusta el tiempo según sea necesario
+        yield return new WaitForSeconds(5f); 
+        Debug.Log("Resetting damage flag");
         _dmgApplied = false;
     }
 
