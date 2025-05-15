@@ -16,9 +16,10 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
     public event Action OnJoinedLobby = delegate { };
     
     public event Action<List<SessionInfo>> OnSessionListUpdate = delegate { };
+    private Dictionary<PlayerRef, string> _playerNames = new Dictionary<PlayerRef, string>();
 
     #region LOBBY
-    
+
     public void JoinLobby()
     {
         if (_currentRunner) Destroy(_currentRunner.gameObject);
@@ -58,6 +59,7 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
     public async void JoinGame(SessionInfo sessionInfo)
     {
         await InitializeGame(GameMode.Shared, sessionInfo.Name, SceneManager.GetActiveScene().buildIndex);
+      
     }
     
     async Task InitializeGame(GameMode gameMode, string sessionName, int sceneIndex)
@@ -77,6 +79,7 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
         }
         else
         {
+           
             Debug.Log("[Custom Msg] Game started");
             _mainMenuHandler?.OnStartGame();
         }
@@ -111,7 +114,11 @@ public class NetworkRunnerHandler : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     #region Unused Runner Callbacks
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)    {}
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)    
+    {
+        
+
+    }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }

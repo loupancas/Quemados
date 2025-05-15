@@ -88,8 +88,10 @@ public class RoomM : NetworkBehaviour
         if (player == Runner.LocalPlayer)
         {
             PlayerSpawner.Instance.SpawnPlayerWithDelay(player, 1f);
-            UIManager.instance.StartGame();
+        UIManager.instance.StartGame();
+
         }
+       // UIManager.instance.StartGame();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

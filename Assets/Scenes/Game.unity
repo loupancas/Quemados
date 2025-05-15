@@ -787,6 +787,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a757cb4fd85313c4b82c1a56daa3434b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerOverviewPanelPrefab: {fileID: 4777992741441094517}
 --- !u!4 &1179364922
 Transform:
   m_ObjectHideFlags: 0

@@ -17,6 +17,8 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] private List<Transform> spawnPoints; // Lista de puntos de spawn
     public List<NetworkObject> Players { get; private set; } = new List<NetworkObject>();
 
+    [SerializeField] public string _playerName;
+
 
     private void Awake()
     {
@@ -51,7 +53,8 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
                 Runner.Spawn(_RoomManager);
                 SpawnBallPickUp();
             }
-            string playerName = PlayerPrefs.GetString("UserNickName", "UnknownPlayer");
+            string playerName = PlayerPrefs.GetString("PlayerNickName", "UnknownPlayer");
+            _playerName = playerName;
             Debug.Log("Player name: " + playerName);
         }
        

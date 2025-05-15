@@ -226,7 +226,7 @@ MonoBehaviour:
   _playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  _player: {fileID: 5676140270376297627, guid: f12cf3661567c0a42ad2a3c5c74c1849, type: 3}
+  _player: {fileID: 0}
   _visual: {fileID: 1757401446569467932}
   _ThrowingPlayer: {fileID: 0}
   _IsThrown: 0

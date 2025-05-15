@@ -4,11 +4,13 @@ using Fusion;
 
     public class PlayerDataNetworked : NetworkBehaviour
     {
-        // Global static setting
-        private const int STARTING_LIVES = 3;
+
+    Player _player;
+    // Global static setting
+    private const int STARTING_LIVES = 3;
 
         // Local Runtime references
-        private PlayerOverviewPanel _overviewPanel;
+       [SerializeField] private PlayerOverviewPanel _overviewPanel;
 
         private ChangeDetector _changeDetector;
 
@@ -26,15 +28,19 @@ using Fusion;
 
         public override void Spawned()
         {
-
-            // --- StateAuthority
-            // Initialized game specific settings
-            if (Object.HasStateAuthority)
+             _player = GetComponent<Player>();
+       
+        // --- StateAuthority
+        // Initialized game specific settings
+        if (Object.HasStateAuthority)
             {
                 Lives = STARTING_LIVES;
                 Score = 0;
-                NickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
-            }
+            //NickName = PlayerPrefs.GetString("PlayerNickName", "DefaultNickName");
+            NickName = _player._name;
+            //Debug.Log(NickName + " has joined the game!");
+        }
+       
         Debug.Log("PlayerDataNetworked object has been spawned!");
         
         // --- All Clients
@@ -63,9 +69,15 @@ using Fusion;
         {
             _overviewPanel.RemoveEntry(this);
         }
+
+
+
     }
-        
-        public override void Render()
+
+   
+
+
+    public override void Render()
         {
         foreach (var change in _changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer))
         {
@@ -81,11 +93,11 @@ using Fusion;
     public void AddToScore(int points)
         {
 
-        if (!Object.HasStateAuthority)
-        {
-            Debug.LogError("Cannot modify Score. The object does not have state authority.");
-            return;
-        }
+        //if (!Object.HasStateAuthority)
+        //{
+        //    Debug.LogError("Cannot modify Score. The object does not have state authority.");
+        //    return;
+        //}
 
         Score += points;
         if (_overviewPanel != null)
@@ -106,11 +118,11 @@ using Fusion;
         //_overviewPanel?.UpdateEntry(this);
     }
 
-        // RPC used to send player information to the Host
-        [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
-        private void RpcSetNickName(string nickName)
-        {
-            if (string.IsNullOrEmpty(nickName)) return;
-            NickName = nickName;
-        }
+        //// RPC used to send player information to the Host
+        //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
+        //private void RpcSetNickName(string nickName)
+        //{
+        //    if (string.IsNullOrEmpty(nickName)) return;
+        //    NickName = nickName;
+        //}
     }

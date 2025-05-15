@@ -29,10 +29,10 @@ public class Player : NetworkBehaviour
     public float _defaultSpeed;
     public float _defaultJump;
     public Camera Camera;
-
+    [SerializeField] public string _name;
     //[FormerlySerializedAs("_ball")] [Header("Ball")] [SerializeField]
-    
-    [SerializeField] private BallBehaviour _inGameBall;
+
+   [SerializeField] private BallBehaviour _inGameBall;
 
     [SerializeField] private BallBehaviour _prefabBall;
 
@@ -83,7 +83,8 @@ public class Player : NetworkBehaviour
         if (HasStateAuthority)
         {
             LocalPlayer = this;
-
+            _name=PlayerSpawner.Instance._playerName;
+            Debug.Log("Nombre: " + _name);
             NetworkedColor = GetComponentInChildren<Renderer>().sharedMaterial.color;
             Debug.Log("Player spawned");
             Camera = Camera.main;
@@ -254,7 +255,7 @@ public class Player : NetworkBehaviour
         {
             Debug.Log("hit");
             ApplyDamage(_inGameBall.ThrowingPlayer);
-            _dmgApplied = true; 
+            //_dmgApplied = true; 
         }
     }
 
@@ -299,38 +300,37 @@ public class Player : NetworkBehaviour
        
 
         // Aplicar da�o y l�gica adicional
-        if (victim==true && !_dmgApplied)
+        if (victim && !_dmgApplied)
         {
             _playerDataNetworked.SubtractLife();
             Debug.Log("se resto vida");
+            _dmgApplied = true;
             StartCoroutine(ResetDamageFlag());
-
+            if (_playerDataNetworked.Lives <= 0)
+            {
+                IsAlive = false;
+                Debug.Log("Player has been eliminated.");
+                SetLoseScreenRPC();
+                //UIManager.instance.SetLoseScreen();
+                //RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
+            }
 
         }
 
         if (sniper)
         {
             throwingPlayer._playerDataNetworked.AddToScore(1);
+            if (_playerDataNetworked.Score >= 3)
+            {
+                Debug.Log("Player has won the game.");
+                SetWinScreenRPC();
+
+            }
         }
 
 
 
-
-        if (_playerDataNetworked.Lives <= 0)
-        {
-            IsAlive = false;
-            Debug.Log("Player has been eliminated.");
-            SetLoseScreenRPC();
-            //UIManager.instance.SetLoseScreen();
-            //RoomM.Instance.RPC_PlayerWin(Runner.LocalPlayer);
-        }
-
-        if(_playerDataNetworked.Score >= 3)
-        {
-            Debug.Log("Player has won the game.");
-            SetWinScreenRPC();
-
-        }
+     
 
         //StartCoroutine(ResetDamageFlag());
     }

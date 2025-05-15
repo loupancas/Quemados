@@ -33,7 +33,7 @@ public class BallBehaviour : NetworkBehaviour
     private Rigidbody _rb;
     private NetworkRigidbody3D _nrb;
     private Collider _collider;
-
+    public string sniperName;
     private bool _hitPlayer = false;
 
     [SerializeField] private PlayerDataNetworked _playerDataNetworked;
@@ -43,9 +43,16 @@ public class BallBehaviour : NetworkBehaviour
         _rb = GetComponent<Rigidbody>();
         _nrb = GetComponent<NetworkRigidbody3D>();
         _collider = GetComponent<Collider>();
-      
+        if (_playerDataNetworked == null)
+        {
+            _playerDataNetworked = FindObjectOfType<PlayerDataNetworked>();
+            if (_playerDataNetworked == null)
+            {
+                Debug.LogError("PlayerDataNetworked is not assigned and could not be found in the scene.");
+            }
+        }
 
-      
+
     }
 
     
@@ -53,7 +60,7 @@ public class BallBehaviour : NetworkBehaviour
     public void SetThrowingPlayer(Player player)
     {
         Debug.Log("Throwing player: " + player);
-
+        sniperName = player._name;
         ThrowingPlayer = player;
         _visual.SetActive(true);
     }
@@ -142,10 +149,15 @@ public class BallBehaviour : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_NotifyCollision()
     {
-       Debug.Log($"Ball collided with player {ThrowingPlayerId}");
+        //if (_playerDataNetworked == null || !_playerDataNetworked.Object.IsValid)
+        //{
+        //    Debug.LogError("PlayerDataNetworked is not initialized or not spawned yet.");
+        //    return;
+        //}
+        Debug.Log($"Ball collided with player");
         // Aquí puedes manejar lógica adicional, como desactivar la pelota o registrar el impacto.
         _hitPlayer = true;
-        _playerDataNetworked.AddToScore(1);
+        //_playerDataNetworked.AddToScore(1);
 
         RPC_ResetBall();
     }

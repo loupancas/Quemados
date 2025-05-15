@@ -6,6 +6,7 @@ public class PlayerManager : MonoBehaviour
 {
     private PlayerSpawner playerSpawner;
     private Dictionary<int, Color> playerColors = new Dictionary<int, Color>();
+    [SerializeField] private PlayerOverviewPanel _playerOverviewPanelPrefab;
 
 
     private void Start()
@@ -39,6 +40,8 @@ public class PlayerManager : MonoBehaviour
             playerColors[playerId] = playerColor;
             
         }
+
+       
     }
 
     public static Color GetColor(int player)
