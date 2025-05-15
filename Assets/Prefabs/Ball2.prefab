@@ -232,5 +232,6 @@ MonoBehaviour:
   _IsThrown: 0
   _ThrowingPlayerId:
     Raw: 0
-  activar: 0
-  _playerDataNetworked: {fileID: 5992165507469196777, guid: f12cf3661567c0a42ad2a3c5c74c1849, type: 3}
+  _Activar: 0
+  sniperName: 
+  _ballPickup: {fileID: 1457730783720594276, guid: c4647fec96e951c4e9638d9ccb36d20f, type: 3}

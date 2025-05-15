@@ -26,8 +26,8 @@ public class BallBehaviour : NetworkBehaviour
     [Networked] public bool IsThrown { get; set; }
 
     [Networked] public NetworkId ThrowingPlayerId { get; private set; }
-  
-    public bool activar;
+
+    [Networked] public bool Activar { get; set; }
     public int Points => _points;
 
     private Rigidbody _rb;
@@ -35,24 +35,15 @@ public class BallBehaviour : NetworkBehaviour
     private Collider _collider;
     public string sniperName;
     private bool _hitPlayer = false;
-
-    [SerializeField] private PlayerDataNetworked _playerDataNetworked;
    
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _nrb = GetComponent<NetworkRigidbody3D>();
         _collider = GetComponent<Collider>();
-        if (_playerDataNetworked == null)
-        {
-            _playerDataNetworked = FindObjectOfType<PlayerDataNetworked>();
-            if (_playerDataNetworked == null)
-            {
-                Debug.LogError("PlayerDataNetworked is not assigned and could not be found in the scene.");
-            }
-        }
 
-
+        
     }
 
     
@@ -68,6 +59,7 @@ public class BallBehaviour : NetworkBehaviour
   
     public override void Spawned()
     {
+       
         if (IsThrown == true)
         {
             if (GameController.Singleton.GameIsRunning)
@@ -81,7 +73,7 @@ public class BallBehaviour : NetworkBehaviour
             Debug.Log("BallBehaviour spawned");
         }
 
-
+        Activar = true;
         //_collider.enabled = true;
         DespawnTimer = TickTimer.CreateFromSeconds(Runner, 5);
         //StartCoroutine(SetReadyAfterDelay(0.5f));
@@ -116,10 +108,12 @@ public class BallBehaviour : NetworkBehaviour
 
         _visual.SetActive(false);
         _collider.enabled = false;
-        activar = true;
-
+        Activar = true;
+       
         Debug.Log("Ball has been reset and deactivated.");
     }
+
+    
 
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]

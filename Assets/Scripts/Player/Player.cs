@@ -232,10 +232,19 @@ public class Player : NetworkBehaviour
         ball.IsThrown = true;
         ball.SetThrowingPlayer(this);
         HasBall = false;
-      
+        BallPickUp ballPickUp = FindObjectOfType<BallPickUp>();
+        Debug.Log("IsPickedUp before RPC_Drop: " + ballPickUp.IsPickedUp);
 
-        Debug.Log("Ball thrown by player ");
-       
+        if (Object != null && Object.IsValid)
+        {
+            ballPickUp.RPC_Drop(Object);
+        }
+        else
+        {
+            Debug.LogError("Invalid NetworkObject passed to RPC_Drop.");
+        }
+
+
     }
 
     public override void FixedUpdateNetwork()
