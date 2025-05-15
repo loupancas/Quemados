@@ -96,10 +96,7 @@ public class BallBehaviour : NetworkBehaviour
         //_hitPlayer = false;
     }
 
-    public void ReseteState()
-    {
-        IsThrown = false; // Se establece en false cuando la pelota es recogida
-    }
+   
 
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -111,19 +108,7 @@ public class BallBehaviour : NetworkBehaviour
         }
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_ResetBall()
-    {
-        ResetBall();
-        //_visual.SetActive(false);
-        //_ballPickUp = GetComponent<BallPickUp>();
-        //if (_ballPickUp != null)
-        //{
-        //    _ballPickUp.IsPickedUp = false;
-        //    _ballPickUp.RPC_UpdateBallState();
-
-        //}
-    }
+   
     public void ResetBall()
     {
         IsThrown = false;
@@ -136,28 +121,15 @@ public class BallBehaviour : NetworkBehaviour
         Debug.Log("Ball has been reset and deactivated.");
     }
 
-    public void ActivateBall()
-    {
-        _visual.SetActive(true);
-        _collider.enabled = true;
-
-        IsReady = true;
-
-        Debug.Log("Ball has been activated and is ready for use.");
-    }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_NotifyCollision()
     {
-        //if (_playerDataNetworked == null || !_playerDataNetworked.Object.IsValid)
-        //{
-        //    Debug.LogError("PlayerDataNetworked is not initialized or not spawned yet.");
-        //    return;
-        //}
+       
         Debug.Log($"Ball collided with player");
-        // Aquí puedes manejar lógica adicional, como desactivar la pelota o registrar el impacto.
+    
         _hitPlayer = true;
-        //_playerDataNetworked.AddToScore(1);
+
 
         ResetBall();
     }
@@ -165,15 +137,7 @@ public class BallBehaviour : NetworkBehaviour
     public void NotifyCollision(Player hitPlayer)
     {
        
-        // Aquí puedes manejar lógica adicional, como desactivar la pelota o registrar el impacto.
-        //if (Object.HasStateAuthority)
-        //{
-        //    RPC_ResetBall();
-        //}
-        //else
-        //{
-        //    RPC_NotifyCollision();
-        //}
+       
         RPC_NotifyCollision();
     }
 

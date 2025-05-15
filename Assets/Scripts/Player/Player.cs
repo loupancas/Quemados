@@ -235,12 +235,7 @@ public class Player : NetworkBehaviour
       
 
         Debug.Log("Ball thrown by player ");
-        //var ballBehaviour = ball.GetComponent<BallBehaviour>();
-        //if (ballBehaviour != null)
-        //{
-        //    ballBehaviour.SetThrowingPlayer(this);
-        //    ballBehaviour.SetReady();
-        //}
+       
     }
 
     public override void FixedUpdateNetwork()
@@ -326,10 +321,6 @@ public class Player : NetworkBehaviour
         }
 
 
-
-     
-
-        //StartCoroutine(ResetDamageFlag());
     }
 
     private IEnumerator ResetDamageFlag()
