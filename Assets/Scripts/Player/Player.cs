@@ -39,13 +39,13 @@ public class Player : NetworkBehaviour
     [SerializeField] private BallPickUp _ballPickUp;
     [Networked] public bool HasBall { get; set; }
 
-
+    public bool IsSniper { get; set; }
     [Networked] public bool victim { get; set; }
 
     [Networked] public bool sniper { get; set; }
 
     [SerializeField] private bool _dmgApplied;
-
+    [SerializeField] private bool _pointApplied;
     public delegate void HasBallChangeHandler(bool hasBall);
 
     public delegate void BallThrownHandler();
@@ -111,6 +111,7 @@ public class Player : NetworkBehaviour
         if (HasStateAuthority) // Ensure only the server modifies this
         {
             victim = value;
+            Debug.Log("Victim set to: " + value);
         }
         else
         {
@@ -123,6 +124,9 @@ public class Player : NetworkBehaviour
         if (HasStateAuthority) // Ensure only the server modifies this
         {
             sniper = value;
+            IsSniper = value;
+            Debug.Log("Sniper set to: " + value);
+            Debug.Log("is sniper" + IsSniper);
         }
         else
         {
@@ -145,6 +149,8 @@ public class Player : NetworkBehaviour
         if (HasStateAuthority) // Server processes the request
         {
             SetSniper(value);
+           
+           
         }
     }
 
@@ -253,21 +259,23 @@ public class Player : NetworkBehaviour
 
         //MOVIMIENTO
         Movement();
-        Debug.Log("dmg" + _dmgApplied.ToString());
+        //Debug.Log("dmg" + _dmgApplied.ToString());
 
         if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
         {
             Debug.Log("hit");
             ApplyDamage(_inGameBall.ThrowingPlayer);
+         
             //_dmgApplied = true; 
         }
+       
     }
 
     private bool HasHitBall()
     {
         var count = Runner.GetPhysicsScene().OverlapSphere(_rgbd.position, _playerDamageRadius, _hits,
             _ballCollisionLayer, QueryTriggerInteraction.UseGlobal);
-        Debug.Log($"Number of colliders hit: {count}");
+        //Debug.Log($"Number of colliders hit: {count}");
         if (count <= 0 || _dmgApplied)
             return false;
 
@@ -307,6 +315,7 @@ public class Player : NetworkBehaviour
             _playerDataNetworked.SubtractLife();
             Debug.Log("se resto vida");
             _dmgApplied = true;
+           // AddScore(throwingPlayer);
             StartCoroutine(ResetDamageFlag());
             if (_playerDataNetworked.Lives <= 0)
             {
@@ -315,12 +324,31 @@ public class Player : NetworkBehaviour
                 SetLoseScreenRPC();
                
             }
+            else
+            {
+                Debug.Log("respawn player");
+
+            }
 
         }
 
-        if (sniper)
+       
+
+
+    }
+
+    public void AddScore()
+    {
+        Debug.Log("Add Score called-----------------");
+
+        //if (!HasStateAuthority || throwingPlayer == null)
+        //    return;
+        if (sniper && !_pointApplied)
         {
-            throwingPlayer._playerDataNetworked.AddToScore(1);
+            _playerDataNetworked.AddToScore(1);
+            Debug.Log("se sumo puntaje");
+            _pointApplied = true;
+            StartCoroutine(ResetPointFlag());
             if (_playerDataNetworked.Score >= 3)
             {
                 Debug.Log("Player has won the game.");
@@ -328,8 +356,6 @@ public class Player : NetworkBehaviour
 
             }
         }
-
-
     }
 
     private IEnumerator ResetDamageFlag()
@@ -337,6 +363,12 @@ public class Player : NetworkBehaviour
         yield return new WaitForSeconds(5f); 
         Debug.Log("Resetting damage flag");
         _dmgApplied = false;
+    }
+    private IEnumerator ResetPointFlag()
+    {
+        yield return new WaitForSeconds(5f);
+        Debug.Log("Resetting point flag");
+        _pointApplied = false;
     }
 
     #region movement

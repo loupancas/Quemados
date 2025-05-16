@@ -50,9 +50,11 @@ public class BallBehaviour : NetworkBehaviour
 
     public void SetThrowingPlayer(Player player)
     {
-        Debug.Log("Throwing player: " + player);
-        sniperName = player._name;
+        
+       
         ThrowingPlayer = player;
+        this.ThrowingPlayerId = player.Object.Id;
+        Debug.Log($"Throwing player set to {player.Object.Id}");
         _visual.SetActive(true);
     }
 
@@ -68,10 +70,10 @@ public class BallBehaviour : NetworkBehaviour
                 SetReady();
             }
         }
-        else
-        {
-            Debug.Log("BallBehaviour spawned");
-        }
+        //else
+        //{
+        //    Debug.Log("BallBehaviour spawned");
+        //}
 
         Activar = true;
         //_collider.enabled = true;
@@ -110,7 +112,7 @@ public class BallBehaviour : NetworkBehaviour
         _collider.enabled = false;
         Activar = true;
        
-        Debug.Log("Ball has been reset and deactivated.");
+        //Debug.Log("Ball has been reset and deactivated.");
     }
 
     
@@ -123,10 +125,19 @@ public class BallBehaviour : NetworkBehaviour
         Debug.Log($"Ball collided with player");
     
         _hitPlayer = true;
-
-
+        if (ThrowingPlayer != null)
+        {
+            // Si el ThrowingPlayer es el sniper, otorga puntos
+            if (ThrowingPlayer.IsSniper)
+            {
+                ThrowingPlayer.AddScore(); 
+                Debug.Log($"Sniper scored!");
+            }
+        }
         ResetBall();
     }
+
+    
 
     public void NotifyCollision(Player hitPlayer)
     {

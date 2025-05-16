@@ -73,15 +73,18 @@ public class BallPickUp : NetworkBehaviour
                 {
 
                     playerComponent.RpcRequestSetSniper(true);
-                    //playerComponent.RpcRequestSetVictim(false);
+                    playerComponent.RpcRequestSetVictim(false);
                 }
                 else
                 {
-                    //playerComponent.RpcRequestSetSniper(false);
+                    playerComponent.RpcRequestSetSniper(false);
                     playerComponent.RpcRequestSetVictim(true);
                 }
+                //Debug.Log("Player sniper" + playerComponent.sniper);
+                //Debug.Log("Player victim" + playerComponent.victim);
             }
         }
+     
 
     }
     private void UpdateBallState()
@@ -118,9 +121,10 @@ public class BallPickUp : NetworkBehaviour
             if (playerComponent != null)
             {
 
-                playerComponent.sniper = false;
-                playerComponent.victim = false;
-
+                playerComponent.RpcRequestSetSniper(false);
+                playerComponent.RpcRequestSetVictim(false);
+                Debug.Log("Player sniper" + playerComponent.sniper+ "Player victim" + playerComponent.victim);
+               
 
             }
         }

@@ -7,8 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Asteroids.SharedSimple
-{
+
     public class OnServerDisconnected : MonoBehaviour, INetworkRunnerCallbacks
     {
         [SerializeField] private string _menuSceneName = String.Empty;
@@ -92,4 +91,4 @@ namespace Asteroids.SharedSimple
         {
         }
     }
-}
+
