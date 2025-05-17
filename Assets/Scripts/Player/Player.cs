@@ -9,7 +9,7 @@ public class Player : NetworkBehaviour
     public static Player LocalPlayer { get; set; }
     public Inventario inventario;
     public PlayerDataNetworked _playerDataNetworked = null;
-    [SerializeField] private float _respawnDelay = 2.0f;
+    //[SerializeField] private float _respawnDelay = 2.0f;
     private ChangeDetector _changeDetector;
     private int _localPlayerId;
     [Header("Stats")] [SerializeField] public float _speed = 3;
@@ -95,7 +95,7 @@ public class Player : NetworkBehaviour
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
             HasBall = false;
             IsAlive = true;
-
+            //BallPickUp ballPickUp = FindObjectOfType<BallPickUp>();
             //_ball = GetComponentInChildren<BallBehaviour>();
             if (!Object.HasInputAuthority)
             {
@@ -186,13 +186,16 @@ public class Player : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            TryPickupBall();
-            //_ball?.ActivateBall();
+          TryPickupBall();
+           
         }
 
         if (Input.GetMouseButtonDown(0) && HasBall)
         {
             Fire();
+            
+            //_ballPickUp.RPC_Drop(Object);
+            
         }
     }
 
@@ -239,16 +242,9 @@ public class Player : NetworkBehaviour
         ball.SetThrowingPlayer(this);
         HasBall = false;
         BallPickUp ballPickUp = FindObjectOfType<BallPickUp>();
-        Debug.Log("IsPickedUp before RPC_Drop: " + ballPickUp.IsPickedUp);
+        ballPickUp.RPC_Drop(Object);
+       
 
-        if (Object != null && Object.IsValid)
-        {
-            ballPickUp.RPC_Drop(Object);
-        }
-        else
-        {
-            Debug.LogError("Invalid NetworkObject passed to RPC_Drop.");
-        }
 
 
     }
@@ -264,7 +260,7 @@ public class Player : NetworkBehaviour
         if (IsAlive && HasHitBall() && GameController.Singleton.GameIsRunning)
         {
             Debug.Log("hit");
-            ApplyDamage(_inGameBall.ThrowingPlayer);
+            ApplyDamage();
          
             //_dmgApplied = true; 
         }
@@ -303,11 +299,11 @@ public class Player : NetworkBehaviour
         return true;
     }
 
-    private void ApplyDamage(Player throwingPlayer)
+    private void ApplyDamage()
     {
         Debug.Log("ApplyDamage called-----------------");
 
-        if (!HasStateAuthority || throwingPlayer == null)
+        if (!HasStateAuthority )
             return;
        
         if (victim && !_dmgApplied)
@@ -321,14 +317,10 @@ public class Player : NetworkBehaviour
             {
                 IsAlive = false;
                 Debug.Log("Player has been eliminated.");
-                SetLoseScreenRPC();
-               
-            }
-            else
-            {
-                Debug.Log("respawn player");
+                GameController.Singleton.CheckIfGameHasEnded();
 
             }
+           
 
         }
 
@@ -352,7 +344,7 @@ public class Player : NetworkBehaviour
             if (_playerDataNetworked.Score >= 3)
             {
                 Debug.Log("Player has won the game.");
-                SetWinScreenRPC();
+                //GameController.Singleton.CheckIfGameHasEnded();
 
             }
         }

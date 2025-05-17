@@ -100,17 +100,23 @@ public class RoomM : NetworkBehaviour
         UIManager.instance.StartGame();
     }
 
-    [Rpc]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_PlayerWin(PlayerRef player)
     {
         if (player == Runner.LocalPlayer)
         {
-            Debug.Log("Win");
+            Debug.Log("You won!");
             UIManager.instance.SetVictoryScreen();
-            return;
         }
+    }
 
-        Debug.Log("Defeat");
-        UIManager.instance.SetLoseScreen();
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_PlayerLose(PlayerRef player)
+    {
+        if (player == Runner.LocalPlayer)
+        {
+            Debug.Log("You lost!");
+            UIManager.instance.SetLoseScreen();
+        }
     }
 }

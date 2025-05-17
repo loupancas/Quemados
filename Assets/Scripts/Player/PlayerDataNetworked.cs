@@ -7,7 +7,7 @@ using Fusion;
 
     Player _player;
     // Global static setting
-    private const int STARTING_LIVES = 3;
+    private const int STARTING_LIVES = 1;
 
         // Local Runtime references
        [SerializeField] private PlayerOverviewPanel _overviewPanel;
@@ -46,7 +46,7 @@ using Fusion;
         // --- All Clients
         // Set the local runtime references.
 
-        FindObjectOfType<GameController>().TrackNewPlayer(this);
+        FindObjectOfType<GameController>().TrackNewPlayer(this, Object.InputAuthority);
            _overviewPanel = FindObjectOfType<PlayerOverviewPanel>();
 
         if (_overviewPanel != null)

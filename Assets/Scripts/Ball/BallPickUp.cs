@@ -7,7 +7,7 @@ public class BallPickUp : NetworkBehaviour
     public float Radius = 1f;
     public GameObject ActiveObject;
     public GameObject InactiveObject;
-
+    private NetworkObject playerInTriggerZone;
     [Networked] public bool IsPickedUp { get; set; }
 
     [SerializeField] BallBehaviour ballBehaviour;
@@ -21,11 +21,7 @@ public class BallPickUp : NetworkBehaviour
         UpdateBallState();
     }
 
-    public void Activate()
-    {
-        gameObject.SetActive(true); // Activa el objeto del pickup
-        Debug.Log("BallPickup activado.");
-    }
+  
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_PickUp(NetworkObject player)
@@ -33,20 +29,20 @@ public class BallPickUp : NetworkBehaviour
         if (IsPickedUp) return;
       
         IsPickedUp = true;
-        //if (previousIsPickedUp != IsPickedUp)
-        //{
-        //    UpdateBallState();
-        //    previousIsPickedUp = IsPickedUp;
-        //}
+       
 
         RPC_UpdateBallState();
     }
 
+   
+
+   
+
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_Drop(NetworkObject player)
     {
-        //if (!IsPickedUp) return;
-
+        if (!IsPickedUp) return;
+        player.GetComponent<Player>().HasBall = false;
         IsPickedUp = false;
 
 
@@ -54,7 +50,7 @@ public class BallPickUp : NetworkBehaviour
       
     }
 
-
+   
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_UpdateBallState()
@@ -75,7 +71,7 @@ public class BallPickUp : NetworkBehaviour
                     playerComponent.RpcRequestSetSniper(true);
                     playerComponent.RpcRequestSetVictim(false);
                 }
-                else
+                else 
                 {
                     playerComponent.RpcRequestSetSniper(false);
                     playerComponent.RpcRequestSetVictim(true);

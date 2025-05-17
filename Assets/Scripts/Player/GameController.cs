@@ -26,8 +26,8 @@ using UnityEngine;
 		[Networked] private TickTimer Timer { get; set; }
 		[Networked] private GamePhase Phase { get; set; }
 		[Networked] private NetworkBehaviourId Winner { get; set; }
-		
-	    public bool GameIsRunning => Phase == GamePhase.Running;
+        [Networked] private NetworkBehaviourId Loser { get; set; }
+    public bool GameIsRunning => Phase == GamePhase.Running;
 
 
 		private TickTimer _dontCheckforWinTimer;
@@ -151,8 +151,8 @@ using UnityEngine;
 			// --- All clients
 			// Display the results and
 			// the remaining time until the current game session is shutdown
-			
-			if (Runner.TryFindBehaviour(Winner, out PlayerDataNetworked playerData) == false) return;
+			Debug.Log("udpate ending display!");
+        if (Runner.TryFindBehaviour(Winner, out PlayerDataNetworked playerData) == false) return;
 
 			_startEndDisplay.gameObject.SetActive(true);
 			_ingameTimerDisplay.gameObject.SetActive(false);
@@ -167,7 +167,25 @@ using UnityEngine;
 
         if (Timer.Expired(Runner))
 				Runner.Shutdown();
-		}
+
+        if (Object.HasStateAuthority)
+        {
+            if (Runner.TryFindBehaviour(Winner, out PlayerDataNetworked player))
+            {
+                var playerRef = GetPlayerRef(Winner);
+                RoomM.Instance.RPC_PlayerWin(playerRef);
+            }
+
+            if (Runner.TryFindBehaviour(Loser, out PlayerDataNetworked playerLoser))
+            {
+                var playerRef = GetPlayerRef(Loser);
+                RoomM.Instance.RPC_PlayerLose(playerRef);
+            }
+        }
+
+
+    }
+
    
     public void CheckIfGameHasEnded()
 		{
@@ -175,18 +193,20 @@ using UnityEngine;
 			
 			if (Timer.ExpiredOrNotRunning(Runner))
 			{
+			//si vencio el tiempo del juego
 				GameHasEnded();
 				return;
 			}
 
 			if (_dontCheckforWinTimer.Expired(Runner) == false)
 			{
+			//no terminar el juego tan pronton
 				return;
 			}
 			
 
 			int playersAlive = 0;
-			
+			//contabiliza jugadores vivos
 			for (int i = 0; i < _playerDataNetworkedIds.Count; i++)
 			{
 				if (Runner.TryFindBehaviour(_playerDataNetworkedIds[i],
@@ -201,7 +221,7 @@ using UnityEngine;
 			}
 			
 			
-			
+			//continuar o finalizar
 			if (playersAlive > 1 || (Runner.ActivePlayers.Count() == 1 && playersAlive == 1)) return;
 
 			foreach (var playerDataNetworkedId in _playerDataNetworkedIds)
@@ -210,11 +230,17 @@ using UnityEngine;
 					    out PlayerDataNetworked playerDataNetworkedComponent) ==
 				    false) continue;
 
-				if (playerDataNetworkedComponent.Lives > 0 == false) continue;
-
-				Winner = playerDataNetworkedId;
+				if (playerDataNetworkedComponent.Lives > 0 == true) 
+			    {
+                  Winner = playerDataNetworkedId;
+                }
+				else
+			    {
+                   Loser = playerDataNetworkedId;
+                }
+				
 			}
-
+			//ganador
 			if (Winner == default && _playerDataNetworkedIds.Count > 0) 
 			{
 				Winner = _playerDataNetworkedIds[0];
@@ -222,19 +248,28 @@ using UnityEngine;
 
 			GameHasEnded();
 		}
-		
-		private void GameHasEnded()
+    
+    private void GameHasEnded()
 		{
 			Timer = TickTimer.CreateFromSeconds(Runner, _endDelay);
 			Phase = GamePhase.Ending;
-		}
+       
+    }
+    private Dictionary<NetworkBehaviourId, PlayerRef> _playerRefMapping = new Dictionary<NetworkBehaviourId, PlayerRef>();
 
-		public void TrackNewPlayer(NetworkBehaviourId playerDataNetworkedId)
-		{
+    public void TrackNewPlayer(NetworkBehaviourId playerDataNetworkedId, PlayerRef playerRef)
+
+        {
 			_playerDataNetworkedIds.Add(playerDataNetworkedId);
-		}
+        _playerRefMapping[playerDataNetworkedId] = playerRef;
+    }
 
-		public void PlayerJoined(PlayerRef player)
+    private PlayerRef GetPlayerRef(NetworkBehaviourId id)
+    {
+        return _playerRefMapping.TryGetValue(id, out var playerRef) ? playerRef : default;
+    }
+
+    public void PlayerJoined(PlayerRef player)
 		{
         Debug.Log($"Player {player} joined. Current Phase: {Phase}");
         _dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 5);
