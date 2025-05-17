@@ -117,8 +117,7 @@ using UnityEngine;
         // --- All clients
         // Display the remaining time until the game starts in seconds (rounded down to the closest full second)
 
-        _startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
-        _startEndDisplay.gameObject.SetActive(true);
+      
         if (!Object.HasStateAuthority) 
 				return;
 
@@ -129,6 +128,13 @@ using UnityEngine;
 			// Starts the Spaceship and Asteroids spawners once the game start delay has expired
 			FindObjectOfType<RoomM>().StartRoom(this);
         Debug.Log("Game is now running!");
+		if(RoomM.Instance.isGameStart == true)
+		{
+
+            _startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
+            _startEndDisplay.gameObject.SetActive(true);
+        }
+           
         // Switches to the Running GameState and sets the time to the length of a game session
         Phase = GamePhase.Running;
 			Timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
@@ -156,7 +162,7 @@ using UnityEngine;
 
 			_startEndDisplay.gameObject.SetActive(true);
 			_ingameTimerDisplay.gameObject.SetActive(false);
-			_startEndDisplay.text = $"{playerData.NickName} won with {playerData.Score} points. Disconnecting in {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
+			
         // Recuperar el color del jugador desde PlayerPrefs
         string playerName = playerData.NickName;
         string colorString = PlayerPrefs.GetString(playerName + "_Color", "#FFFFFF");
@@ -178,6 +184,7 @@ using UnityEngine;
 
             if (Runner.TryFindBehaviour(Loser, out PlayerDataNetworked playerLoser))
             {
+                _startEndDisplay.text = $"{playerData.NickName} won with {playerData.Score} points. Disconnecting in {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
                 var playerRef = GetPlayerRef(Loser);
                 RoomM.Instance.RPC_PlayerLose(playerRef);
             }
