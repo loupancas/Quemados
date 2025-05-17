@@ -22,8 +22,10 @@ using UnityEngine;
 		[SerializeField] private TextMeshProUGUI _startEndDisplay;
 		[SerializeField] private TextMeshProUGUI _ingameTimerDisplay;
 		[SerializeField] private PlayerOverviewPanel _playerOverview;
+    [SerializeField] private UIManager _uiManager;
 
-		[Networked] private TickTimer Timer { get; set; }
+
+    [Networked] private TickTimer Timer { get; set; }
 		[Networked] private GamePhase Phase { get; set; }
 		[Networked] private NetworkBehaviourId Winner { get; set; }
         [Networked] private NetworkBehaviourId Loser { get; set; }
@@ -127,18 +129,20 @@ using UnityEngine;
 			// --- Master client
 			// Starts the Spaceship and Asteroids spawners once the game start delay has expired
 			FindObjectOfType<RoomM>().StartRoom(this);
-        Debug.Log("Game is now running!");
-		if(RoomM.Instance.isGameStart == true)
+		
+        //Debug.Log("Game is now running!");
+        if (_uiManager.texto == true)
 		{
 
             _startEndDisplay.text = $"Game Starts In {Mathf.RoundToInt(Timer.RemainingTime(Runner) ?? 0)}";
             _startEndDisplay.gameObject.SetActive(true);
+            // Switches to the Running GameState and sets the time to the length of a game session
+            Phase = GamePhase.Running;
+            Timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
+            _dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 50);
         }
            
-        // Switches to the Running GameState and sets the time to the length of a game session
-        Phase = GamePhase.Running;
-			Timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
-			_dontCheckforWinTimer = TickTimer.CreateFromSeconds(Runner, 175);
+       
 		}
 
 		private void UpdateRunningDisplay()

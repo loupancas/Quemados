@@ -12,10 +12,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _loseScreen;
     [SerializeField] private GameObject _startGameScreen;
     [SerializeField] private GameObject _infoPlayer;
-    [SerializeField] private GameObject _infoBall;
+    //[SerializeField] private GameObject _infoBall;
     [SerializeField] NetworkRunner runner;
     private PlayerRef player;
     [SerializeField] public GameObject readyButton;
+    public bool texto;
     private void Awake()
     {
       instance = this;
@@ -64,9 +65,10 @@ public class UIManager : MonoBehaviour
 
     public void StartGame()
     {
+        texto = true;
         //readyText.SetActive(false);
         _startGameScreen.SetActive(false);
-        _infoBall.SetActive(true);
+        //_infoBall.SetActive(true);
         _infoPlayer.SetActive(true);
     }
 
