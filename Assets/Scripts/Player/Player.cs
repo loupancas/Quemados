@@ -5,6 +5,7 @@ using UnityEngine;
 using Fusion;
 using Unity.VisualScripting;
 using System.Linq;
+using UnityEngine.Events;
 
 public class Player : NetworkBehaviour
 {
@@ -61,6 +62,10 @@ public class Player : NetworkBehaviour
     [SerializeField] private Transform _ballSpawnTransform;
     [SerializeField] private Ball2 _ballPrefab;
 
+    [SerializeField] AudioSource _audioSource;
+    [SerializeField] AudioClip jumpSound;
+
+    public UnityEvent OnJump;
 
     public override void Spawned()
     {
@@ -252,6 +257,7 @@ public class Player : NetworkBehaviour
 
     void Jump()
     {
+        OnJump?.Invoke();
         _rgbd.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
         //_verticalVelocity = _jumpForce;
         _animator.SetBool("Jumping", true);
@@ -373,4 +379,6 @@ public class Player : NetworkBehaviour
                 break;
         }
     }
+
+    
 }
