@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerMovement : NetworkBehaviour
 {
@@ -13,6 +14,8 @@ public class PlayerMovement : NetworkBehaviour
     public float JumpForce = 5f;
     public float GravityValue = -9.81f;
     public Camera Camera;
+
+    public UnityEvent OnJump;
 
     public override void Spawned()
     {
@@ -54,6 +57,7 @@ public class PlayerMovement : NetworkBehaviour
         _velocity.y += GravityValue * Runner.DeltaTime;
         if (_jumpPressed && _controller.isGrounded)
         {
+            OnJump?.Invoke();
             _velocity.y += JumpForce;
         }
         _controller.Move(move + _velocity * Runner.DeltaTime);
